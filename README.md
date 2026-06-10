@@ -20,6 +20,7 @@ The concept of modules allows them to be independently developed and maintained,
  * Menu items Navigation structure
  * Events
  * Shared components
+ * permissions
 
 ## AI
 It is designed for AI-driven development.

@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force-include utility classes used by @eappflow/ui-shell packages */
+.eaf-tailwind-include {
+  @apply bg-slate-900 text-white bg-slate-200 bg-slate-50 text-slate-900 text-slate-600 text-slate-500 text-slate-400 text-slate-700;
+  @apply hover:bg-slate-700 hover:bg-slate-100 hover:bg-slate-300;
+  @apply border-slate-200 border-slate-300;
+  @apply bg-blue-600 hover:bg-blue-700 focus:ring-blue-500;
+  @apply bg-red-600 hover:bg-red-700 focus:ring-red-500;
+  @apply bg-black/50 bg-transparent;
+  @apply placeholder:text-slate-400;
+  @apply focus:border-blue-500 focus:ring-blue-500 focus:border-red-500 focus:ring-red-500;
+  @apply text-red-500 text-red-600;
+  @apply lg:hidden;
+}

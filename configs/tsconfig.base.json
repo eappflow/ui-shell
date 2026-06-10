@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": {
+      "@eappflow/ui-shell": ["../packages/ui-shell/src"],
+      "@eappflow/ui-shell-components": ["../packages/ui-shell-components/src"],
+      "@eappflow/ui-shell-styles": ["../packages/ui-shell-styles/src"]
+    }
+  },
+  "vueCompilerOptions": {
+    "target": 3.5
+  },
+  "exclude": ["node_modules", "dist"]
+}

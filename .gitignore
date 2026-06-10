@@ -98,6 +98,11 @@ dist
 # Sveltekit cache directory
 .svelte-kit/
 
+# Monorepo
+.turbo
+*.local
+coverage/
+
 # vitepress build output
 **/.vitepress/dist
 
