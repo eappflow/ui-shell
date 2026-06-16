@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { NavigationItem } from "../types";
+import type { MenuItem, MenuModule } from "../types";
 
 export const useNavigationStore = defineStore("navigation", () => {
-  const items = ref<NavigationItem[]>([]);
+  const menuModules = ref<MenuModule[]>([]);
 
-  function setItems(newItems: NavigationItem[]) {
-    items.value = newItems;
+  function setMenuModules(modules: MenuModule[]) {
+    menuModules.value = modules;
   }
 
-  return { items, setItems };
+  return { menuModules, setMenuModules };
 });

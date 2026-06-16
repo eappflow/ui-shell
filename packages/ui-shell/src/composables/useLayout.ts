@@ -1,11 +1,16 @@
 import { inject, type InjectionKey } from "vue";
 import { useLayoutStore } from "../stores/useLayoutStore";
+import type { ThemeColorName } from "../types";
 
 export interface LayoutContext {
   sidebarCollapsed: boolean;
-  theme: "light" | "dark";
+  darkMode: boolean;
+  primaryColor: ThemeColorName;
   toggleSidebar: () => void;
-  setTheme: (theme: "light" | "dark") => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
+  toggleDarkMode: () => void;
+  setDarkMode: (enabled: boolean) => void;
+  setPrimaryColor: (color: ThemeColorName) => void;
 }
 
 export const LAYOUT_KEY: InjectionKey<LayoutContext> = Symbol("layout");
@@ -20,8 +25,12 @@ export function useLayout(): LayoutContext {
 
   return {
     sidebarCollapsed: store.sidebarCollapsed,
-    theme: store.theme,
+    darkMode: store.darkMode,
+    primaryColor: store.primaryColor,
     toggleSidebar: store.toggleSidebar,
-    setTheme: store.setTheme,
+    setSidebarCollapsed: store.setSidebarCollapsed,
+    toggleDarkMode: store.toggleDarkMode,
+    setDarkMode: store.setDarkMode,
+    setPrimaryColor: store.setPrimaryColor,
   };
 }

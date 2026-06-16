@@ -1,32 +1,19 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { AppLayout, useNavigationStore } from "@eappflow/ui-shell";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { AppLayout } from "@eappflow/ui-shell";
 import "./assets/main.css";
 
-const navigationStore = useNavigationStore();
-
-onMounted(() => {
-    navigationStore.setItems([
-        { label: "Dashboard", to: "/", icon: "📊" },
-        { label: "Settings", to: "/settings", icon: "⚙️" },
-    ]);
-});
+const route = useRoute();
+const isPublicRoute = computed(() => route.meta?.public === true);
 </script>
 
 <template>
-    <AppLayout>
+    <!-- Public routes (login, password reset) render standalone -->
+    <router-view v-if="isPublicRoute" />
+
+    <!-- Protected routes render inside AppLayout -->
+    <AppLayout v-else>
         <router-view />
     </AppLayout>
 </template>
-
-<style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>
-
-<style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>

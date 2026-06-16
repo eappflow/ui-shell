@@ -4,8 +4,15 @@ import { useAuthStore } from "../stores/useAuthStore";
 export interface AuthContext {
   user: ReturnType<typeof useAuthStore>["user"];
   isAuthenticated: ReturnType<typeof useAuthStore>["isAuthenticated"];
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  userPermissions: ReturnType<typeof useAuthStore>["userPermissions"];
+  userName: ReturnType<typeof useAuthStore>["userName"];
+  login: (login: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  restorePassword: (email: string) => Promise<void>;
+  recoverPassword: (token: string, newPassword: string) => Promise<void>;
+  hasPermission: (permission: string) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
+  hasAllPermissions: (permissions: string[]) => boolean;
 }
 
 export const AUTH_KEY: InjectionKey<AuthContext> = Symbol("auth");
@@ -21,7 +28,14 @@ export function useAuth(): AuthContext {
   return {
     user: store.user,
     isAuthenticated: store.isAuthenticated,
+    userPermissions: store.userPermissions,
+    userName: store.userName,
     login: store.login,
     logout: store.logout,
+    restorePassword: store.restorePassword,
+    recoverPassword: store.recoverPassword,
+    hasPermission: store.hasPermission,
+    hasAnyPermission: store.hasAnyPermission,
+    hasAllPermissions: store.hasAllPermissions,
   };
 }

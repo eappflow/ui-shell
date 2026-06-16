@@ -14,6 +14,8 @@
     "vue-router": "^4.5.0",
     "pinia": "^2.2.0",
     "primevue": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "@primeuix/themes": "^2.0.0",
     "@eappflow/ui-shell": "workspace:*",
     "@eappflow/ui-shell-components": "workspace:*",
     "@eappflow/ui-shell-styles": "workspace:*"

@@ -1,10 +1,10 @@
 import { inject, type InjectionKey } from "vue";
 import { useNavigationStore } from "../stores/useNavigationStore";
-import type { NavigationItem } from "../types";
+import type { MenuModule } from "../types";
 
 export interface NavigationContext {
-  items: NavigationItem[];
-  setItems: (items: NavigationItem[]) => void;
+  menuModules: MenuModule[];
+  setMenuModules: (modules: MenuModule[]) => void;
 }
 
 export const NAVIGATION_KEY: InjectionKey<NavigationContext> = Symbol("navigation");
@@ -18,7 +18,7 @@ export function useNavigation(): NavigationContext {
   }
 
   return {
-    items: store.items,
-    setItems: store.setItems,
+    menuModules: store.menuModules,
+    setMenuModules: store.setMenuModules,
   };
 }
