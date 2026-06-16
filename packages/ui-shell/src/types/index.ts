@@ -1,5 +1,8 @@
 // ─── Shared types for the UI Shell ───────────────────────────────────────────
 
+import type { RouteRecordRaw } from 'vue-router'
+import type { App } from 'vue'
+
 /** User permission (opaque string — defined by host app) */
 export type Permission = string
 
@@ -138,16 +141,56 @@ export interface ToastMessage {
   life?: number
 }
 
-export interface ValidationMessage {
-  message: string
-  validationErrors: string[]
-  severity?: 'error' | 'warn' | 'info' | 'success'
-}
-
 // ─── App Config ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
   name: string
   version: string
-  environment: string
+  environment?: string
+}
+
+// ─── Plugin System ───────────────────────────────────────────────────────────
+
+/**
+ * Standard plugin interface for eAppFlow modules.
+ *
+ * Each module (e.g. Identity, Sales, Administration) implements this
+ * interface to contribute routes, menu items, permissions and optionally
+ * an install hook to the shell.
+ */
+export interface EafPlugin {
+  /** Unique plugin identifier (e.g. "identity") */
+  id: string
+  /** Human-readable plugin name */
+  name: string
+  /** Plugin version */
+  version?: string
+  /** Vue Router routes contributed by this plugin */
+  routes?: RouteRecordRaw[]
+  /** Menu modules contributed by this plugin */
+  menuModules?: MenuModule[]
+  /** Permissions declared by this plugin (for documentation / validation) */
+  permissions?: Permission[]
+  /**
+   * Optional install hook called when the plugin is registered.
+   * Use this to provide DI keys, register components, etc.
+   */
+  install?(app: App, config?: unknown): void | Promise<void>
+}
+
+export interface PluginRegistrationResult {
+  /** All routes collected from plugins */
+  routes: RouteRecordRaw[]
+  /** All menu modules collected from plugins */
+  menuModules: MenuModule[]
+  /** All permissions collected from plugins (deduplicated) */
+  permissions: Permission[]
+  /** IDs of all registered plugins */
+  pluginIds: string[]
+}
+
+export interface ValidationMessage {
+  message: string
+  validationErrors: string[]
+  severity?: 'error' | 'warn' | 'info' | 'success'
 }

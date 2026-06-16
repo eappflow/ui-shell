@@ -5,6 +5,10 @@ export { default as AppHeader } from "./components/AppHeader.vue";
 export { default as AppFooter } from "./components/AppFooter.vue";
 export { default as AppMainMenu } from "./components/AppMainMenu.vue";
 
+// ─── Layouts (route-level layout wrappers) ──────────────────────────────────
+export { default as AuthorizedLayout } from "./layouts/AuthorizedLayout.vue";
+export { default as UnauthorizedLayout } from "./layouts/UnauthorizedLayout.vue";
+
 // ─── Form Components ────────────────────────────────────────────────────────
 export { default as FormItem } from "./components/FormItem.vue";
 export { default as FormValidationSummary } from "./components/FormValidationSummary.vue";
@@ -27,6 +31,10 @@ export { useActionValidation } from "./composables/useActionValidation";
 // ─── Router / Guards ────────────────────────────────────────────────────────
 export { createNavigationGuards } from "./router/navigationGuards";
 export { createPublicRoutes } from "./router/publicRoutes";
+export { buildPluginRoutes } from "./router/buildPluginRoutes";
+
+// ─── Plugins / Registry ─────────────────────────────────────────────────────
+export { configurePlugins } from "./plugins";
 
 // ─── Stores ─────────────────────────────────────────────────────────────────
 export { useAuthStore } from "./stores/useAuthStore";
@@ -44,6 +52,7 @@ export {
   AUTH_SERVICE_KEY,
   MENU_SERVICE_KEY,
   THEME_SERVICE_KEY,
+  APP_CONFIG_KEY,
 } from "./services/interfaces";
 export { createDefaultAuthService } from "./services/defaultAuthService";
 export { createDefaultMenuService, createStaticMenuService } from "./services/defaultMenuService";
@@ -71,6 +80,8 @@ export type {
   ToastMessage,
   ValidationMessage,
   AppConfig,
+  EafPlugin,
+  PluginRegistrationResult,
 } from "./types";
 export {
   THEME_COLORS,

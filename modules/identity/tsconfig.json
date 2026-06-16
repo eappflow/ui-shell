@@ -1,0 +1,10 @@
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

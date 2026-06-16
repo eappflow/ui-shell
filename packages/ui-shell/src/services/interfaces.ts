@@ -18,7 +18,9 @@ import type {
   ChangePasswordRequest,
   MenuModule,
   ThemeSettings,
+  AppConfig,
 } from '../types'
+import type { InjectionKey } from 'vue'
 
 // ─── Auth Service ────────────────────────────────────────────────────────────
 
@@ -64,8 +66,7 @@ export interface ThemeService {
 
 // ─── Injection Keys ──────────────────────────────────────────────────────────
 
-import type { InjectionKey } from 'vue'
-
 export const AUTH_SERVICE_KEY: InjectionKey<AuthService> = Symbol('authService')
 export const MENU_SERVICE_KEY: InjectionKey<MenuService> = Symbol('menuService')
 export const THEME_SERVICE_KEY: InjectionKey<ThemeService> = Symbol('themeService')
+export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol('appConfig')

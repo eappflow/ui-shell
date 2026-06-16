@@ -15,6 +15,10 @@ export default defineConfig({
         __dirname,
         "../../packages/ui-shell-styles/src",
       ),
+      "@eappflow/identity": resolve(
+        __dirname,
+        "../../modules/identity/src",
+      ),
     },
   },
 });

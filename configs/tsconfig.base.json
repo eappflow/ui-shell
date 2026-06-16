@@ -14,7 +14,8 @@
     "paths": {
       "@eappflow/ui-shell": ["../packages/ui-shell/src"],
       "@eappflow/ui-shell-components": ["../packages/ui-shell-components/src"],
-      "@eappflow/ui-shell-styles": ["../packages/ui-shell-styles/src"]
+      "@eappflow/ui-shell-styles": ["../packages/ui-shell-styles/src"],
+      "@eappflow/identity": ["../modules/identity/src"]
     }
   },
   "vueCompilerOptions": {

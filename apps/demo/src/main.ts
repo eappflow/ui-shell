@@ -16,55 +16,69 @@ import Aura from '@primeuix/themes/aura';
 import {
   createNavigationGuards,
   createPublicRoutes,
+  buildPluginRoutes,
+  configurePlugins,
   AUTH_SERVICE_KEY,
-  MENU_SERVICE_KEY,
-  useNavigationStore,
+  APP_CONFIG_KEY,
+  AuthorizedLayout,
   ChangePasswordView,
   NoAccessView,
 } from "@eappflow/ui-shell";
+import { createIdentityPlugin } from "@eappflow/identity";
 import { createFakeAuthService } from "./services/fakeAuthService";
-import { createFakeMenuService } from "./services/fakeMenuService";
 import { DEMO_CONFIG } from "./config/app";
 
 import App from "./App.vue";
 
 // ─── DI: Wire fake services ──────────────────────────────────────────────────
 const authService = createFakeAuthService();
-const menuService = createFakeMenuService();
 
-// ─── Router ──────────────────────────────────────────────────────────────────
+// ─── Define plugins ──────────────────────────────────────────────────────────
+const identityPlugin = createIdentityPlugin({
+  appName: DEMO_CONFIG.name,
+});
+
+const eAppFlowPlugins = [
+  identityPlugin,
+  // Additional plugins can be added here:
+  // { id: "sales", name: "Sales", ... },
+  // { id: "administration", name: "Administration", ... },
+];
+
+// ─── Router with component-layout pattern ────────────────────────────────────
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    // Public routes (no auth) — delivered by ui-shell
-    ...createPublicRoutes(),
-    // Protected routes
-    {
-      path: "/",
-      component: () => import("./pages/Dashboard.vue"),
-      name: "dashboard",
-    },
-    {
-      path: "/employees",
-      name: "employees",
-      component: () => import("./pages/EmployeesView.vue"),
-    },
-    {
-      path: "/settings",
-      name: "settings",
-      component: () => import("./pages/Settings.vue"),
-    },
-    {
-      path: "/change-password",
-      name: "change-password",
-      component: ChangePasswordView,
-    },
-    {
-      path: "/no-access",
-      name: "no-access",
-      component: NoAccessView,
-    },
-  ],
+  routes: buildPluginRoutes(eAppFlowPlugins, {
+    layout: AuthorizedLayout,
+    publicRoutes: createPublicRoutes(),
+    extraRoutes: [
+      {
+        path: "",
+        name: "dashboard",
+        component: () => import("./pages/Dashboard.vue"),
+      },
+      {
+        path: "employees",
+        name: "employees",
+        component: () => import("./pages/EmployeesView.vue"),
+      },
+      {
+        path: "settings",
+        name: "settings",
+        component: () => import("./pages/Settings.vue"),
+      },
+      {
+        path: "change-password",
+        name: "change-password",
+        component: ChangePasswordView,
+      },
+      {
+        path: "no-access",
+        name: "no-access",
+        component: NoAccessView,
+      },
+    ],
+  }),
 });
 
 // ─── Guards ──────────────────────────────────────────────────────────────────
@@ -80,11 +94,10 @@ app.use(pinia);
 
 // Provide services via DI before using any store
 app.provide(AUTH_SERVICE_KEY, authService);
-app.provide(MENU_SERVICE_KEY, menuService);
+app.provide(APP_CONFIG_KEY, DEMO_CONFIG);
 
-// Initialize menu from fake service
-const navStore = useNavigationStore();
-navStore.setMenuModules(menuService.getMenu());
+// Register plugins (collects routes, menus, permissions)
+configurePlugins(eAppFlowPlugins, app, router);
 
 app.use(router);
 

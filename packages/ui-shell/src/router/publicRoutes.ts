@@ -1,3 +1,4 @@
+import { UnauthorizedLayout } from "@eappflow/ui-shell";
 import type { RouteRecordRaw } from "vue-router";
 
 /**
@@ -24,20 +25,41 @@ export function createPublicRoutes(): RouteRecordRaw[] {
   return [
     {
       path: "/login",
-      name: "login",
-      component: () => import("../views/LoginView.vue"),
+      component: UnauthorizedLayout,
+      children: [
+      {
+        path: '',
+        name: 'login',
+        component: () => import("../views/LoginView.vue"),
+        meta: { requiresAuth: false },
+      },
+      ],
       meta: { public: true },
     },
     {
       path: "/restore-password",
-      name: "restore-password",
-      component: () => import("../views/RestorePasswordView.vue"),
+      component: UnauthorizedLayout,
+      children: [
+      {
+        path: '',
+        name: 'restore-password',
+        component: () => import("../views/RestorePasswordView.vue"),
+        meta: { requiresAuth: false },
+      },
+      ],
       meta: { public: true },
     },
     {
       path: "/recover-password/:token?",
-      name: "recover-password",
-      component: () => import("../views/RecoverPasswordView.vue"),
+      component: UnauthorizedLayout,
+      children: [
+      {
+        path: '',
+        name: 'recover-password',
+        component: () => import("../views/RecoverPasswordView.vue"),
+        meta: { requiresAuth: false },
+      },
+      ],
       meta: { public: true },
     },
   ];
