@@ -1,1 +1,1 @@
-export { configurePlugins } from "./registry";
+export { configureModules } from "./registry";

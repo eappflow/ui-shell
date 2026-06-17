@@ -16,15 +16,15 @@ import Aura from '@primeuix/themes/aura';
 import {
   createNavigationGuards,
   createPublicRoutes,
-  buildPluginRoutes,
-  configurePlugins,
+  buildModuleRoutes,
+  configureModules,
   AUTH_SERVICE_KEY,
   APP_CONFIG_KEY,
   AuthorizedLayout,
   ChangePasswordView,
   NoAccessView,
 } from "@eappflow/ui-shell";
-import { createIdentityPlugin } from "@eappflow/identity";
+import { createIdentityModule } from "@eappflow/identity";
 import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
 
@@ -33,14 +33,14 @@ import App from "./App.vue";
 // ─── DI: Wire fake services ──────────────────────────────────────────────────
 const authService = createFakeAuthService();
 
-// ─── Define plugins ──────────────────────────────────────────────────────────
-const identityPlugin = createIdentityPlugin({
+// ─── Define modules ──────────────────────────────────────────────────────────
+const identityModule = createIdentityModule({
   appName: DEMO_CONFIG.name,
 });
 
-const eAppFlowPlugins = [
-  identityPlugin,
-  // Additional plugins can be added here:
+const eAppFlowModules = [
+  identityModule,
+  // Additional modules can be added here:
   // { id: "sales", name: "Sales", ... },
   // { id: "administration", name: "Administration", ... },
 ];
@@ -48,7 +48,7 @@ const eAppFlowPlugins = [
 // ─── Router with component-layout pattern ────────────────────────────────────
 const router = createRouter({
   history: createWebHistory(),
-  routes: buildPluginRoutes(eAppFlowPlugins, {
+  routes: buildModuleRoutes(eAppFlowModules, {
     layout: AuthorizedLayout,
     publicRoutes: createPublicRoutes(),
     extraRoutes: [
@@ -96,8 +96,8 @@ app.use(pinia);
 app.provide(AUTH_SERVICE_KEY, authService);
 app.provide(APP_CONFIG_KEY, DEMO_CONFIG);
 
-// Register plugins (collects routes, menus, permissions)
-configurePlugins(eAppFlowPlugins, app, router);
+// Register modules (collects routes, menus, permissions)
+configureModules(eAppFlowModules, app, router);
 
 app.use(router);
 

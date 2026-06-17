@@ -1,8 +1,8 @@
 /**
- * Build a route tree from plugins using a component-layout pattern.
+ * Build a route tree from modules using a component-layout pattern.
  *
  * Public routes (login, password recovery) are registered at the root level
- * without the layout wrapper. All plugin routes (and optionally extra routes)
+ * without the layout wrapper. All module routes (and optionally extra routes)
  * are nested under a single layout route (e.g. AuthorizedLayout).
  *
  * Example output:
@@ -12,16 +12,16 @@
  * /                   → AuthorizedLayout
  *   /dashboard        → Dashboard (child)
  *   /employees        → EmployeesView (child)
- *   /users            → UsersView (child — from identity plugin)
+ *   /users            → UsersView (child — from identity module)
  *   /settings         → Settings (child)
  * ```
  */
 
 import type { Component } from "vue";
 import type { RouteRecordRaw } from "vue-router";
-import type { EafPlugin } from "../types";
+import type { EafModule } from "../types";
 
-export interface BuildPluginRoutesOptions {
+export interface BuildModuleRoutesOptions {
   /**
    * The layout component that wraps all protected routes.
    * Typically `AuthorizedLayout` from the shell.
@@ -52,15 +52,15 @@ export interface BuildPluginRoutesOptions {
 }
 
 /**
- * Build a route tree from a list of plugins.
+ * Build a route tree from a list of modules.
  *
- * @param plugins - Registered EafPlugin instances (containing `routes`)
+ * @param modules - Registered EafModule instances (containing `routes`)
  * @param options - Layout, public routes, extra routes
  * @returns       - Complete route tree array
  */
-export function buildPluginRoutes(
-  plugins: EafPlugin[],
-  options: BuildPluginRoutesOptions,
+export function buildModuleRoutes(
+  modules: EafModule[],
+  options: BuildModuleRoutesOptions,
 ): RouteRecordRaw[] {
   const {
     layout,
@@ -70,13 +70,13 @@ export function buildPluginRoutes(
     layoutName = "app-layout",
   } = options;
 
-  // Collect all plugin routes
-  const pluginRoutes: RouteRecordRaw[] = [];
-  for (const plugin of plugins) {
-    if (plugin.routes) {
-      for (const route of plugin.routes) {
-        const meta = { ...route.meta, pluginId: plugin.id };
-        pluginRoutes.push({ ...route, meta });
+  // Collect all module routes
+  const moduleRoutes: RouteRecordRaw[] = [];
+  for (const mod of modules) {
+    if (mod.routes) {
+      for (const route of mod.routes) {
+        const meta = { ...route.meta, moduleId: mod.id };
+        moduleRoutes.push({ ...route, meta });
       }
     }
   }
@@ -86,7 +86,7 @@ export function buildPluginRoutes(
     path: layoutPath,
     name: layoutName,
     component: layout,
-    children: [...pluginRoutes, ...extraRoutes],
+    children: [...moduleRoutes, ...extraRoutes],
   };
 
   return [...publicRoutes, layoutRoute];

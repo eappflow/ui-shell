@@ -149,44 +149,44 @@ export interface AppConfig {
   environment?: string
 }
 
-// ─── Plugin System ───────────────────────────────────────────────────────────
+// ─── Module System ───────────────────────────────────────────────────────────
 
 /**
- * Standard plugin interface for eAppFlow modules.
+ * Standard module interface for eAppFlow modules.
  *
  * Each module (e.g. Identity, Sales, Administration) implements this
  * interface to contribute routes, menu items, permissions and optionally
  * an install hook to the shell.
  */
-export interface EafPlugin {
-  /** Unique plugin identifier (e.g. "identity") */
+export interface EafModule {
+  /** Unique module identifier (e.g. "identity") */
   id: string
-  /** Human-readable plugin name */
+  /** Human-readable module name */
   name: string
-  /** Plugin version */
+  /** Module version */
   version?: string
-  /** Vue Router routes contributed by this plugin */
+  /** Vue Router routes contributed by this module */
   routes?: RouteRecordRaw[]
-  /** Menu modules contributed by this plugin */
+  /** Menu modules contributed by this module */
   menuModules?: MenuModule[]
-  /** Permissions declared by this plugin (for documentation / validation) */
+  /** Permissions declared by this module (for documentation / validation) */
   permissions?: Permission[]
   /**
-   * Optional install hook called when the plugin is registered.
+   * Optional install hook called when the module is registered.
    * Use this to provide DI keys, register components, etc.
    */
   install?(app: App, config?: unknown): void | Promise<void>
 }
 
-export interface PluginRegistrationResult {
-  /** All routes collected from plugins */
+export interface ModuleRegistrationResult {
+  /** All routes collected from modules */
   routes: RouteRecordRaw[]
-  /** All menu modules collected from plugins */
+  /** All menu modules collected from modules */
   menuModules: MenuModule[]
-  /** All permissions collected from plugins (deduplicated) */
+  /** All permissions collected from modules (deduplicated) */
   permissions: Permission[]
-  /** IDs of all registered plugins */
-  pluginIds: string[]
+  /** IDs of all registered modules */
+  moduleIds: string[]
 }
 
 export interface ValidationMessage {

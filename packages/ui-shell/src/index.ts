@@ -31,10 +31,10 @@ export { useActionValidation } from "./composables/useActionValidation";
 // ─── Router / Guards ────────────────────────────────────────────────────────
 export { createNavigationGuards } from "./router/navigationGuards";
 export { createPublicRoutes } from "./router/publicRoutes";
-export { buildPluginRoutes } from "./router/buildPluginRoutes";
+export { buildModuleRoutes } from "./router/buildModuleRoutes";
 
-// ─── Plugins / Registry ─────────────────────────────────────────────────────
-export { configurePlugins } from "./plugins";
+// ─── Module Registry ─────────────────────────────────────────────────────
+export { configureModules } from "./plugins";
 
 // ─── Stores ─────────────────────────────────────────────────────────────────
 export { useAuthStore } from "./stores/useAuthStore";
@@ -80,8 +80,8 @@ export type {
   ToastMessage,
   ValidationMessage,
   AppConfig,
-  EafPlugin,
-  PluginRegistrationResult,
+  EafModule,
+  ModuleRegistrationResult,
 } from "./types";
 export {
   THEME_COLORS,

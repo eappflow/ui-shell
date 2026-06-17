@@ -1,20 +1,20 @@
 /**
- * Identity Plugin — @eappflow/identity
+ * Identity Module — @eappflow/identity
  *
  * Provides user management routes, menu items, and permissions
  * for the eAppFlow UI Shell.
  */
 
-import type { EafPlugin, MenuModule } from "@eappflow/ui-shell";
+import type { EafModule, MenuModule } from "@eappflow/ui-shell";
 import type { IdentityConfig } from "./types";
 import { IDENTITY_CONFIG_KEY } from "./types";
 
 /**
- * Creates the Identity plugin instance.
+ * Creates the Identity module instance.
  *
  * @param config - Optional identity configuration
  */
-export function createIdentityPlugin(config?: IdentityConfig): EafPlugin {
+export function createIdentityModule(config?: IdentityConfig): EafModule {
   return {
     id: "identity",
     name: "Identity",

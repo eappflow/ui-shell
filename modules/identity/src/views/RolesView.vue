@@ -12,7 +12,7 @@ import Card from "primevue/card";
                 <div class="p-8 text-center text-surface-500">
                     <i class="pi pi-shield text-4xl mb-4 block"></i>
                     <p class="text-lg">Role management is available in the full application.</p>
-                    <p class="mt-2">This view is provided by the Identity plugin.</p>
+                    <p class="mt-2">This view is provided by the Identity module.</p>
                 </div>
             </template>
         </Card>
