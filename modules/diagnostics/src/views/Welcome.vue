@@ -13,7 +13,7 @@ import Card from "primevue/card";
                 </div>
             </template>
             <template #content>
-                <p class="text-lg text-muted-color mb-3 bg-red-500">
+                <p class="text-lg text-muted-color mb-3">
                     <strong>eAppFlow</strong> is a powerful management platform for enterprise Solutions.
                 </p>
                 <p class="text-muted-color">
