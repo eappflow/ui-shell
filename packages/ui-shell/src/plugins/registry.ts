@@ -80,6 +80,22 @@ export function configureModules(
 
   navigationStore.setMenuModules(merged);
 
+  // Store module registration metadata for diagnostics
+  const modulePermissionsMap: Record<string, string[]> = {};
+  for (const mod of modules) {
+    if (mod.permissions) {
+      modulePermissionsMap[mod.id] = [...mod.permissions];
+    } else {
+      modulePermissionsMap[mod.id] = [];
+    }
+  }
+
+  navigationStore.setModuleRegistrationInfo({
+    moduleIds,
+    modulePermissions: modulePermissionsMap,
+    registeredPermissions: Array.from(allPermissions),
+  });
+
   return {
     routes: allRoutes,
     menuModules: merged,
