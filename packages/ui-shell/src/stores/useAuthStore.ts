@@ -62,7 +62,10 @@ export const useAuthStore = defineStore("auth", () => {
     await authService.requestPasswordReset({ email });
   }
 
-  async function recoverPassword(token: string, newPassword: string): Promise<void> {
+  async function recoverPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
     await authService.confirmPasswordReset({ token, newPassword });
   }
 
@@ -95,6 +98,8 @@ export const useAuthStore = defineStore("auth", () => {
       }
     }
   }
+  // Initialize on store creation
+  initializeFromStorage();
 
   return {
     user,

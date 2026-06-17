@@ -20,7 +20,11 @@
 
 import { type App as VueApp, type Component } from "vue";
 import { createPinia } from "pinia";
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 import type { EafModule, AppConfig, NavigationGuardOptions } from "./types";
 import {
   AUTH_SERVICE_KEY,

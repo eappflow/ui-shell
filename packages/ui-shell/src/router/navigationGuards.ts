@@ -19,7 +19,12 @@ export function createNavigationGuards(
   router: Router,
   options: NavigationGuardOptions = {},
 ) {
-  const { requireAuth = true, loginRoute = "/login", forbiddenRoute = "/no-access" } = options;
+  debugger;
+  const {
+    requireAuth = true,
+    loginRoute = "/login",
+    forbiddenRoute = "/no-access",
+  } = options;
 
   router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore();
