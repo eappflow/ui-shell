@@ -4,8 +4,8 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{vue,ts}",
-    "../../packages/**/src/**/*.{vue,ts}",
-    "../../modules/**/src/**/*.{vue,ts}",
+    "../../packages/*/src/**/*.{vue,ts}",
+    "../../modules/*/src/**/*.{vue,ts}",
   ],
   safelist: [
     "bg-slate-900",

@@ -1,5 +1,5 @@
-import type { MenuService } from './interfaces'
-import type { EafMenuModule } from '@eappflow/ui-shell-core'
+import type { MenuService } from "./interfaces";
+import type { EafMenuModule } from "../types";
 
 /**
  * Default menu service — returns an empty menu.
@@ -9,7 +9,7 @@ import type { EafMenuModule } from '@eappflow/ui-shell-core'
 export function createDefaultMenuService(): MenuService {
   return {
     getMenu: () => [],
-  }
+  };
 }
 
 /**
@@ -20,5 +20,5 @@ export function createDefaultMenuService(): MenuService {
 export function createStaticMenuService(menu: EafMenuModule[]): MenuService {
   return {
     getMenu: () => menu,
-  }
+  };
 }

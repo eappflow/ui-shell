@@ -15,7 +15,7 @@ export interface LayoutContext {
 
 export const LAYOUT_KEY: InjectionKey<LayoutContext> = Symbol("layout");
 
-export function useLayout(): LayoutContext {
+export function useEafLayout(): LayoutContext {
   const store = useLayoutStore();
   const injected = inject<LayoutContext | null>(LAYOUT_KEY, null);
 

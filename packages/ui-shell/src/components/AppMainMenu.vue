@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useAuth } from "../composables/useAuth";
-import { useNavigation } from "../composables/useNavigation";
+import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
-import type { EafMenuItem } from "@eappflow/ui-shell-core";
+import type { EafMenuItem } from "../types";
+import { useEafNavigation } from "../composables/useEafNavigation";
 
 const router = useRouter();
 const route = useRoute();
-const auth = useAuth();
-const navigation = useNavigation();
+const auth = useEafAuth();
+const navigation = useEafNavigation();
 
 const props = defineProps<{
     compact?: boolean;

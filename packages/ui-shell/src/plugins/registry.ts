@@ -8,9 +8,9 @@
 
 import type { App } from "vue";
 import type { Router } from "vue-router";
-import { useEafNavigationStore } from "@eappflow/ui-shell-core";
+import { useEafNavigationStore } from "../stores/useEafNavigationStore";
 import type { EafModule, ModuleRegistrationResult } from "../types";
-import type { EafMenuModule } from "@eappflow/ui-shell-core";
+import type { EafMenuModule } from "../types";
 
 /**
  * Register a list of modules with the shell.

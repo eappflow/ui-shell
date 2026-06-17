@@ -17,7 +17,7 @@ export interface AuthContext {
 
 export const AUTH_KEY: InjectionKey<AuthContext> = Symbol("auth");
 
-export function useAuth(): AuthContext {
+export function useEafAuth(): AuthContext {
   const store = useAuthStore();
   const injected = inject<AuthContext | null>(AUTH_KEY, null);
 

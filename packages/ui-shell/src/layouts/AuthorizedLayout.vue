@@ -7,16 +7,16 @@ import Drawer from 'primevue/drawer'
 import Popover from 'primevue/popover'
 import Toast from 'primevue/toast'
 import ConfirmDialog from 'primevue/confirmdialog'
-import { useAuth } from '../composables/useAuth'
-import { useLayout } from '../composables/useLayout'
+import { useEafAuth } from '../composables/useEafAuth'
+import { useEafLayout } from '../composables/useEafLayout'
 import { APP_CONFIG_KEY } from '../services/interfaces'
 import type { MenuItem as PrimeMenuItem } from 'primevue/menuitem'
 import { THEME_COLORS, type ThemeColorName } from '../types'
 import AppMainMenu from '../components/AppMainMenu.vue'
 
 const router = useRouter()
-const auth = useAuth()
-const layout = useLayout()
+const auth = useEafAuth()
+const layout = useEafLayout()
 const appConfig = inject(APP_CONFIG_KEY, { name: 'App', version: '0.0.0' })
 
 // Sidebar state

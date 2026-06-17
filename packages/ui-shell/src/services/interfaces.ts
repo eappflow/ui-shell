@@ -18,55 +18,58 @@ import type {
   ChangePasswordRequest,
   ThemeSettings,
   AppConfig,
-} from '../types'
-import type { EafMenuModule } from '@eappflow/ui-shell-core'
-import type { InjectionKey } from 'vue'
+} from "../types";
+import type { EafMenuModule } from "../types";
+import type { InjectionKey } from "vue";
 
 // ─── Auth Service ────────────────────────────────────────────────────────────
 
 export interface AuthService {
   /** Authenticate user with credentials */
-  login(request: LoginRequest): Promise<AuthResult>
+  login(request: LoginRequest): Promise<AuthResult>;
 
   /** Logout current user */
-  logout(): Promise<void>
+  logout(): Promise<void>;
 
   /** Get current authenticated user data */
-  getCurrentUser(): Promise<User>
+  getCurrentUser(): Promise<User>;
 
   /** Request password reset email */
-  requestPasswordReset(request: PasswordResetRequest): Promise<void>
+  requestPasswordReset(request: PasswordResetRequest): Promise<void>;
 
   /** Confirm password reset with token */
-  confirmPasswordReset(request: PasswordResetConfirm): Promise<void>
+  confirmPasswordReset(request: PasswordResetConfirm): Promise<void>;
 
   /** Change password for authenticated user */
-  changePassword(request: ChangePasswordRequest): Promise<void>
+  changePassword(request: ChangePasswordRequest): Promise<void>;
 }
 
 // ─── Menu Service ────────────────────────────────────────────────────────────
 
 export interface MenuService {
   /** Get menu structure (optionally filtered by permissions) */
-  getMenu(): EafMenuModule[]
+  getMenu(): EafMenuModule[];
 }
 
 // ─── Theme Service ───────────────────────────────────────────────────────────
 
 export interface ThemeService {
   /** Get saved theme settings (from localStorage or remote) */
-  getSettings(): ThemeSettings
+  getSettings(): ThemeSettings;
 
   /** Persist theme settings */
-  saveSettings(settings: ThemeSettings): void
+  saveSettings(settings: ThemeSettings): void;
 
   /** Apply theme to the DOM */
-  applyTheme(settings: ThemeSettings): void
+  applyTheme(settings: ThemeSettings): void;
 }
 
 // ─── Injection Keys ──────────────────────────────────────────────────────────
 
-export const AUTH_SERVICE_KEY: InjectionKey<AuthService> = Symbol('authService')
-export const MENU_SERVICE_KEY: InjectionKey<MenuService> = Symbol('menuService')
-export const THEME_SERVICE_KEY: InjectionKey<ThemeService> = Symbol('themeService')
-export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol('appConfig')
+export const AUTH_SERVICE_KEY: InjectionKey<AuthService> =
+  Symbol("authService");
+export const MENU_SERVICE_KEY: InjectionKey<MenuService> =
+  Symbol("menuService");
+export const THEME_SERVICE_KEY: InjectionKey<ThemeService> =
+  Symbol("themeService");
+export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol("appConfig");

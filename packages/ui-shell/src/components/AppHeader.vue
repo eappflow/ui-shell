@@ -4,14 +4,14 @@ import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import Popover from "primevue/popover";
-import { useAuth } from "../composables/useAuth";
-import { useLayout } from "../composables/useLayout";
+import { useEafAuth } from "../composables/useEafAuth";
+import { useEafLayout } from "../composables/useEafLayout";
 import { THEME_COLORS, type ThemeColorName } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 
 const router = useRouter();
-const auth = useAuth();
-const layout = useLayout();
+const auth = useEafAuth();
+const layout = useEafLayout();
 
 const emit = defineEmits<{
     toggleSidebar: [];

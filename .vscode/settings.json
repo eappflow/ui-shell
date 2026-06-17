@@ -18,5 +18,44 @@
     },
     "chat.tools.terminal.autoApprove": {
         "pnpm": true
-    }
+    },
+     "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.turbo": true,
+    "**/.output": true,
+    "**/.nuxt": true,
+    "**/.vite": true,
+    "**/.cache": true,
+    "**/.github": true,
+    "**/.vscode": true,
+    "**/.husky": true,
+    "**/package-lock.json": true,
+    "**/*.d.ts": true,
+    "**/*.d.js": true,
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.turbo": true,
+    "**/.output": true
+  },
+   "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/.git/**": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {    
+    "tsconfig.json": "tsconfig.*.json",
+    ".env": ".env.*",
+    "package.json": ".*, tsconfig.json, eslint.config.js, package.json, vitest.workspace.ts, pnpm-workspace.yaml, postcss.*.js, postcss.*.ts, *.config.ts, package-lock.json, pnpm-lock.yaml, yarn.lock,tsconfig.base.json",
+    "Readme.md": "Readme.*.md, License"
+ }
 }

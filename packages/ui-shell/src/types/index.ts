@@ -1,71 +1,65 @@
-// ─── Shared types for the UI Shell ───────────────────────────────────────────
-
-import type { RouteRecordRaw } from 'vue-router'
-import type { App } from 'vue'
-import type { Permission, EafMenuModule, NavigationGuardOptions, AppConfig } from '@eappflow/ui-shell-core'
-
-// ─── Re-exports from core ────────────────────────────────────────────────────
-export type { Permission, EafMenuModule, NavigationGuardOptions, AppConfig }
+import type { RouteRecordRaw } from "vue-router";
+import type { App } from "vue";
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
 export interface User {
-  id: string
-  login: string
-  firstName: string
-  lastName: string
-  email?: string
-  permissions: Permission[]
-  tenantId?: string
+  id: string;
+  login: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  permissions: Permission[];
+  tenantId?: string;
 }
 
 export interface AuthState {
-  user: User | null
-  isAuthenticated: boolean
-  accessToken: string | null
+  user: User | null;
+  isAuthenticated: boolean;
+  accessToken: string | null;
 }
 
 // ─── Auth requests / responses ───────────────────────────────────────────────
 
 export interface LoginRequest {
-  login: string
-  password: string
+  login: string;
+  password: string;
 }
 
 export interface AuthResult {
-  accessToken: string
+  accessToken: string;
 }
 
 export interface PasswordResetRequest {
-  email: string
+  email: string;
 }
 
 export interface PasswordResetConfirm {
-  token: string
-  newPassword: string
+  token: string;
+  newPassword: string;
 }
 
 export interface ChangePasswordRequest {
-  currentPassword: string
-  newPassword: string
+  currentPassword: string;
+  newPassword: string;
 }
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
 export interface ThemeSettings {
-  darkMode: boolean
-  primaryColor: ThemeColorName
+  darkMode: boolean;
+  primaryColor: ThemeColorName;
 }
 
 export const THEME_COLORS = {
-  blue: '#3B82F6',
-  green: '#10B981',
-  purple: '#8B5CF6',
-  orange: '#F59E0B',
-  red: '#EF4444',
-} as const
+  blue: "#3B82F6",
+  green: "#10B981",
+  purple: "#8B5CF6",
+  orange: "#F59E0B",
+  red: "#EF4444",
+} as const;
 
-export type ThemeColorName = keyof typeof THEME_COLORS
+export type ThemeColorName = keyof typeof THEME_COLORS;
 
 // ─── Module System ───────────────────────────────────────────────────────────
 
@@ -78,31 +72,97 @@ export type ThemeColorName = keyof typeof THEME_COLORS
  */
 export interface EafModule {
   /** Unique module identifier (e.g. "identity") */
-  id: string
+  id: string;
   /** Human-readable module name */
-  name: string
+  name: string;
   /** Module version */
-  version?: string
+  version?: string;
   /** Vue Router routes contributed by this module */
-  routes?: RouteRecordRaw[]
+  routes?: RouteRecordRaw[];
   /** Menu modules contributed by this module */
-  menuModules?: EafMenuModule[]
+  menuModules?: EafMenuModule[];
   /** Permissions declared by this module (for documentation / validation) */
-  permissions?: Permission[]
+  permissions?: Permission[];
   /**
    * Optional install hook called when the module is registered.
    * Use this to provide DI keys, register components, etc.
    */
-  install?(app: App, config?: unknown): void | Promise<void>
+  install?(app: App, config?: unknown): void | Promise<void>;
 }
 
 export interface ModuleRegistrationResult {
   /** All routes collected from modules */
-  routes: RouteRecordRaw[]
+  routes: RouteRecordRaw[];
   /** All menu modules collected from modules */
-  menuModules: EafMenuModule[]
+  menuModules: EafMenuModule[];
   /** All permissions collected from modules (deduplicated) */
-  permissions: Permission[]
+  permissions: Permission[];
   /** IDs of all registered modules */
-  moduleIds: string[]
+  moduleIds: string[];
 }
+
+// ─── Shared core types for the eAppFlow UI Shell ─────────────────────────
+
+import type { InjectionKey } from "vue";
+
+/** Common permission type (opaque string — defined by host app) */
+export type Permission = string;
+
+// ─── Navigation / Menu ───────────────────────────────────────────────────────
+
+export interface EafMenuItem {
+  name: string;
+  icon?: string;
+  path: string;
+  component?: () => Promise<unknown>;
+  permissions?: Permission[];
+  isVisible?: (userPermissions: Permission[]) => boolean;
+}
+
+export interface EafMenuModule {
+  name: string;
+  icon: string;
+  items: EafMenuItem[];
+  isVisible?: (userPermissions: Permission[]) => boolean;
+}
+
+export interface EafFilteredMenuModule {
+  name: string;
+  icon: string;
+  items: EafMenuItem[];
+}
+
+// ─── Navigation guard ────────────────────────────────────────────────────────
+
+export interface NavigationGuardOptions {
+  requireAuth?: boolean;
+  loginRoute?: string;
+  forbiddenRoute?: string;
+}
+
+// ─── Messages / Toast ────────────────────────────────────────────────────────
+
+export interface ToastMessage {
+  severity: "success" | "info" | "warn" | "error";
+  summary: string;
+  detail: string;
+  life?: number;
+}
+
+// ─── App Config ──────────────────────────────────────────────────────────────
+
+export interface AppConfig {
+  name: string;
+  version: string;
+  environment?: string;
+}
+
+// ─── Validation ──────────────────────────────────────────────────────────────
+
+export interface ValidationMessage {
+  message: string;
+  validationErrors: string[];
+  severity?: "error" | "warn" | "info" | "success";
+}
+
+// ─── Re-exports from core ────────────────────────────────────────────────────

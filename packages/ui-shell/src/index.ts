@@ -1,4 +1,3 @@
-// ─── Re-exports from @eappflow/ui-shell-core ─────────────────────────────────
 // Types
 export type {
   Permission,
@@ -8,24 +7,7 @@ export type {
   NavigationGuardOptions,
   ToastMessage,
   ValidationMessage,
-} from "@eappflow/ui-shell-core";
-
-// Backward-compatible aliases
-/** @deprecated Use {@link EafMenuItem} instead */
-export type { EafMenuItem as MenuItem } from "@eappflow/ui-shell-core";
-/** @deprecated Use {@link EafMenuModule} instead */
-export type { EafMenuModule as MenuModule } from "@eappflow/ui-shell-core";
-/** @deprecated Use {@link EafFilteredMenuModule} instead */
-export type { EafFilteredMenuModule as FilteredMenuModule } from "@eappflow/ui-shell-core";
-
-// Stores
-export { useEafNavigationStore } from "@eappflow/ui-shell-core";
-/** @deprecated Use {@link useEafNavigationStore} instead */
-export { useEafNavigationStore as useNavigationStore } from "@eappflow/ui-shell-core";
-
-// Composables
-export { useEafNavigation } from "@eappflow/ui-shell-core";
-export type { EafNavigationContext } from "@eappflow/ui-shell-core";
+} from "./types";
 
 // Utils
 export {
@@ -36,7 +18,7 @@ export {
   filterVisibleMenuItems,
   isMenuItemVisible,
   hasAnyPermission,
-} from "@eappflow/ui-shell-core";
+} from "./utils";
 
 // ─── Router / Guards ────────────────────────────────────────────────────────
 export { createNavigationGuards } from "./router/navigationGuards";
@@ -67,8 +49,16 @@ export {
   APP_CONFIG_KEY,
 } from "./services/interfaces";
 export { createDefaultAuthService } from "./services/defaultAuthService";
-export { createDefaultMenuService, createStaticMenuService } from "./services/defaultMenuService";
+export {
+  createDefaultMenuService,
+  createStaticMenuService,
+} from "./services/defaultMenuService";
 export { createDefaultThemeService } from "./services/defaultThemeService";
+
+// ─── Composables ───────────────────────────────────────────────────────────
+export { useEafAuth as useAuth } from "./composables/useEafAuth";
+export { useEafNavigation } from "./composables/useEafNavigation";
+export { useEafLayout as useLayout } from "./composables/useEafLayout";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
@@ -85,6 +75,4 @@ export type {
   EafModule,
   ModuleRegistrationResult,
 } from "./types";
-export {
-  THEME_COLORS,
-} from "./types";
+export { THEME_COLORS } from "./types";

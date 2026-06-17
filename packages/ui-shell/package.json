@@ -27,8 +27,7 @@
   "dependencies": {
     "mitt": "^3.0.0",
     "primevue": "^4.0.0",
-    "primeicons": "^7.0.0",
-    "@eappflow/ui-shell-core": "workspace:*"
+    "primeicons": "^7.0.0"
   },
   "peerDependencies": {
     "vue": "^3.5.0",
@@ -36,8 +35,7 @@
     "pinia": "^2.2.0",
     "primevue": "^4.0.0",
     "primeicons": "^7.0.0",
-    "@eappflow/ui-shell-components": "workspace:*",
-    "@eappflow/ui-shell-core": "workspace:*"
+    "@eappflow/ui-shell-components": "workspace:*"
   },
   "devDependencies": {
     "@eappflow/ui-shell-components": "workspace:*",

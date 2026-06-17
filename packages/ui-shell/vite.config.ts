@@ -18,7 +18,6 @@ export default defineConfig({
         "pinia",
         "primevue",
         "@eappflow/ui-shell-components",
-        "@eappflow/ui-shell-core",
       ],
       output: {
         globals: {

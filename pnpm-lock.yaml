@@ -132,9 +132,6 @@ importers:
 
   packages/ui-shell:
     dependencies:
-      '@eappflow/ui-shell-core':
-        specifier: workspace:*
-        version: link:../ui-shell-core
       mitt:
         specifier: ^3.0.0
         version: 3.0.1
@@ -196,37 +193,6 @@ importers:
       vue:
         specifier: ^3.5.0
         version: 3.5.35(typescript@5.7.3)
-      vue-tsc:
-        specifier: ^2.2.0
-        version: 2.2.12(typescript@5.7.3)
-
-  packages/ui-shell-core:
-    dependencies:
-      mitt:
-        specifier: ^3.0.0
-        version: 3.0.1
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.2.0
-        version: 5.2.4(vite@6.4.3(@types/node@25.9.2)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.7.3))
-      pinia:
-        specifier: ^2.2.0
-        version: 2.3.1(typescript@5.7.3)(vue@3.5.35(typescript@5.7.3))
-      typescript:
-        specifier: ~5.7.0
-        version: 5.7.3
-      vite:
-        specifier: ^6.1.0
-        version: 6.4.3(@types/node@25.9.2)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.9.0)
-      vitest:
-        specifier: ^3.0.0
-        version: 3.2.6(@types/node@25.9.2)(jiti@1.21.7)(jsdom@29.1.1)(lightningcss@1.32.0)(yaml@2.9.0)
-      vue:
-        specifier: ^3.5.0
-        version: 3.5.35(typescript@5.7.3)
-      vue-router:
-        specifier: ^4.5.0
-        version: 4.6.4(vue@3.5.35(typescript@5.7.3))
       vue-tsc:
         specifier: ^2.2.0
         version: 2.2.12(typescript@5.7.3)
