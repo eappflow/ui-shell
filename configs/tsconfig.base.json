@@ -10,13 +10,7 @@
     "esModuleInterop": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "noEmit": true,
-    "paths": {
-      "@eappflow/ui-shell": ["../packages/ui-shell/src"],
-      "@eappflow/ui-shell-components": ["../packages/ui-shell-components/src"],
-      "@eappflow/ui-shell-styles": ["../packages/ui-shell-styles/src"],
-      "@eappflow/diagnostics": ["../modules/diagnostics/src"]
-    }
+    "noEmit": true
   },
   "vueCompilerOptions": {
     "target": 3.5

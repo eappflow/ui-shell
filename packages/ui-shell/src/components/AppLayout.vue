@@ -9,19 +9,18 @@ import { useAuth } from "../composables/useAuth";
 import { useNavigation } from "../composables/useNavigation";
 import { useLayout } from "../composables/useLayout";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useMessageStore } from "../stores/useMessageStore";
+import { useEafMessageStore, EafActionValidationMessage } from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
 import { watch } from "vue";
 import Toast from "primevue/toast";
 import ConfirmDialog from "primevue/confirmdialog";
-import ActionValidationMessage from "./ActionValidationMessage.vue";
 
 const router = useRouter();
 const auth = useAuth();
 const navigation = useNavigation();
 const layout = useLayout();
 const authStore = useAuthStore();
-const messageStore = useMessageStore();
+const messageStore = useEafMessageStore();
 const toast = useToast();
 
 // Subscribe to message store and display toasts
@@ -64,7 +63,7 @@ async function handleLogout() {
             <main class="app-layout-content flex-1 overflow-y-auto p-1 md:p-2">
                 <!-- Global Action Validation Message -->
                 <div class="w-full max-w-4xl mx-auto px-1 md:px-4 mb-2">
-                    <ActionValidationMessage />
+                    <EafActionValidationMessage />
                 </div>
                 <slot />
             </main>

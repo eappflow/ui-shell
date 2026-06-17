@@ -2,9 +2,10 @@
 
 import type { RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue'
+import type { Permission, EafMenuModule, NavigationGuardOptions, AppConfig } from '@eappflow/ui-shell-core'
 
-/** User permission (opaque string — defined by host app) */
-export type Permission = string
+// ─── Re-exports from core ────────────────────────────────────────────────────
+export type { Permission, EafMenuModule, NavigationGuardOptions, AppConfig }
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
@@ -49,38 +50,6 @@ export interface ChangePasswordRequest {
   newPassword: string
 }
 
-// ─── Navigation / Menu ───────────────────────────────────────────────────────
-
-export interface MenuItem {
-  name: string
-  icon?: string
-  path: string
-  component?: () => Promise<unknown>
-  permissions?: Permission[]
-  isVisible?: (userPermissions: Permission[]) => boolean
-}
-
-export interface MenuModule {
-  name: string
-  icon: string
-  items: MenuItem[]
-  isVisible?: (userPermissions: Permission[]) => boolean
-}
-
-export interface FilteredMenuModule {
-  name: string
-  icon: string
-  items: MenuItem[]
-}
-
-// ─── Navigation guard ────────────────────────────────────────────────────────
-
-export interface NavigationGuardOptions {
-  requireAuth?: boolean
-  loginRoute?: string
-  forbiddenRoute?: string
-}
-
 // ─── Theme ───────────────────────────────────────────────────────────────────
 
 export interface ThemeSettings {
@@ -97,57 +66,6 @@ export const THEME_COLORS = {
 } as const
 
 export type ThemeColorName = keyof typeof THEME_COLORS
-
-// ─── API Error ───────────────────────────────────────────────────────────────
-
-export interface ApiErrorResponse {
-  success: boolean
-  code: string
-  message: string
-  traceId: string
-  validationErrors?: Record<string, string[]>
-  details?: unknown
-}
-
-// ─── Form Validation ─────────────────────────────────────────────────────────
-
-export interface FormValidation {
-  registerField: (fieldName: string) => void
-  unregisterField: (fieldName: string) => void
-  setFieldError: (fieldName: string, messages: string | string[]) => void
-  getFieldError: (fieldName: string) => string | string[] | undefined
-  hasFieldError: (fieldName: string) => boolean
-  clearErrors: () => void
-  clearFieldError: (fieldName: string) => void
-  hasErrors: () => boolean
-  handleApiError: (error: unknown) => boolean
-  /** General validation message (may be a Ref — unwrap when reading) */
-  generalMessage: unknown
-  /** Summary errors list (may be a Ref — unwrap when reading) */
-  summaryErrors: unknown
-}
-
-export interface ValidationConfig {
-  registeredFields?: string[]
-  showAllErrors?: boolean
-}
-
-// ─── Messages / Toast ────────────────────────────────────────────────────────
-
-export interface ToastMessage {
-  severity: 'success' | 'info' | 'warn' | 'error'
-  summary: string
-  detail: string
-  life?: number
-}
-
-// ─── App Config ──────────────────────────────────────────────────────────────
-
-export interface AppConfig {
-  name: string
-  version: string
-  environment?: string
-}
 
 // ─── Module System ───────────────────────────────────────────────────────────
 
@@ -168,7 +86,7 @@ export interface EafModule {
   /** Vue Router routes contributed by this module */
   routes?: RouteRecordRaw[]
   /** Menu modules contributed by this module */
-  menuModules?: MenuModule[]
+  menuModules?: EafMenuModule[]
   /** Permissions declared by this module (for documentation / validation) */
   permissions?: Permission[]
   /**
@@ -182,15 +100,9 @@ export interface ModuleRegistrationResult {
   /** All routes collected from modules */
   routes: RouteRecordRaw[]
   /** All menu modules collected from modules */
-  menuModules: MenuModule[]
+  menuModules: EafMenuModule[]
   /** All permissions collected from modules (deduplicated) */
   permissions: Permission[]
   /** IDs of all registered modules */
   moduleIds: string[]
-}
-
-export interface ValidationMessage {
-  message: string
-  validationErrors: string[]
-  severity?: 'error' | 'warn' | 'info' | 'success'
 }

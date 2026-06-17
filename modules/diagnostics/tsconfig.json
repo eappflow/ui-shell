@@ -4,7 +4,13 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": false,
+    "paths": {
+      "@/*": ["../../packages/ui-shell-components/src/*"],
+      "@eappflow/ui-shell": ["../../packages/ui-shell/src"],
+      "@eappflow/ui-shell-components": ["../../packages/ui-shell-components/src"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

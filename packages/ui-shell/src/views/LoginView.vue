@@ -5,15 +5,13 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useFormValidation } from "../composables/useFormValidation";
-import FormItem from "../components/FormItem.vue";
-import FormValidationSummary from "../components/FormValidationSummary.vue";
+import { useEafFormValidation, EafFormItem, EafFormValidationSummary } from "@eappflow/ui-shell-components";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
-const $f = useFormValidation();
+const $f = useEafFormValidation();
 const login = ref("");
 const password = ref("");
 const loading = ref(false);
@@ -66,15 +64,15 @@ async function handleLogin(): Promise<void> {
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-6">
-            <FormValidationSummary :form="$f" />
+            <EafFormValidationSummary :form="$f" />
 
-            <FormItem field="login" label="Login" :form="$f" :required="true">
+            <EafFormItem field="login" label="Login" :form="$f" :required="true">
                 <InputText v-model="login" placeholder="Enter your login" :disabled="loading" class="w-full" autocomplete="username" />
-            </FormItem>
+            </EafFormItem>
 
-            <FormItem field="password" label="Password" :form="$f" :required="true">
+            <EafFormItem field="password" label="Password" :form="$f" :required="true">
                 <Password v-model="password" placeholder="Enter your password" :disabled="loading" :feedback="false" toggleMask class="w-full" inputClass="w-full" autocomplete="current-password" />
-            </FormItem>
+            </EafFormItem>
 
             <div class="text-right">
                 <router-link to="/restore-password" class="text-sm text-primary hover:underline">

@@ -33,7 +33,7 @@ export function createFakeAuthService(): AuthService {
         firstName: "Demo",
         lastName: "User",
         email: "demo@eappflow.io",
-        permissions: [
+        permissions: [          
           "Documents",
           "Employees",
           "Locations",

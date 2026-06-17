@@ -8,8 +8,9 @@
 
 import type { App } from "vue";
 import type { Router } from "vue-router";
-import { useNavigationStore } from "../stores/useNavigationStore";
-import type { EafModule, ModuleRegistrationResult, MenuModule } from "../types";
+import { useEafNavigationStore } from "@eappflow/ui-shell-core";
+import type { EafModule, ModuleRegistrationResult } from "../types";
+import type { EafMenuModule } from "@eappflow/ui-shell-core";
 
 /**
  * Register a list of modules with the shell.
@@ -65,8 +66,8 @@ export function configureModules(
   }
 
   // Merge all menu modules into the navigation store
-  const navigationStore = useNavigationStore();
-  const merged: MenuModule[] = [];
+  const navigationStore = useEafNavigationStore();
+  const merged: EafMenuModule[] = [];
 
   for (const mod of allMenuModules) {
     const existing = merged.find((m) => m.name === mod.name);

@@ -1,4 +1,4 @@
-import { UnauthorizedLayout } from "@eappflow/ui-shell";
+import  UnauthorizedLayout  from "../layouts/UnauthorizedLayout.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 /**

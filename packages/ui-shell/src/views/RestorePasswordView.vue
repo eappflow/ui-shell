@@ -5,14 +5,12 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useFormValidation } from "../composables/useFormValidation";
-import FormItem from "../components/FormItem.vue";
-import FormValidationSummary from "../components/FormValidationSummary.vue";
+import { useEafFormValidation, EafFormItem, EafFormValidationSummary } from "@eappflow/ui-shell-components";
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-const $f = useFormValidation();
+const $f = useEafFormValidation();
 const email = ref("");
 const loading = ref(false);
 const success = ref(false);
@@ -57,11 +55,11 @@ function goToLogin() {
         </div>
 
         <form v-if="!success" @submit.prevent="handleRestorePassword" class="space-y-6">
-            <FormValidationSummary :form="$f" />
+            <EafFormValidationSummary :form="$f" />
 
-            <FormItem field="email" label="Email" :form="$f" :required="true">
+            <EafFormItem field="email" label="Email" :form="$f" :required="true">
                 <InputText v-model="email" type="email" placeholder="Enter your email" :disabled="loading" class="w-full" autocomplete="email" />
-            </FormItem>
+            </EafFormItem>
 
             <Button type="submit" label="Send Reset Link" :loading="loading" class="w-full" size="large" />
 

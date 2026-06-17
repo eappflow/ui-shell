@@ -16,10 +16,10 @@ import type {
   PasswordResetRequest,
   PasswordResetConfirm,
   ChangePasswordRequest,
-  MenuModule,
   ThemeSettings,
   AppConfig,
 } from '../types'
+import type { EafMenuModule } from '@eappflow/ui-shell-core'
 import type { InjectionKey } from 'vue'
 
 // ─── Auth Service ────────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ export interface AuthService {
 
 export interface MenuService {
   /** Get menu structure (optionally filtered by permissions) */
-  getMenu(): MenuModule[]
+  getMenu(): EafMenuModule[]
 }
 
 // ─── Theme Service ───────────────────────────────────────────────────────────

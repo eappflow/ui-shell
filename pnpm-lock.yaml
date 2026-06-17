@@ -62,9 +62,6 @@ importers:
       '@eappflow/ui-shell-components':
         specifier: workspace:*
         version: link:../../packages/ui-shell-components
-      '@eappflow/ui-shell-styles':
-        specifier: workspace:*
-        version: link:../../packages/ui-shell-styles
       '@primeuix/themes':
         specifier: ^2.0.0
         version: 2.0.3
@@ -135,6 +132,9 @@ importers:
 
   packages/ui-shell:
     dependencies:
+      '@eappflow/ui-shell-core':
+        specifier: workspace:*
+        version: link:../ui-shell-core
       mitt:
         specifier: ^3.0.0
         version: 3.0.1
@@ -148,9 +148,6 @@ importers:
       '@eappflow/ui-shell-components':
         specifier: workspace:*
         version: link:../ui-shell-components
-      '@eappflow/ui-shell-styles':
-        specifier: workspace:*
-        version: link:../ui-shell-styles
       '@vitejs/plugin-vue':
         specifier: ^5.2.0
         version: 5.2.4(vite@6.4.3(@types/node@25.9.2)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.7.3))
@@ -178,12 +175,12 @@ importers:
 
   packages/ui-shell-components:
     devDependencies:
-      '@eappflow/ui-shell-styles':
-        specifier: workspace:*
-        version: link:../ui-shell-styles
       '@vitejs/plugin-vue':
         specifier: ^5.2.0
         version: 5.2.4(vite@6.4.3(@types/node@25.9.2)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.7.3))
+      pinia:
+        specifier: ^2.2.0
+        version: 2.3.1(typescript@5.7.3)(vue@3.5.35(typescript@5.7.3))
       primevue:
         specifier: ^4.0.0
         version: 4.5.5(vue@3.5.35(typescript@5.7.3))
@@ -203,11 +200,18 @@ importers:
         specifier: ^2.2.0
         version: 2.2.12(typescript@5.7.3)
 
-  packages/ui-shell-styles:
+  packages/ui-shell-core:
+    dependencies:
+      mitt:
+        specifier: ^3.0.0
+        version: 3.0.1
     devDependencies:
-      tailwindcss:
-        specifier: ^3.4.0
-        version: 3.4.19(yaml@2.9.0)
+      '@vitejs/plugin-vue':
+        specifier: ^5.2.0
+        version: 5.2.4(vite@6.4.3(@types/node@25.9.2)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.9.0))(vue@3.5.35(typescript@5.7.3))
+      pinia:
+        specifier: ^2.2.0
+        version: 2.3.1(typescript@5.7.3)(vue@3.5.35(typescript@5.7.3))
       typescript:
         specifier: ~5.7.0
         version: 5.7.3
@@ -217,6 +221,12 @@ importers:
       vitest:
         specifier: ^3.0.0
         version: 3.2.6(@types/node@25.9.2)(jiti@1.21.7)(jsdom@29.1.1)(lightningcss@1.32.0)(yaml@2.9.0)
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.35(typescript@5.7.3)
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.6.4(vue@3.5.35(typescript@5.7.3))
       vue-tsc:
         specifier: ^2.2.0
         version: 2.2.12(typescript@5.7.3)

@@ -1,16 +1,16 @@
 import { inject, type InjectionKey } from "vue";
-import { useNavigationStore } from "../stores/useNavigationStore";
-import type { MenuModule } from "../types";
+import { useEafNavigationStore } from "@eappflow/ui-shell-core";
+import type { EafMenuModule } from "@eappflow/ui-shell-core";
 
 export interface NavigationContext {
-  menuModules: MenuModule[];
-  setMenuModules: (modules: MenuModule[]) => void;
+  menuModules: EafMenuModule[];
+  setMenuModules: (modules: EafMenuModule[]) => void;
 }
 
 export const NAVIGATION_KEY: InjectionKey<NavigationContext> = Symbol("navigation");
 
 export function useNavigation(): NavigationContext {
-  const store = useNavigationStore();
+  const store = useEafNavigationStore();
   const injected = inject<NavigationContext | null>(NAVIGATION_KEY, null);
 
   if (injected) {

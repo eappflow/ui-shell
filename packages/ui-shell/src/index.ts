@@ -1,32 +1,42 @@
-// ─── Layout Components ──────────────────────────────────────────────────────
-export { default as AppLayout } from "./components/AppLayout.vue";
-export { default as AppSidebar } from "./components/AppSidebar.vue";
-export { default as AppHeader } from "./components/AppHeader.vue";
-export { default as AppFooter } from "./components/AppFooter.vue";
-export { default as AppMainMenu } from "./components/AppMainMenu.vue";
+// ─── Re-exports from @eappflow/ui-shell-core ─────────────────────────────────
+// Types
+export type {
+  Permission,
+  EafMenuItem,
+  EafMenuModule,
+  EafFilteredMenuModule,
+  NavigationGuardOptions,
+  ToastMessage,
+  ValidationMessage,
+} from "@eappflow/ui-shell-core";
 
-// ─── Layouts (route-level layout wrappers) ──────────────────────────────────
-export { default as AuthorizedLayout } from "./layouts/AuthorizedLayout.vue";
-export { default as UnauthorizedLayout } from "./layouts/UnauthorizedLayout.vue";
+// Backward-compatible aliases
+/** @deprecated Use {@link EafMenuItem} instead */
+export type { EafMenuItem as MenuItem } from "@eappflow/ui-shell-core";
+/** @deprecated Use {@link EafMenuModule} instead */
+export type { EafMenuModule as MenuModule } from "@eappflow/ui-shell-core";
+/** @deprecated Use {@link EafFilteredMenuModule} instead */
+export type { EafFilteredMenuModule as FilteredMenuModule } from "@eappflow/ui-shell-core";
 
-// ─── Form Components ────────────────────────────────────────────────────────
-export { default as FormItem } from "./components/FormItem.vue";
-export { default as FormValidationSummary } from "./components/FormValidationSummary.vue";
-export { default as ActionValidationMessage } from "./components/ActionValidationMessage.vue";
+// Stores
+export { useEafNavigationStore } from "@eappflow/ui-shell-core";
+/** @deprecated Use {@link useEafNavigationStore} instead */
+export { useEafNavigationStore as useNavigationStore } from "@eappflow/ui-shell-core";
 
-// ─── Auth Views ─────────────────────────────────────────────────────────────
-export { default as LoginView } from "./views/LoginView.vue";
-export { default as RestorePasswordView } from "./views/RestorePasswordView.vue";
-export { default as RecoverPasswordView } from "./views/RecoverPasswordView.vue";
-export { default as ChangePasswordView } from "./views/ChangePasswordView.vue";
-export { default as NoAccessView } from "./views/NoAccessView.vue";
+// Composables
+export { useEafNavigation } from "@eappflow/ui-shell-core";
+export type { EafNavigationContext } from "@eappflow/ui-shell-core";
 
-// ─── Composables ────────────────────────────────────────────────────────────
-export { useAuth } from "./composables/useAuth";
-export { useNavigation } from "./composables/useNavigation";
-export { useLayout } from "./composables/useLayout";
-export { useFormValidation } from "./composables/useFormValidation";
-export { useActionValidation } from "./composables/useActionValidation";
+// Utils
+export {
+  SHELL_VERSION,
+  STORAGE_KEYS,
+  eventBus,
+  filterVisibleMenuModules,
+  filterVisibleMenuItems,
+  isMenuItemVisible,
+  hasAnyPermission,
+} from "@eappflow/ui-shell-core";
 
 // ─── Router / Guards ────────────────────────────────────────────────────────
 export { createNavigationGuards } from "./router/navigationGuards";
@@ -38,9 +48,7 @@ export { configureModules } from "./plugins";
 
 // ─── Stores ─────────────────────────────────────────────────────────────────
 export { useAuthStore } from "./stores/useAuthStore";
-export { useNavigationStore } from "./stores/useNavigationStore";
 export { useLayoutStore } from "./stores/useLayoutStore";
-export { useMessageStore } from "./stores/useMessageStore";
 
 // ─── Services / DI ──────────────────────────────────────────────────────────
 export type {
@@ -66,23 +74,13 @@ export { createDefaultThemeService } from "./services/defaultThemeService";
 export type {
   User,
   AuthState,
-  Permission,
   LoginRequest,
   AuthResult,
   PasswordResetRequest,
   PasswordResetConfirm,
   ChangePasswordRequest,
-  MenuItem,
-  MenuModule,
-  FilteredMenuModule,
-  NavigationGuardOptions,
   ThemeSettings,
   ThemeColorName,
-  ApiErrorResponse,
-  FormValidation,
-  ValidationConfig,
-  ToastMessage,
-  ValidationMessage,
   AppConfig,
   EafModule,
   ModuleRegistrationResult,
@@ -90,12 +88,3 @@ export type {
 export {
   THEME_COLORS,
 } from "./types";
-
-// ─── Utils ──────────────────────────────────────────────────────────────────
-export { SHELL_VERSION, STORAGE_KEYS } from "./utils/constants";
-export {
-  filterVisibleMenuModules,
-  filterVisibleMenuItems,
-  isMenuItemVisible,
-  hasAnyPermission,
-} from "./utils/permissions";

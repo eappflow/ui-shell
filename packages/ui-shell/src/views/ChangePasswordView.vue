@@ -6,14 +6,12 @@ import Password from "primevue/password";
 import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useFormValidation } from "../composables/useFormValidation";
-import FormItem from "../components/FormItem.vue";
-import FormValidationSummary from "../components/FormValidationSummary.vue";
+import { useEafFormValidation, EafFormItem, EafFormValidationSummary } from "@eappflow/ui-shell-components";
 
 const authStore = useAuthStore();
 const toast = useToast();
 
-const $f = useFormValidation();
+const $f = useEafFormValidation();
 const loading = ref(false);
 const currentPassword = ref("");
 const newPassword = ref("");
@@ -101,24 +99,30 @@ async function handleChangePassword() {
                         Your password has been changed successfully!
                     </Message>
 
-                    <FormValidationSummary :form="$f" />
+                    <EafFormValidationSummary :form="$f" />
 
                     <Message severity="info" :closable="false">
                         For security reasons, you will need to use your new password for future logins.
                     </Message>
 
-                    <FormItem field="currentPassword" label="Current Password" :form="$f" :required="true">
-                        <Password v-model="currentPassword" :disabled="loading" placeholder="Enter your current password" :feedback="false" toggleMask />
-                    </FormItem>
+                    <EafFormValidationSummary :form="$f" />
 
-                    <FormItem field="newPassword" label="New Password" :form="$f" :required="true">
+                    <Message severity="info" :closable="false">
+                        For security reasons, you will need to use your new password for future logins.
+                    </Message>
+
+                    <EafFormItem field="currentPassword" label="Current Password" :form="$f" :required="true">
+                        <Password v-model="currentPassword" :disabled="loading" placeholder="Enter your current password" :feedback="false" toggleMask />
+                    </EafFormItem>
+
+                    <EafFormItem field="newPassword" label="New Password" :form="$f" :required="true">
                         <Password v-model="newPassword" :disabled="loading" placeholder="Enter your new password" :feedback="true" toggleMask />
                         <small class="text-surface-500">Minimum 6 characters required</small>
-                    </FormItem>
+                    </EafFormItem>
 
-                    <FormItem field="confirmPassword" label="Confirm New Password" :form="$f" :required="true">
+                    <EafFormItem field="confirmPassword" label="Confirm New Password" :form="$f" :required="true">
                         <Password v-model="confirmPassword" :disabled="loading" placeholder="Confirm your new password" :feedback="false" toggleMask />
-                    </FormItem>
+                    </EafFormItem>
 
                     <div class="flex justify-end gap-3 pt-4">
                         <Button label="Cancel" severity="secondary" outlined @click="resetForm" :disabled="loading" />

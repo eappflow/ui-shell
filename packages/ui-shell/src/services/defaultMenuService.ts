@@ -1,5 +1,5 @@
 import type { MenuService } from './interfaces'
-import type { MenuModule } from '../types'
+import type { EafMenuModule } from '@eappflow/ui-shell-core'
 
 /**
  * Default menu service — returns an empty menu.
@@ -17,7 +17,7 @@ export function createDefaultMenuService(): MenuService {
  * Useful when the menu structure is known at build time,
  * which is the most common case.
  */
-export function createStaticMenuService(menu: MenuModule[]): MenuService {
+export function createStaticMenuService(menu: EafMenuModule[]): MenuService {
   return {
     getMenu: () => menu,
   }

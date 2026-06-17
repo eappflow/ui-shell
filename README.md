@@ -8,7 +8,6 @@ It contains application structure for business applications, and also provides a
 ## Packages:
 @eappflow/ui-shell - The main package that contains the UI Shell components and layout. Main flow for authentication, navigation, and layout.
 @eappflow/ui-shell-components - A package that contains reusable UI components that can be used within the UI Shell. These components include buttons, forms, modals, and other common UI elements.
-@eappflow/ui-shell-styles - A package that contains the styles and themes for the UI Shell. This includes CSS files, theme configurations, and other styling resources.
 
 ## Concept:
 The libraries deliver configurable and extensible UI components that can be easily integrated into different applications. The UI Shell provides a consistent user experience across applications, while the reusable components allow for flexibility and customization. 

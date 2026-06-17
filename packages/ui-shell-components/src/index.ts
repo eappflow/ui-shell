@@ -1,16 +1,24 @@
 import type { App } from "vue";
-import EafButton from "./components/EafButton.vue";
-import EafModal from "./components/EafModal.vue";
-import EafForm from "./components/EafForm.vue";
-import EafInput from "./components/EafInput.vue";
+import EafFormItem from "./components/EafFormItem.vue";
+import EafFormValidationSummary from "./components/EafFormValidationSummary.vue";
+import EafActionValidationMessage from "./components/EafActionValidationMessage.vue";
 
-export { EafButton, EafModal, EafForm, EafInput };
+// ─── Form Components ────────────────────────────────────────────────────────
+export { default as EafFormItem } from "./components/EafFormItem.vue";
+export { default as EafFormValidationSummary } from "./components/EafFormValidationSummary.vue";
+export { default as EafActionValidationMessage } from "./components/EafActionValidationMessage.vue";
+
+// ─── Stores ─────────────────────────────────────────────────────────────────
+export { useEafMessageStore } from "./stores/useEafMessageStore";
+
+// ─── Composables ────────────────────────────────────────────────────────────
+export { useEafFormValidation } from "./composables/useEafFormValidation";
+
 
 export default {
   install(app: App) {
-    app.component("EafButton", EafButton);
-    app.component("EafModal", EafModal);
-    app.component("EafForm", EafForm);
-    app.component("EafInput", EafInput);
+    app.component("EafFormItem", EafFormItem);
+    app.component("EafFormValidationSummary", EafFormValidationSummary);
+    app.component("EafActionValidationMessage", EafActionValidationMessage);
   },
 };

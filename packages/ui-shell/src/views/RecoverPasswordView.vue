@@ -5,15 +5,13 @@ import Button from "primevue/button";
 import Password from "primevue/password";
 import Message from "primevue/message";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useFormValidation } from "../composables/useFormValidation";
-import FormItem from "../components/FormItem.vue";
-import FormValidationSummary from "../components/FormValidationSummary.vue";
+import { useEafFormValidation, EafFormItem, EafFormValidationSummary } from "@eappflow/ui-shell-components";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
-const $f = useFormValidation();
+const $f = useEafFormValidation();
 const newPassword = ref("");
 const confirmPassword = ref("");
 const loading = ref(false);
@@ -93,20 +91,20 @@ function requestNewReset() {
         </div>
 
         <form v-else-if="!success && token" @submit.prevent="handleResetPassword" class="space-y-6">
-            <FormValidationSummary :form="$f" />
+            <EafFormValidationSummary :form="$f" />
 
             <Message severity="info" :closable="false">
                 Password reset links are valid for 2 days and can only be used once.
             </Message>
 
-            <FormItem field="newPassword" label="New Password" :form="$f" :required="true">
+            <EafFormItem field="newPassword" label="New Password" :form="$f" :required="true">
                 <Password v-model="newPassword" placeholder="Enter new password" :disabled="loading" toggleMask :feedback="true" class="w-full" inputClass="w-full" autocomplete="new-password" />
                 <small class="text-surface-500">Minimum 6 characters required</small>
-            </FormItem>
+            </EafFormItem>
 
-            <FormItem field="confirmPassword" label="Confirm Password" :form="$f" :required="true">
+            <EafFormItem field="confirmPassword" label="Confirm Password" :form="$f" :required="true">
                 <Password v-model="confirmPassword" placeholder="Confirm new password" :disabled="loading" toggleMask :feedback="false" class="w-full" inputClass="w-full" autocomplete="new-password" />
-            </FormItem>
+            </EafFormItem>
 
             <Button type="submit" label="Reset Password" :loading="loading" class="w-full" size="large" />
 

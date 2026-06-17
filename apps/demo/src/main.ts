@@ -16,9 +16,7 @@ import Tooltip from "primevue/tooltip";
 import Aura from "@primeuix/themes/aura";
 
 import {
-  EAppFlowUIShell,
-  ChangePasswordView,
-  NoAccessView,
+  EAppFlowUIShell
 } from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
@@ -31,11 +29,9 @@ const diagnosticsModule = createDiagnosticsModule({
   registerInMenu: true,
 });
 
+
 const eAppFlowModules = [
   diagnosticsModule,
-  // Additional modules can be added here:
-  // { id: "sales", name: "Sales", ... },
-  // { id: "administration", name: "Administration", ... },
 ];
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
@@ -54,27 +50,7 @@ app.use(EAppFlowUIShell, {
         path: "",
         name: "dashboard",
         component: () => import("./pages/Dashboard.vue"),
-      },
-      {
-        path: "employees",
-        name: "employees",
-        component: () => import("./pages/EmployeesView.vue"),
-      },
-      {
-        path: "settings",
-        name: "settings",
-        component: () => import("./pages/Settings.vue"),
-      },
-      {
-        path: "change-password",
-        name: "change-password",
-        component: ChangePasswordView,
-      },
-      {
-        path: "no-access",
-        name: "no-access",
-        component: NoAccessView,
-      },
+      },      
     ],
   },
 });

@@ -4,7 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "../composables/useAuth";
 import { useNavigation } from "../composables/useNavigation";
 import { filterVisibleMenuModules } from "../utils/permissions";
-import type { MenuItem } from "../types";
+import type { EafMenuItem } from "@eappflow/ui-shell-core";
 
 const router = useRouter();
 const route = useRoute();
@@ -16,14 +16,14 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    "item-click": [item: MenuItem];
+    "item-click": [item: EafMenuItem];
 }>();
 
 const visibleMenuModules = computed(() =>
     filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
 );
 
-function navigateToPage(item: MenuItem): void {
+function navigateToPage(item: EafMenuItem): void {
     router.push(item.path);
     emit("item-click", item);
 }

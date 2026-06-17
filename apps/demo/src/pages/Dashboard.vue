@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { EafButton, EafModal } from "@eappflow/ui-shell-components";
-import { useAuth } from "@eappflow/ui-shell";
+import { useAuthStore } from "@eappflow/ui-shell";
 
-const auth = useAuth();
+
+const auth = useAuthStore();
 const showModal = ref(false);
 </script>
 
@@ -35,19 +35,5 @@ const showModal = ref(false);
             </div>
         </div>
 
-        <!-- Component demos -->
-        <div class="flex gap-2">
-            <EafButton variant="primary" @click="showModal = true">Open Modal</EafButton>
-            <EafButton variant="secondary">Secondary</EafButton>
-            <EafButton variant="danger">Delete</EafButton>
-        </div>
-
-        <EafModal :visible="showModal" @close="showModal = false">
-            <template #header>Demo Modal</template>
-            <p>This is a modal dialog rendered via the ui-shell-components package.</p>
-            <template #footer>
-                <EafButton variant="secondary" @click="showModal = false">Close</EafButton>
-            </template>
-        </EafModal>
     </div>
 </template>
