@@ -2,6 +2,10 @@ import pluginVue from "eslint-plugin-vue";
 import tseslint from "typescript-eslint";
 import tsParser from "@typescript-eslint/parser";
 import { defineConfig } from "eslint/config";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
   {
@@ -14,6 +18,11 @@ export default defineConfig([
   })),
   {
     files: ["**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+      },
+    },
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/no-explicit-any": "warn",
@@ -26,6 +35,7 @@ export default defineConfig([
         parser: tsParser,
         ecmaVersion: "latest",
         sourceType: "module",
+        tsconfigRootDir: __dirname,
       },
     },
     rules: {

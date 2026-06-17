@@ -14,7 +14,6 @@ export { useEafMessageStore } from "./stores/useEafMessageStore";
 // ─── Composables ────────────────────────────────────────────────────────────
 export { useEafFormValidation } from "./composables/useEafFormValidation";
 
-
 export default {
   install(app: App) {
     app.component("EafFormItem", EafFormItem);
