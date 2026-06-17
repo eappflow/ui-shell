@@ -1,26 +1,22 @@
 /**
- * App entry point — wires up DI, router, stores and PrimeVue.
+ * App entry point — uses the @eappflow/ui-shell Vue plugin.
+ *
+ * The plugin handles Pinia, router, DI services, module registration,
+ * and navigation guards. The demo only needs to configure PrimeVue
+ * and mount the app.
  */
 import "./assets/main.css";
 import "primeicons/primeicons.css";
 
 import { createApp, type App as VueApp } from "vue";
-import { createPinia } from "pinia";
-import { createRouter, createWebHistory } from "vue-router";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
-import Aura from '@primeuix/themes/aura';
+import Aura from "@primeuix/themes/aura";
 
 import {
-  createNavigationGuards,
-  createPublicRoutes,
-  buildModuleRoutes,
-  configureModules,
-  AUTH_SERVICE_KEY,
-  APP_CONFIG_KEY,
-  AuthorizedLayout,
+  EAppFlowUIShell,
   ChangePasswordView,
   NoAccessView,
 } from "@eappflow/ui-shell";
@@ -29,9 +25,6 @@ import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
 
 import App from "./App.vue";
-
-// ─── DI: Wire fake services ──────────────────────────────────────────────────
-const authService = createFakeAuthService();
 
 // ─── Define modules ──────────────────────────────────────────────────────────
 const identityModule = createIdentityModule({
@@ -45,12 +38,17 @@ const eAppFlowModules = [
   // { id: "administration", name: "Administration", ... },
 ];
 
-// ─── Router with component-layout pattern ────────────────────────────────────
-const router = createRouter({
-  history: createWebHistory(),
-  routes: buildModuleRoutes(eAppFlowModules, {
-    layout: AuthorizedLayout,
-    publicRoutes: createPublicRoutes(),
+// ─── Bootstrap ───────────────────────────────────────────────────────────────
+const app: VueApp = createApp(App);
+
+// Use the eAppFlow UI Shell plugin — wires up Pinia, router, DI, modules
+app.use(EAppFlowUIShell, {
+  modules: eAppFlowModules,
+  appConfig: DEMO_CONFIG,
+  services: {
+    authService: createFakeAuthService(),
+  },
+  router: {
     extraRoutes: [
       {
         path: "",
@@ -78,28 +76,8 @@ const router = createRouter({
         component: NoAccessView,
       },
     ],
-  }),
+  },
 });
-
-// ─── Guards ──────────────────────────────────────────────────────────────────
-createNavigationGuards(router, {
-  loginRoute: "/login",
-  forbiddenRoute: "/no-access",
-});
-
-// ─── Bootstrap ───────────────────────────────────────────────────────────────
-const app: VueApp = createApp(App);
-const pinia = createPinia();
-app.use(pinia);
-
-// Provide services via DI before using any store
-app.provide(AUTH_SERVICE_KEY, authService);
-app.provide(APP_CONFIG_KEY, DEMO_CONFIG);
-
-// Register modules (collects routes, menus, permissions)
-configureModules(eAppFlowModules, app, router);
-
-app.use(router);
 
 // PrimeVue with Aura theme
 app.use(PrimeVue, {

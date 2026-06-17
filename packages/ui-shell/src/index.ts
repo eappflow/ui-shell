@@ -48,6 +48,10 @@ export type {
   MenuService,
   ThemeService,
 } from "./services/interfaces";
+
+// ─── Vue Plugin ─────────────────────────────────────────────────────────────
+export { EAppFlowUIShell } from "./plugin";
+export type { EAppFlowUIShellPluginOptions } from "./plugin";
 export {
   AUTH_SERVICE_KEY,
   MENU_SERVICE_KEY,
