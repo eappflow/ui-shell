@@ -41,6 +41,7 @@ export function createFakeAuthService(): AuthService {
           "Workstations",
           "TenantSettings",
           "ExternalEvent",
+          "TechnicalAdministrator"
         ],
       };
     },

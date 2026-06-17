@@ -53,9 +53,9 @@ importers:
 
   apps/demo:
     dependencies:
-      '@eappflow/identity':
+      '@eappflow/diagnostics':
         specifier: workspace:*
-        version: link:../../modules/identity
+        version: link:../../modules/diagnostics
       '@eappflow/ui-shell':
         specifier: workspace:*
         version: link:../../packages/ui-shell
@@ -106,7 +106,7 @@ importers:
         specifier: ^2.2.0
         version: 2.2.12(typescript@5.7.3)
 
-  modules/identity:
+  modules/diagnostics:
     devDependencies:
       '@eappflow/ui-shell':
         specifier: workspace:*

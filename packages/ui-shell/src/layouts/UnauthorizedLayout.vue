@@ -30,7 +30,7 @@ const currentYear = new Date().getFullYear()
     <footer class="app-footer border-t py-6">
       <div class="container mx-auto px-4">
         <div class="text-center">
-          <p class="mb-2">{{ appConfig.name }} - Employee Portal</p>
+          <p class="mb-2">{{ appConfig.name }}</p>
           <p class="text-sm">
             &copy; {{ currentYear }} {{ appConfig.name }}. All rights reserved.
           </p>

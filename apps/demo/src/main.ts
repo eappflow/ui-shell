@@ -20,19 +20,19 @@ import {
   ChangePasswordView,
   NoAccessView,
 } from "@eappflow/ui-shell";
-import { createIdentityModule } from "@eappflow/identity";
+import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
 
 import App from "./App.vue";
 
 // ─── Define modules ──────────────────────────────────────────────────────────
-const identityModule = createIdentityModule({
-  appName: DEMO_CONFIG.name,
+const diagnosticsModule = createDiagnosticsModule({
+  registerInMenu: true,
 });
 
 const eAppFlowModules = [
-  identityModule,
+  diagnosticsModule,
   // Additional modules can be added here:
   // { id: "sales", name: "Sales", ... },
   // { id: "administration", name: "Administration", ... },

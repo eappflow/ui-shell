@@ -19,7 +19,7 @@
     "@eappflow/ui-shell": "workspace:*",
     "@eappflow/ui-shell-components": "workspace:*",
     "@eappflow/ui-shell-styles": "workspace:*",
-    "@eappflow/identity": "workspace:*"
+    "@eappflow/diagnostics": "workspace:*"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",
