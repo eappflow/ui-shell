@@ -31,7 +31,7 @@ function hasModuleWithPermission(perm: string): boolean {
         <!-- Registered Modules -->
         <Card>
             <template #title>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 bg-red-200">
                     <i class="pi pi-box text-2xl text-primary"></i>
                     <span class="text-xl font-semibold">Loaded eAppFlow Modules</span>
                 </div>

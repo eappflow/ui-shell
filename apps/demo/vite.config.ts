@@ -1,12 +1,15 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import { resolve } from "path";
+import tailwindcss from "@tailwindcss/vite";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
-      "@eappflow/ui-shell": resolve(__dirname, "../../packages/ui-shell/src"),
       "@eappflow/ui-shell-components": resolve(
         __dirname,
         "../../packages/ui-shell-components/src",
@@ -15,6 +18,7 @@ export default defineConfig({
         __dirname,
         "../../modules/diagnostics/src",
       ),
+      "@": resolve(__dirname, "../../packages/ui-shell-components/src"),
     },
   },
 });

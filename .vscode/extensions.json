@@ -3,7 +3,6 @@
     "Vue.volar",
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "cpylua.language-postcss"
+    "esbenp.prettier-vscode",    
   ]
 }

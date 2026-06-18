@@ -1,3 +1,6 @@
+// ─── Styles ─────────────────────────────────────────────────────────────────
+import "./style/index.css";
+
 // Types
 export type {
   Permission,

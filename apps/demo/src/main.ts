@@ -5,6 +5,7 @@
  * and navigation guards. The demo only needs to configure PrimeVue
  * and mount the app.
  */
+import "@eappflow/ui-shell/style";
 import "./assets/main.css";
 import "primeicons/primeicons.css";
 
@@ -15,9 +16,7 @@ import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
 import Aura from "@primeuix/themes/aura";
 
-import {
-  EAppFlowUIShell
-} from "@eappflow/ui-shell";
+import { EAppFlowUIShell } from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
@@ -29,10 +28,7 @@ const diagnosticsModule = createDiagnosticsModule({
   registerInMenu: true,
 });
 
-
-const eAppFlowModules = [
-  diagnosticsModule,
-];
+const eAppFlowModules = [diagnosticsModule];
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 const app: VueApp = createApp(App);
@@ -50,7 +46,7 @@ app.use(EAppFlowUIShell, {
         path: "",
         name: "dashboard",
         component: () => import("./pages/Dashboard.vue"),
-      },      
+      },
     ],
   },
 });

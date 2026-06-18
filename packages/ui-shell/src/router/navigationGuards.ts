@@ -19,7 +19,6 @@ export function createNavigationGuards(
   router: Router,
   options: NavigationGuardOptions = {},
 ) {
-  debugger;
   const {
     requireAuth = true,
     loginRoute = "/login",

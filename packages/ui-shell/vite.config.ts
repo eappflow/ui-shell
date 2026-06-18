@@ -1,9 +1,13 @@
 import { defineConfig } from "vite";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
@@ -17,6 +21,7 @@ export default defineConfig({
         "vue-router",
         "pinia",
         "primevue",
+
         "@eappflow/ui-shell-components",
       ],
       output: {
@@ -27,6 +32,24 @@ export default defineConfig({
           primevue: "PrimeVue",
         },
       },
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      css: {
+        // Ensure Tailwind CSS is processed correctly
+      },
+    },
+  },
+  // Build CSS separately for the style export
+  rollupOptions: {
+    input: {
+      style: resolve(__dirname, "src/style/index.css"),
+    },
+    output: {
+      entryFileNames: `[name].css`,
+      chunkFileNames: `[name].css`,
+      assetFileNames: `[name].[ext]`,
     },
   },
 });

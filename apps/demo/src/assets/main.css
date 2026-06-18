@@ -1,7 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind CSS base styles */
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+@source "../../../../modules/diagnostics/src";
+
+/* PrimeVue styles */
+@import "primeicons/primeicons.css";
 
 /* Force-include classes used by packages */
 .eaf-tailwind-include {
 }
+
+/* Import diagnostics module styles */
+@import "@eappflow/diagnostics/style";
