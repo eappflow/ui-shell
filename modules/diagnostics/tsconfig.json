@@ -1,16 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./dist",    
+    "emitDeclarationOnly": false,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "sourceMap": true,
     "noEmit": false,
-    "paths": {
-      "@/*": ["../../packages/ui-shell-components/src/*"],
-      "@eappflow/ui-shell": ["../../packages/ui-shell/src"],
-      "@eappflow/ui-shell-components": ["../../packages/ui-shell-components/src"]
-    }
+    "rootDir": ".",    
+    "composite": true   
   },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

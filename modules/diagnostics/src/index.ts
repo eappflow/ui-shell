@@ -5,8 +5,8 @@
  * for the eAppFlow UI Shell.
  */
 
-import type { EafModule } from "@eappflow/ui-shell";
-import type { EafMenuModule } from "@eappflow/ui-shell";
+
+import { EafModule } from "@eappflow/ui-shell";
 import type { DiagnosticsConfig } from "./types";
 import { DIAGNOSTICS_CONFIG_KEY } from "./types";
 

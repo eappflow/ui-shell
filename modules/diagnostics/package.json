@@ -15,10 +15,12 @@
     "./style": {
       "import": "./dist/style.css",
       "require": "./dist/style.css"
-    }
+    },
+    "./tailwind.css": "./src/style/tailwind.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style/tailwind.css"
   ],
   "scripts": {
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
