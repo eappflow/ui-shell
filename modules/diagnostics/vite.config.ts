@@ -17,7 +17,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
     },
     rollupOptions: {
-      external: ["vue", "vue-router", "@eappflow/ui-shell"],
+      external: ["vue", "vue-router", "@eappflow/ui-shell", /^primevue\/.*/],
       output: {
         globals: {
           vue: "Vue",

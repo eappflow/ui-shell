@@ -21,7 +21,7 @@ export default defineConfig({
         "vue-router",
         "pinia",
         "primevue",
-        /^primevue\/.*/, //VERY IPORTANT: This ensures that all PrimeVue components are treated as external dependencies, preventing them from being bundled into the library and allowing users to manage their own versions of PrimeVue components.
+        /^primevue\/.*/, //VERY IPORTANT: This ensures that all PrimeVue components are treated as external dependencies, preventing them from being bundled into the library and allowing users to manage their own versions of PrimeVue components. It is need to app corectly load styles for internal components
         "primeicons",
         "@eappflow/ui-shell-components",
       ],
