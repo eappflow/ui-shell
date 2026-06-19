@@ -21,7 +21,8 @@ export default defineConfig({
         "vue-router",
         "pinia",
         "primevue",
-
+        /^primevue\/.*/, //VERY IPORTANT: This ensures that all PrimeVue components are treated as external dependencies, preventing them from being bundled into the library and allowing users to manage their own versions of PrimeVue components.
+        "primeicons",
         "@eappflow/ui-shell-components",
       ],
       output: {
@@ -32,24 +33,6 @@ export default defineConfig({
           primevue: "PrimeVue",
         },
       },
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      css: {
-        // Ensure Tailwind CSS is processed correctly
-      },
-    },
-  },
-  // Build CSS separately for the style export
-  rollupOptions: {
-    input: {
-      style: resolve(__dirname, "src/style/index.css"),
-    },
-    output: {
-      entryFileNames: `[name].css`,
-      chunkFileNames: `[name].css`,
-      assetFileNames: `[name].[ext]`,
     },
   },
 });
