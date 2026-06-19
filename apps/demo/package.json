@@ -13,21 +13,21 @@
     "@eappflow/diagnostics": "workspace:*",
     "@eappflow/ui-shell": "workspace:*",
     "@eappflow/ui-shell-components": "workspace:*",
-    "@primeuix/themes": "^2.0.0",
-    "pinia": "^2.2.0",
+    "@primeuix/themes": "^2.0.3",
+    "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
-    "primevue": "^4.0.0",
-    "vue": "^3.5.0",
-    "vue-router": "^4.5.0"
+    "primevue": "^4.5.5",
+    "vue": "^3.5.38",
+    "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
-    "@vitejs/plugin-vue": "^5.2.0",
-    "autoprefixer": "^10.4.0",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "autoprefixer": "^10.5.0",
     "tailwindcss": "^4.3.1",
     "tailwindcss-primeui": "^0.6.1",
-    "typescript": "~5.7.0",
-    "vite": "^6.1.0",
-    "vue-tsc": "^2.2.0"
+    "typescript": "~6.0.3",
+    "vite": "^8.0.16",
+    "vue-tsc": "^3.3.5"
   }
 }
