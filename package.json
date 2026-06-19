@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @eappflow/demo dev",
+    "preview": "pnpm --filter @eappflow/demo preview",
     "build": "pnpm -r build",
     "lint": "eslint . --ext .vue,.ts --fix",
     "type-check": "pnpm -r type-check",

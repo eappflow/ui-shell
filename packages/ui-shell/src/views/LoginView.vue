@@ -53,7 +53,7 @@ async function handleLogin(): Promise<void> {
 </script>
 
 <template>
-    <div class="bg-red-500 dark:bg-surface-800 rounded-lg shadow-lg p-8">
+    <div class="bg-red-400 dark:bg-surface-800 rounded-lg shadow-lg p-8">
         <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-surface-900 dark:text-surface-100 mb-2">
                 Login

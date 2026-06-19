@@ -1,16 +1,23 @@
 /* Tailwind CSS base styles */
 
 @import "tailwindcss";
+/* VERY IMPORTANT */
+@import "@eappflow/diagnostics/style";
+@import "@eappflow/ui-shell/style";
 @import "tailwindcss-primeui";
 
-@import "@eappflow/diagnostics/style/tailwind.css";
+
+
 
 /* PrimeVue styles */
 @import "primeicons/primeicons.css";
 
 /* Force-include classes used by packages */
-.eaf-tailwind-include {
-}
 
-/* Import diagnostics module styles */
-@import "@eappflow/diagnostics/style";
+
+
+
+
+
+
+/* @layer tailwind-base, primeui, tailwind-utilities; */

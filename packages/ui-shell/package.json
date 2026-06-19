@@ -30,7 +30,7 @@
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run"
   },
-  "dependencies": {    
+  "dependencies": {
     "mitt": "^3.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.0"

@@ -18,7 +18,10 @@ export default defineConfig({
         __dirname,
         "../../modules/diagnostics/src",
       ),
-      "@": resolve(__dirname, "../../packages/ui-shell-components/src"),
+      "@eappflow/ui-shell": resolve(
+        __dirname,
+        "../../packages/ui-shell/src",
+      )      
     },
   },
 });

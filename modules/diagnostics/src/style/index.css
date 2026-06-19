@@ -3,3 +3,6 @@
 
 /* PrimeVue styles */
 @import "primeicons/primeicons.css";
+
+@source "../components";
+@source "../views";

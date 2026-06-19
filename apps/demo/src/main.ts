@@ -5,15 +5,16 @@
  * and navigation guards. The demo only needs to configure PrimeVue
  * and mount the app.
  */
-import "@eappflow/ui-shell/style";
+
 import "./assets/main.css";
-import "primeicons/primeicons.css";
+
 
 import { createApp, type App as VueApp } from "vue";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
+import Button from "primevue/button";
 import Aura from "@primeuix/themes/aura";
 
 import { EAppFlowUIShell } from "@eappflow/ui-shell";
@@ -22,6 +23,7 @@ import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
 
 import App from "./App.vue";
+import { InputText } from "primevue";
 
 // ─── Define modules ──────────────────────────────────────────────────────────
 const diagnosticsModule = createDiagnosticsModule({
@@ -32,6 +34,20 @@ const eAppFlowModules = [diagnosticsModule];
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 const app: VueApp = createApp(App);
+
+// PrimeVue with Aura theme
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: ".dark",
+      cssLayer: false,
+      prefix: "p",
+    },
+  },
+  ripple: true,
+});
+
 
 // Use the eAppFlow UI Shell plugin — wires up Pinia, router, DI, modules
 app.use(EAppFlowUIShell, {
@@ -51,18 +67,9 @@ app.use(EAppFlowUIShell, {
   },
 });
 
-// PrimeVue with Aura theme
-app.use(PrimeVue, {
-  theme: {
-    preset: Aura,
-    options: {
-      darkModeSelector: ".dark",
-      cssLayer: false,
-      prefix: "p",
-    },
-  },
-  ripple: true,
-});
+
+app.component("Button", Button);
+app.component("InputText", InputText);
 
 app.use(ToastService);
 app.use(ConfirmationService);

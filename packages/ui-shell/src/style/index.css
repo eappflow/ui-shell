@@ -1,6 +1,9 @@
 /* Tailwind CSS base styles */
 @import "tailwindcss";
-@import "tailwindcss-primeui";
-
 /* PrimeVue styles */
 @import "primeicons/primeicons.css";
+
+@source "../components";
+@source "../views";
+@source "../layouts";
+
