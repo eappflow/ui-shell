@@ -6,4 +6,5 @@
 @source "../components";
 @source "../views";
 @source "../layouts";
+@import "tailwindcss-primeui";
 
