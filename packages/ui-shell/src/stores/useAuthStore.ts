@@ -1,8 +1,13 @@
 import { defineStore } from "pinia";
 import { ref, computed, inject } from "vue";
 import type { User } from "../types";
-import { AUTH_SERVICE_KEY, type AuthService } from "../services/interfaces";
+import {
+  AUTH_SERVICE_KEY,
+  MSAL_INSTANCE_KEY,
+  type AuthService,
+} from "../services/interfaces";
 import { createDefaultAuthService } from "../services/defaultAuthService";
+import { createDefaultMsalInstance } from "../services/defaultMsalInstace";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
@@ -12,10 +17,15 @@ export const useAuthStore = defineStore("auth", () => {
   // Get AuthService via DI, fall back to default (throws on real use)
   const authService: AuthService =
     inject(AUTH_SERVICE_KEY, undefined) ?? createDefaultAuthService();
+  let msalInstance = createDefaultMsalInstance();
 
   const isAuthenticated = computed(() => {
     if (isInitializing.value) return false;
     return !!accessToken.value && !!user.value;
+  });
+
+  const usingMicrosoftSSO = computed(() => {
+    return authService.microsoftSSOEnabled === true;
   });
 
   const userPermissions = computed(() => user.value?.permissions || []);
@@ -36,6 +46,33 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Load user data after login
     await loadCurrentUser();
+  }
+
+  async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
+    if (authService.microsoftSSOConfig === undefined) {
+      throw new Error("Microsoft SSO configuration is not available.");
+    }
+
+    await msalInstance.loginRedirect({
+      scopes: authService.microsoftSSOConfig.scopes,
+      state: redirectUrl,
+    });
+  }
+
+  async function handleMicrosoftSSORedirect(): Promise<string> {
+    const authenticationResult = await msalInstance.handleRedirectPromise();
+
+    if (authenticationResult && authenticationResult.accessToken) {
+      const result =
+        await authService.handleMicrosoftSSORedirect(authenticationResult);
+      accessToken.value = result.accessToken;
+      localStorage.setItem("access_token", result.accessToken);
+
+      // Load user data after login
+      await loadCurrentUser();
+      return authenticationResult.state || "/";
+    }
+    return "/";
   }
 
   async function logout(): Promise<void> {
@@ -98,6 +135,11 @@ export const useAuthStore = defineStore("auth", () => {
       }
     }
   }
+
+  async function initializeMsalInstance(msalInstanceValue: any): Promise<void> {
+    msalInstance = msalInstanceValue ?? createDefaultMsalInstance();
+  }
+
   // Initialize on store creation
   initializeFromStorage();
 
@@ -106,9 +148,12 @@ export const useAuthStore = defineStore("auth", () => {
     accessToken,
     isInitializing,
     isAuthenticated,
+    usingMicrosoftSSO,
     userPermissions,
     userName,
     login,
+    loginWithMicrosoftSSO,
+    handleMicrosoftSSORedirect,
     logout,
     loadCurrentUser,
     restorePassword,
@@ -117,5 +162,6 @@ export const useAuthStore = defineStore("auth", () => {
     hasAnyPermission,
     hasAllPermissions,
     initializeFromStorage,
+    initializeMsalInstance,
   };
 });

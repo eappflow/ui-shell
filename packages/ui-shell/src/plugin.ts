@@ -34,6 +34,7 @@ import {
   type AuthService,
   type MenuService,
   type ThemeService,
+  MSAL_INSTANCE_KEY,
 } from "./services/interfaces";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
@@ -41,9 +42,11 @@ import { buildModuleRoutes } from "./router/buildModuleRoutes";
 import { configureModules } from "./plugins";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
+import * as msal from "@azure/msal-browser";
 
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
+import { useAuthStore } from "./stores/useAuthStore";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
 
@@ -80,7 +83,7 @@ export const EAppFlowUIShell = {
   install(app: VueApp, options: EAppFlowUIShellPluginOptions): void {
     const { modules, appConfig, services, router: routerOptions } = options;
 
-    // ── 1. Pinia ──────────────────────────────────────────────────────────
+    // ── 1. Pinia ─────────────────────────────────────────────────────────
     const pinia = createPinia();
     app.use(pinia);
 
@@ -119,6 +122,33 @@ export const EAppFlowUIShell = {
 
     // ── 6. Use router ────────────────────────────────────────────────────
     app.use(router);
+
+    // ── 7. Microsoft Authentication Library (msla-browser) ───────────────
+    const authStore = useAuthStore();
+    if (services?.authService?.microsoftSSOEnabled) {
+      if (!services?.authService?.microsoftSSOConfig) {
+        throw new Error(
+          "Microsoft SSO is enabled but no configuration is provided.",
+        );
+      }
+      msal
+        .createStandardPublicClientApplication({
+          auth: services.authService.microsoftSSOConfig,
+        })
+        .then(async (msalInstance) => {
+          authStore.initializeMsalInstance(msalInstance);
+          const redirectUrl = await authStore.handleMicrosoftSSORedirect();
+
+          if (redirectUrl) {
+            router.push(redirectUrl).catch((err) => {
+              console.error(
+                "Failed to navigate after Microsoft SSO redirect:",
+                err,
+              );
+            });
+          }
+        });
+    }
 
     // ── 7. Use Toast ────────────────────────────────────────────────────
     app.use(ToastService);

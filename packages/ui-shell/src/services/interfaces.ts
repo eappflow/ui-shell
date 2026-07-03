@@ -21,10 +21,20 @@ import type {
 } from "../types";
 import type { EafMenuModule } from "../types";
 import type { InjectionKey } from "vue";
+import * as msal from "@azure/msal-browser";
 
 // ─── Auth Service ────────────────────────────────────────────────────────────
+export type MicrosoftSSOConfig = Pick<
+  msal.Configuration["auth"],
+  "clientId" | "authority" | "redirectUri"
+> & {
+  scopes: Array<string>;
+};
 
 export interface AuthService {
+  microsoftSSOConfig?: MicrosoftSSOConfig;
+  microsoftSSOEnabled?: boolean;
+
   /** Authenticate user with credentials */
   login(request: LoginRequest): Promise<AuthResult>;
 
@@ -42,6 +52,10 @@ export interface AuthService {
 
   /** Change password for authenticated user */
   changePassword(request: ChangePasswordRequest): Promise<void>;
+
+  handleMicrosoftSSORedirect(
+    response: msal.AuthenticationResult,
+  ): Promise<AuthResult>;
 }
 
 // ─── Menu Service ────────────────────────────────────────────────────────────
@@ -66,6 +80,8 @@ export interface ThemeService {
 
 // ─── Injection Keys ──────────────────────────────────────────────────────────
 
+export const MSAL_INSTANCE_KEY: InjectionKey<msal.IPublicClientApplication> =
+  Symbol("msalInstance");
 export const AUTH_SERVICE_KEY: InjectionKey<AuthService> =
   Symbol("authService");
 export const MENU_SERVICE_KEY: InjectionKey<MenuService> =

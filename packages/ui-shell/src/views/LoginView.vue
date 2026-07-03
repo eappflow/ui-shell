@@ -64,6 +64,17 @@ async function handleLogin(): Promise<void> {
     loading.value = false;
   }
 }
+
+async function handleLoginWithMicrosoftSSO(): Promise<void> {
+  loading.value = true;
+  try {
+    await authStore.loginWithMicrosoftSSO(redirectUrl.value);
+  } catch (error: unknown) {
+    $f.handleApiError(error);
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -77,7 +88,10 @@ async function handleLogin(): Promise<void> {
       </span>
     </template>
     <template #content>
-      <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
+      <form
+        class="flex flex-col gap-5"
+        @submit.prevent="handleLogin"
+      >
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
@@ -137,7 +151,17 @@ async function handleLogin(): Promise<void> {
           :class="['w-full', uiButton]"
           size="large"
         />
+        <Button
+          v-if="authStore.usingMicrosoftSSO"
+          type="button"
+          label="Login with Microsoft"
+          :loading="loading"
+          :class="['w-full', uiButton]"
+          size="large"
+          @click="handleLoginWithMicrosoftSSO"
+        />
       </form>
     </template>
   </Card>
 </template>
+

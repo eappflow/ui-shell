@@ -147,6 +147,9 @@ importers:
 
   packages/ui-shell:
     dependencies:
+      '@azure/msal-browser':
+        specifier: ^5.16.0
+        version: 5.16.0
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
@@ -237,6 +240,14 @@ packages:
 
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
+
+  '@azure/msal-browser@5.16.0':
+    resolution: {integrity: sha512-Wc75FGnQgYpsm5jsOqn1H8AXsh8vXruA6vwip1nhjrJxwby7juxKAIVLr7csepmHiwdZGr6EwI5BlSc3PizEtQ==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-common@16.11.0':
+    resolution: {integrity: sha512-UikJOtMwkFpZNzTH6Dqk8UTUPbow15zH3e0UjGYZy69lYENW/S05gMLhbxI2eonz66uALhIljvhsSMEb6+O30g==}
+    engines: {node: '>=0.8.0'}
 
   '@babel/generator@8.0.0':
     resolution: {integrity: sha512-NT9NrVwJsbSV6Y2FSstWa71EETOnzrjkL5/wX3D2mYHtKM+qvqB1DvR4D0Setb/gDBsHzRICifwEWMO8CnTF6g==}
@@ -1841,6 +1852,12 @@ snapshots:
   '@asamuzakjp/generational-cache@1.0.1': {}
 
   '@asamuzakjp/nwsapi@2.3.9': {}
+
+  '@azure/msal-browser@5.16.0':
+    dependencies:
+      '@azure/msal-common': 16.11.0
+
+  '@azure/msal-common@16.11.0': {}
 
   '@babel/generator@8.0.0':
     dependencies:
