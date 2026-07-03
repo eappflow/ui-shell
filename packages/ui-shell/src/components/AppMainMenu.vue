@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import Menu from "primevue/menu";
+import type { MenuItem } from "primevue/menuitem";
 import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
-import type { EafMenuItem } from "../types";
+import type { EafMenuItem, EafClasses } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 
 const router = useRouter();
@@ -12,46 +14,107 @@ const auth = useEafAuth();
 const navigation = useEafNavigation();
 
 const props = defineProps<{
-    compact?: boolean;
+  compact?: boolean;
+  classes?: NonNullable<EafClasses["layout"]>["menu"];
 }>();
 
 const emit = defineEmits<{
-    "item-click": [item: EafMenuItem];
+  "item-click": [item: EafMenuItem];
 }>();
 
 const visibleMenuModules = computed(() =>
     filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
 );
 
+// PrimeVue's Menu model natively supports one level of grouping via
+// { label, items: [...] } - module.name becomes the group label,
+// module.items (real EafMenuItem[]) is passed through completely
+// untouched, no reshaping/renaming of your fields.
+const menuModel = computed(() =>
+    visibleMenuModules.value.map((module) => ({
+      label: module.name,
+      items: module.items,
+    })),
+);
+
+// Unchanged from your original - same router.push, same emit.
 function navigateToPage(item: EafMenuItem): void {
-    router.push(item.path);
-    emit("item-click", item);
+  router.push(item.path);
+  emit("item-click", item);
 }
 
+// Unchanged from your original.
 function isActive(itemPath: string): boolean {
-    return route.path === itemPath;
+  return route.path === itemPath;
+}
+
+// Menu isn't a generic component, so its #item slot always types `item`
+// as PrimeVue's own MenuItem, even though menuModel only ever contains
+// real EafMenuItem objects (we put them there ourselves, untouched, a
+// few lines up). This is the one, explicit place that bridges the two -
+// not a workaround for a bug, just the expected way to cross a slot
+// boundary PrimeVue can't type-check for us.
+function asEafMenuItem(item: MenuItem): EafMenuItem {
+  return item as EafMenuItem;
 }
 </script>
 
 <template>
-    <nav>
-        <div v-for="module in visibleMenuModules" :key="module.name" class="app-nav-module mb-6">
-            <!-- Module Header -->
-            <div class="app-nav-module-header px-3 py-2 text-surface-500 dark:text-surface-400 text-xs font-semibold uppercase tracking-wider">
-                {{ module.name }}
-            </div>
+  <nav aria-label="Main">
+    <Menu :model="menuModel" :class="['eaf-menu', classes?.root]">
+      <template #submenulabel="{ item }">
+        <span :class="['eaf-menu-group-label', classes?.groupLabel]">
+          {{ item.label }}
+        </span>
+      </template>
 
-            <!-- Module Items -->
-            <div class="app-nav-module-items space-y-1 mt-1">
-                <button v-for="item in module.items" :key="item.path" @click="navigateToPage(item)"
-                    class="app-sidebar-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 transition-all cursor-pointer text-left"
-                    :class="{
-                        'bg-primary-50 dark:bg-primary-900/20 text-primary font-medium': isActive(item.path),
-                    }">
-                    <i v-if="item.icon" :class="item.icon"></i>
-                    <span class="text-sm">{{ item.name }}</span>
-                </button>
-            </div>
-        </div>
-    </nav>
+      <template #item="{ item, props: itemProps }">
+        <a
+            v-bind="itemProps.action"
+            :class="[
+            'eaf-menu-item',
+            classes?.item,
+            isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
+            isActive(asEafMenuItem(item).path) && classes?.itemActive,
+          ]"
+            @click="navigateToPage(asEafMenuItem(item))"
+        >
+          <i
+              v-if="item.icon"
+              :class="item.icon"
+              class="w-5 shrink-0 text-[18px] opacity-90"
+          ></i>
+          <span class="truncate">{{ asEafMenuItem(item).name }}</span>
+        </a>
+      </template>
+    </Menu>
+  </nav>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-menu {
+    width: 100%;
+  }
+
+  .eaf-menu-group-label {
+    font-size: 0.65625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+  }
+
+  .eaf-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .eaf-menu-item-active {
+    font-weight: 600;
+    color: var(--p-primary-color);
+    background-color: var(--p-primary-50);
+  }
+}
+</style>

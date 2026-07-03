@@ -39,6 +39,8 @@ import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
 import { buildModuleRoutes } from "./router/buildModuleRoutes";
 import { configureModules } from "./plugins";
+import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
@@ -117,5 +119,11 @@ export const EAppFlowUIShell = {
 
     // ── 6. Use router ────────────────────────────────────────────────────
     app.use(router);
+
+    // ── 7. Use Toast ────────────────────────────────────────────────────
+    app.use(ToastService);
+
+    // ── 8. Use Confirmation ────────────────────────────────────────────────────
+    app.use(ConfirmationService);
   },
 };

@@ -39,7 +39,3 @@ const currentYear = new Date().getFullYear()
     </footer>
   </div>
 </template>
-
-<style scoped>
-/* Additional styles if needed, but prefer Tailwind utilities */
-</style>

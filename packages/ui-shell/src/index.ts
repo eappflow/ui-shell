@@ -75,6 +75,7 @@ export type {
   ThemeSettings,
   ThemeColorName,
   AppConfig,
+  EafClasses,
   EafModule,
   ModuleRegistrationResult,
 } from "./types";

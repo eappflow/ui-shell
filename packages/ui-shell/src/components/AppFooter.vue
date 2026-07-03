@@ -1,12 +1,34 @@
 <script setup lang="ts">
+import type { EafClasses } from "../types";
+
 const year = new Date().getFullYear();
+
+const props = defineProps<{
+  classes?: NonNullable<EafClasses["layout"]>["footer"];
+}>();
 </script>
 
 <template>
-    <footer class="app-footer flex items-center justify-between border-t border-slate-200 dark:border-surface-700 bg-white dark:bg-surface-800 px-6 py-3 text-xs text-surface-600 dark:text-surface-400 flex-shrink-0">
-        <span>&copy; {{ year }}
-            <slot name="app-name" />. All rights reserved.
-        </span>
-        <slot name="right" />
-    </footer>
+  <footer :class="['eaf-footer', classes?.root]">
+    <span>&copy; {{ year }}
+      <slot name="app-name" />. All rights reserved.
+    </span>
+    <slot name="right" />
+  </footer>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--p-surface-0);
+    color: var(--p-surface-900);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--p-surface-200);
+  }
+}
+</style>
