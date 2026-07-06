@@ -8,6 +8,7 @@ import {
 } from "../services/interfaces";
 import { createDefaultAuthService } from "../services/defaultAuthService";
 import { createDefaultMsalInstance } from "../services/defaultMsalInstace";
+import { IPublicClientApplication } from "@azure/msal-browser";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
@@ -41,11 +42,7 @@ export const useAuthStore = defineStore("auth", () => {
       throw new Error("No access token received");
     }
 
-    accessToken.value = result.accessToken;
-    localStorage.setItem("access_token", result.accessToken);
-
-    // Load user data after login
-    await loadCurrentUser();
+    await saveAccessToken(result.accessToken);
   }
 
   async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
@@ -59,17 +56,21 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
+  async function saveAccessToken(token: string): Promise<void> {
+    accessToken.value = token;
+    localStorage.setItem("access_token", token);
+
+    // Load user data after login
+    await loadCurrentUser();
+  }
+
   async function handleMicrosoftSSORedirect(): Promise<string> {
     const authenticationResult = await msalInstance.handleRedirectPromise();
 
     if (authenticationResult && authenticationResult.accessToken) {
       const result =
         await authService.handleMicrosoftSSORedirect(authenticationResult);
-      accessToken.value = result.accessToken;
-      localStorage.setItem("access_token", result.accessToken);
-
-      // Load user data after login
-      await loadCurrentUser();
+      await saveAccessToken(result.accessToken);
       return authenticationResult.state || "/";
     }
     return "/";
@@ -136,7 +137,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function initializeMsalInstance(msalInstanceValue: any): Promise<void> {
+  function initializeMsalInstance(msalInstanceValue: IPublicClientApplication) {
     msalInstance = msalInstanceValue ?? createDefaultMsalInstance();
   }
 
