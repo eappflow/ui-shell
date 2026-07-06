@@ -115,7 +115,7 @@ export const EAppFlowUIShell = {
     createNavigationGuards(router, routerOptions?.guards);
 
     // ── 5. Register modules ──────────────────────────────────────────────
-    configureModules(modules, app, router);
+    configureModules(modules, app);
 
     // ── 6. Use router ────────────────────────────────────────────────────
     app.use(router);
