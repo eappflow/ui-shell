@@ -127,7 +127,7 @@ async function handleLogout(): Promise<void> {
 </script>
 
 <template>
-  <div class="app-page-background min-h-screen flex">
+  <div class="min-h-screen flex">
     <!-- Global Toast and Confirm Dialog -->
     <Toast />
     <ConfirmDialog />
@@ -163,7 +163,7 @@ async function handleLogout(): Promise<void> {
     </Drawer>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
       <!-- Header -->
       <AppHeader
           :classes="appConfig.classes?.layout?.authorized?.header"
@@ -185,22 +185,24 @@ async function handleLogout(): Promise<void> {
         <Menu :model="accountMenuItems" class="border-none" />
       </Popover>
 
-      <!-- Page Content -->
-      <main class="app-content flex-1 overflow-y-auto p-1 md:p-2">
-        <!-- Global Action Validation Message -->
-        <div class="w-full max-w-4xl mx-auto px-1 md:px-4 mb-2">
-          <EafActionValidationMessage />
-        </div>
-        <router-view class="flex gap-2 flex-col" />
-      </main>
+      <div class="flex-1 overflow-y-auto">
+        <!-- Page Content -->
+        <main class="flex-1 p-1 md:p-2">
+          <!-- Global Action Validation Message -->
+          <div class="w-full max-w-4xl mx-auto px-1 md:px-4 mb-2">
+            <EafActionValidationMessage />
+          </div>
+          <router-view class="flex gap-2 flex-col" />
+        </main>
 
-      <!-- Footer -->
-      <AppFooter :classes="appConfig.classes?.layout?.authorized?.footer">
-        <template #app-name>{{ appConfig.name }}</template>
-        <template #right>
-          <p>Version {{ appConfig.version }}</p>
-        </template>
-      </AppFooter>
+        <!-- Footer -->
+        <AppFooter :classes="appConfig.classes?.layout?.authorized?.footer">
+          <template #app-name>{{ appConfig.name }}</template>
+          <template #right>
+            <p>Version {{ appConfig.version }}</p>
+          </template>
+        </AppFooter>
+      </div>
     </div>
   </div>
 </template>
