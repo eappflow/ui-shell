@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type {EafClasses} from "../types";
+import type {SidebarClasses} from "../types";
 
 defineProps<{
   visible: boolean;
-  classes?: NonNullable<EafClasses["layout"]>["sidebar"];
+  classes?: SidebarClasses;
 }>();
 
 const emit = defineEmits<{

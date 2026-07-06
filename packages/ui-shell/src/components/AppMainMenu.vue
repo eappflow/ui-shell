@@ -5,7 +5,7 @@ import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
 import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
-import type { EafMenuItem, EafClasses } from "../types";
+import type { EafMenuItem, MenuClasses } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 
 const router = useRouter();
@@ -15,7 +15,7 @@ const navigation = useEafNavigation();
 
 const props = defineProps<{
   compact?: boolean;
-  classes?: NonNullable<EafClasses["layout"]>["menu"];
+  classes?: MenuClasses;
 }>();
 
 const emit = defineEmits<{
@@ -63,7 +63,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
   <nav aria-label="Main">
     <Menu :model="menuModel" :class="['eaf-menu', classes?.root]">
       <template #submenulabel="{ item }">
-        <span :class="['eaf-menu-group-label', classes?.groupLabel]">
+        <span :class="['eaf-menu-group-label', classes?.['group-label']]">
           {{ item.label }}
         </span>
       </template>
@@ -75,7 +75,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             'eaf-menu-item',
             classes?.item,
             isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
-            isActive(asEafMenuItem(item).path) && classes?.itemActive,
+            isActive(asEafMenuItem(item).path) && classes?.['item-active'],
           ]"
             @click="navigateToPage(asEafMenuItem(item))"
         >

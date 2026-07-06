@@ -1,5 +1,6 @@
 import type {RouteRecordRaw} from "vue-router";
 import type {App} from "vue";
+import type {EafClasses} from "./eaf-classes";
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
@@ -148,6 +149,20 @@ export interface ToastMessage {
     life?: number;
 }
 
+// ─── EafClasses (class overrides) ───────────────────────────────────────────
+
+export type {
+    EafClasses,
+    AuthorizedLayoutClasses,
+    SidebarClasses,
+    HeaderClasses,
+    FooterClasses,
+    MenuClasses,
+    UnauthorizedLayoutClasses,
+    UiClasses,
+    UiCardClasses,
+} from "./eaf-classes";
+
 // ─── App Config ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
@@ -158,50 +173,6 @@ export interface AppConfig {
     logoSrc?: string;
     /** Optional CSS class overrides for shell elements */
     classes?: EafClasses;
-}
-
-/**
- * CSS class overrides for shell layout components, keyed per component
- * (root/title/item/etc.), mirroring PrimeVue's own component token shape.
- *
- * @example
- * ```ts
- * classes: {
- *   layout: {
- *     footer: { root: 'px-10' },
- *     menu: { itemActive: 'bg-orange-100' },
- *   },
- * }
- * ```
- */
-export interface EafClasses {
-    layout?: {
-        page?: string;
-        content?: string;
-        sidebar?: {
-            root?: string;
-            header?: string;
-            body?: string;
-        };
-        sidebarLogo?: {
-            root?: string;
-        };
-        header?: {
-            root?: string;
-            title?: string;
-        };
-        footer?: {
-            root?: string;
-        };
-        menu?: {
-            root?: string;
-            groupLabel?: string;
-            item?: string;
-            itemActive?: string;
-        };
-    };
-    /** Reusable UI component overrides (card, button, etc.) */
-    ui?: Record<string, string>;
 }
 
 // ─── Validation ──────────────────────────────────────────────────────────────

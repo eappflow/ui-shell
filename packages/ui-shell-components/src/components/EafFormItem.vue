@@ -34,6 +34,11 @@ interface Props {
    * Additional class for the wrapper
    */
   class?: string
+
+  /**
+   * Additional class for the `<label>` element
+   */
+  labelClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -115,7 +120,7 @@ const renderSlot = () => {
 <template>
   <div :class="['flex flex-col gap-2', props.class, hasError ? 'p-invalid' : '']">
     <!-- Label -->
-    <label v-if="label" :for="inputId" class="font-medium">
+    <label v-if="label" :for="inputId" :class="['font-medium', props.labelClass]">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>

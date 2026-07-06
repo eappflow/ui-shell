@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { EafClasses } from "../types";
+import type { FooterClasses } from "../types";
 
 const year = new Date().getFullYear();
 
 const props = defineProps<{
-  classes?: NonNullable<EafClasses["layout"]>["footer"];
+  classes?: FooterClasses;
 }>();
 </script>
 

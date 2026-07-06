@@ -137,7 +137,7 @@ async function handleLogout(): Promise<void> {
     <AppSidebar
         :visible="sidebarVisible"
         @toggle="toggleSidebar"
-        :classes="appConfig.classes?.layout?.sidebar"
+        :classes="appConfig.classes?.layout?.authorized?.sidebar"
     >
       <!-- Logo Area -->
       <template #logo>
@@ -148,7 +148,7 @@ async function handleLogout(): Promise<void> {
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu :classes="appConfig.classes?.layout?.menu" />
+      <AppMainMenu :classes="appConfig.classes?.layout?.authorized?.menu" />
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
@@ -158,7 +158,7 @@ async function handleLogout(): Promise<void> {
       </template>
 
       <AppMainMenu
-          :classes="appConfig.classes?.layout?.menu"
+          :classes="appConfig.classes?.layout?.authorized?.menu"
           @item-click="handleMenuItemClick"
       />
     </Drawer>
@@ -167,7 +167,7 @@ async function handleLogout(): Promise<void> {
     <div class="flex-1 flex flex-col min-w-0">
       <!-- Header -->
       <AppHeader
-          :classes="appConfig.classes?.layout?.header"
+          :classes="appConfig.classes?.layout?.authorized?.header"
           @toggleSidebar="toggleSidebar"
           @logout="handleLogout"
       >
@@ -196,7 +196,7 @@ async function handleLogout(): Promise<void> {
       </main>
 
       <!-- Footer -->
-      <AppFooter :classes="appConfig.classes?.layout?.footer">
+      <AppFooter :classes="appConfig.classes?.layout?.authorized?.footer">
         <template #app-name>{{ appConfig.name }}</template>
         <template #right>
           <p>Version {{ appConfig.version }}</p>

@@ -6,7 +6,7 @@ import Menu from "primevue/menu";
 import Popover from "primevue/popover";
 import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
-import { THEME_COLORS, type ThemeColorName, type EafClasses } from "../types";
+import { THEME_COLORS, type ThemeColorName, type HeaderClasses } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 
 const router = useRouter();
@@ -14,7 +14,7 @@ const auth = useEafAuth();
 const layout = useEafLayout();
 
 const props = defineProps<{
-  classes?: NonNullable<EafClasses["layout"]>["header"];
+  classes?: HeaderClasses;
 }>();
 
 const emit = defineEmits<{
