@@ -4,8 +4,7 @@
  * Implements the MicrosoftSSOService interface from @eappflow/ui-shell
  * for demo / development purposes.
  */
-import type { AuthResult } from "@eappflow/ui-shell";
-import { MicrosoftSSOService } from "../../../../packages/ui-shell/src/services/interfaces";
+import type { MicrosoftSSOService, AuthResult } from "@eappflow/ui-shell";
 
 export function createFakeMicrosoftSSOService(): MicrosoftSSOService {
   return {
