@@ -8,21 +8,10 @@ import type { AuthService, AuthResult, User } from "@eappflow/ui-shell";
 
 export function createFakeAuthService(): AuthService {
   return {
-    microsoftSSOEnabled: false,
     async login(_request: {
       login: string;
       password: string;
     }): Promise<AuthResult> {
-      // Simulate network delay
-      await new Promise((r) => setTimeout(r, 500));
-
-      // Any credentials work in demo mode
-      return {
-        accessToken: "fake-jwt-token-demo-user",
-      };
-    },
-
-    async handleMicrosoftSSORedirect(response): Promise<AuthResult> {
       // Simulate network delay
       await new Promise((r) => setTimeout(r, 500));
 

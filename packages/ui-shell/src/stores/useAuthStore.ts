@@ -3,30 +3,41 @@ import { ref, computed, inject } from "vue";
 import type { User } from "../types";
 import {
   AUTH_SERVICE_KEY,
+  MICROSOFT_SSO_SERVICE_KEY,
   MSAL_INSTANCE_KEY,
   type AuthService,
 } from "../services/interfaces";
 import { createDefaultAuthService } from "../services/defaultAuthService";
-import { createDefaultMsalInstance } from "../services/defaultMsalInstace";
+import { createDefaultMsalInstance } from "../services/defaultMsalInstance";
 import { IPublicClientApplication } from "@azure/msal-browser";
+import { createDefaultMicrosoftSSOConfig } from "../services/defaultSSOService";
+import * as msal from "@azure/msal-browser";
+import { useRouter } from "vue-router";
 
 export const useAuthStore = defineStore("auth", () => {
+  const router = useRouter();
   const user = ref<User | null>(null);
   const accessToken = ref<string | null>(null);
   const isInitializing = ref(false);
 
+  let msalInstance = createDefaultMsalInstance();
+
+  // Get MicrosoftSSOService via DI, fall back to default (throws on real use)
+  const microsoftSSOService =
+    inject(MICROSOFT_SSO_SERVICE_KEY, undefined) ??
+    createDefaultMicrosoftSSOConfig();
+
   // Get AuthService via DI, fall back to default (throws on real use)
   const authService: AuthService =
     inject(AUTH_SERVICE_KEY, undefined) ?? createDefaultAuthService();
-  let msalInstance = createDefaultMsalInstance();
+
+  const isUsingMicrosoftSSO = computed(
+    () => microsoftSSOService.enabled !== false,
+  );
 
   const isAuthenticated = computed(() => {
     if (isInitializing.value) return false;
     return !!accessToken.value && !!user.value;
-  });
-
-  const usingMicrosoftSSO = computed(() => {
-    return authService.microsoftSSOEnabled === true;
   });
 
   const userPermissions = computed(() => user.value?.permissions || []);
@@ -43,37 +54,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     await saveAccessToken(result.accessToken);
-  }
-
-  async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
-    if (authService.microsoftSSOConfig === undefined) {
-      throw new Error("Microsoft SSO configuration is not available.");
-    }
-
-    await msalInstance.loginRedirect({
-      scopes: authService.microsoftSSOConfig.scopes,
-      state: redirectUrl,
-    });
-  }
-
-  async function saveAccessToken(token: string): Promise<void> {
-    accessToken.value = token;
-    localStorage.setItem("access_token", token);
-
-    // Load user data after login
-    await loadCurrentUser();
-  }
-
-  async function handleMicrosoftSSORedirect(): Promise<string> {
-    const authenticationResult = await msalInstance.handleRedirectPromise();
-
-    if (authenticationResult && authenticationResult.accessToken) {
-      const result =
-        await authService.handleMicrosoftSSORedirect(authenticationResult);
-      await saveAccessToken(result.accessToken);
-      return authenticationResult.state || "/";
-    }
-    return "/";
   }
 
   async function logout(): Promise<void> {
@@ -94,6 +74,14 @@ export const useAuthStore = defineStore("auth", () => {
       await logout();
       throw new Error("Failed to load user data");
     }
+  }
+
+  async function saveAccessToken(token: string): Promise<void> {
+    accessToken.value = token;
+    localStorage.setItem("access_token", token);
+
+    // Load user data after login
+    await loadCurrentUser();
   }
 
   async function restorePassword(email: string): Promise<void> {
@@ -137,9 +125,45 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  function initializeMsalInstance(msalInstanceValue: IPublicClientApplication) {
-    msalInstance = msalInstanceValue ?? createDefaultMsalInstance();
+  // ─── Microsoft SSO Start ──────────────────────────────────────────────────────────
+
+  async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
+    if (microsoftSSOService.config?.clientId === undefined) {
+      throw new Error("Microsoft SSO configuration is not available.");
+    }
+
+    await msalInstance.loginRedirect({
+      scopes: microsoftSSOService.config.scopes,
+      state: redirectUrl,
+    });
   }
+
+  async function initializeMsalInstance(): Promise<void> {
+    try {
+      msalInstance = await msal.createStandardPublicClientApplication({
+        auth: microsoftSSOService.config as msal.Configuration["auth"],
+      });
+      const redirectUrl = await handleMicrosoftSSORedirect();
+      router.push(redirectUrl).catch((err) => {
+        console.error("Failed to navigate after Microsoft SSO redirect:", err);
+      });
+    } catch (error) {
+      console.error("Failed to initialize MSAL instance:", error);
+    }
+  }
+
+  async function handleMicrosoftSSORedirect(): Promise<string> {
+    const authenticationResult = await msalInstance.handleRedirectPromise();
+
+    if (authenticationResult && authenticationResult.accessToken) {
+      const result = await microsoftSSOService.login(authenticationResult);
+      await saveAccessToken(result.accessToken);
+      return authenticationResult.state || "/";
+    }
+    return "/";
+  }
+
+  // ─── Microsoft SSO End ──────────────────────────────────────────────────────────
 
   // Initialize on store creation
   initializeFromStorage();
@@ -149,12 +173,10 @@ export const useAuthStore = defineStore("auth", () => {
     accessToken,
     isInitializing,
     isAuthenticated,
-    usingMicrosoftSSO,
+    isUsingMicrosoftSSO,
     userPermissions,
     userName,
     login,
-    loginWithMicrosoftSSO,
-    handleMicrosoftSSORedirect,
     logout,
     loadCurrentUser,
     restorePassword,
@@ -163,6 +185,7 @@ export const useAuthStore = defineStore("auth", () => {
     hasAnyPermission,
     hasAllPermissions,
     initializeFromStorage,
+    loginWithMicrosoftSSO,
     initializeMsalInstance,
   };
 });

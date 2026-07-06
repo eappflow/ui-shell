@@ -152,7 +152,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
           size="large"
         />
         <Button
-          v-if="authStore.usingMicrosoftSSO"
+          v-if="authStore.isUsingMicrosoftSSO"
           type="button"
           label="Login with Microsoft"
           :loading="loading"

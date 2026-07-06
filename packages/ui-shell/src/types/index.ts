@@ -27,6 +27,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface MicrosoftSSOLoginRequest {
+  accessToken: string;
+}
+
 export interface AuthResult {
   accessToken: string;
 }

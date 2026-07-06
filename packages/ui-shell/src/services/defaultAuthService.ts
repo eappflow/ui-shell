@@ -29,8 +29,5 @@ export function createDefaultAuthService(): AuthService {
     async changePassword() {
       throw new Error("[ui-shell] No AuthService provided.");
     },
-    async handleMicrosoftSSORedirect(response) {
-      throw new Error("[ui-shell] No AuthService provided.");
-    },
   };
 }

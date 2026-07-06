@@ -34,7 +34,9 @@ import {
   type AuthService,
   type MenuService,
   type ThemeService,
+  type MicrosoftSSOService,
   MSAL_INSTANCE_KEY,
+  MICROSOFT_SSO_SERVICE_KEY,
 } from "./services/interfaces";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
@@ -60,6 +62,7 @@ export interface EAppFlowUIShellPluginOptions {
   /** Optional service overrides (DI) */
   services?: {
     authService?: AuthService;
+    microsoftSSOService?: MicrosoftSSOService;
     menuService?: MenuService;
     themeService?: ThemeService;
   };
@@ -99,6 +102,9 @@ export const EAppFlowUIShell = {
     if (services?.themeService) {
       app.provide(THEME_SERVICE_KEY, services.themeService);
     }
+    if (services?.microsoftSSOService) {
+      app.provide(MICROSOFT_SSO_SERVICE_KEY, services.microsoftSSOService);
+    }
 
     // ── 3. Build router ──────────────────────────────────────────────────
     const layout = routerOptions?.layout ?? AuthorizedLayout;
@@ -123,31 +129,18 @@ export const EAppFlowUIShell = {
     // ── 6. Use router ────────────────────────────────────────────────────
     app.use(router);
 
-    // ── 7. Microsoft Authentication Library (msla-browser) ───────────────
+    // ── 7. Microsoft SSO ─────────────────────────────────────────────────
     const authStore = useAuthStore();
-    if (services?.authService?.microsoftSSOEnabled) {
-      if (!services?.authService?.microsoftSSOConfig) {
+    if (
+      services?.microsoftSSOService &&
+      services.microsoftSSOService?.enabled !== false
+    ) {
+      if (!services?.authService) {
         throw new Error(
-          "Microsoft SSO is enabled but no configuration is provided.",
+          "[ui-shell] Microsoft SSO is enabled, but no AuthService is provided. Provide an AuthService via app.provide(AUTH_SERVICE_KEY, ...).",
         );
       }
-      msal
-        .createStandardPublicClientApplication({
-          auth: services.authService.microsoftSSOConfig,
-        })
-        .then(async (msalInstance) => {
-          authStore.initializeMsalInstance(msalInstance);
-          const redirectUrl = await authStore.handleMicrosoftSSORedirect();
-
-          if (redirectUrl) {
-            router.push(redirectUrl).catch((err) => {
-              console.error(
-                "Failed to navigate after Microsoft SSO redirect:",
-                err,
-              );
-            });
-          }
-        });
+      authStore.initializeMsalInstance();
     }
 
     // ── 7. Use Toast ────────────────────────────────────────────────────
