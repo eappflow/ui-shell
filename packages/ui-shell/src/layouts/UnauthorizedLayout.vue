@@ -7,12 +7,12 @@ const currentYear = new Date().getFullYear()
 </script>
 
 <template>
-  <div :class="['app-page-background min-h-screen flex flex-col', appConfig.classes?.layout?.unauthorized?.page?.root]">
+  <div :class="['app-page-background min-h-screen flex flex-col bg-surface-50', appConfig.classes?.layout?.unauthorized?.page?.root]">
     <!-- Header with Logo -->
-    <header :class="['app-header border-b py-6', appConfig.classes?.layout?.unauthorized?.header?.root]">
+    <header :class="['app-header border-b border-surface-200 py-6', appConfig.classes?.layout?.unauthorized?.header?.root]">
       <div class="container mx-auto px-4">
         <div class="flex justify-center">
-          <h1 :class="['text-3xl font-bold text-primary', appConfig.classes?.layout?.unauthorized?.header?.title]">
+          <h1 :class="['text-3xl font-bold', appConfig.classes?.layout?.unauthorized?.header?.title]">
             {{ appConfig.name }}
           </h1>
         </div>
@@ -27,11 +27,11 @@ const currentYear = new Date().getFullYear()
     </main>
 
     <!-- Footer -->
-    <footer :class="['app-footer border-t py-6', appConfig.classes?.layout?.unauthorized?.footer?.root]">
+    <footer :class="['app-footer border-t border-surface-200 py-6', appConfig.classes?.layout?.unauthorized?.footer?.root]">
       <div class="container mx-auto px-4">
         <div class="text-center">
-          <p class="mb-2">{{ appConfig.name }}</p>
-          <p class="text-sm">
+          <p class="mb-2 text-surface-700">{{ appConfig.name }}</p>
+          <p class="text-sm text-surface-500">
             &copy; {{ currentYear }} {{ appConfig.name }}. All rights reserved.
           </p>
         </div>

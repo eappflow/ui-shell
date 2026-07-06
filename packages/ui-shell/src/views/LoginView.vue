@@ -128,7 +128,6 @@ async function handleLogin(): Promise<void> {
                 <Button
                     type="submit"
                     label="Login"
-                    icon="pi pi-sign-in"
                     :loading="loading"
                     :class="['w-full', uiButton]"
                     size="large"
