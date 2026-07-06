@@ -7,7 +7,7 @@ export function createDefaultMsalInstance(): IPublicClientApplication {
       get(_target, prop: string) {
         return () => {
           throw new Error(
-            `[ui-shell] No MSAL instance provided. Cannot call "${String(prop)}()". Implement and provide it via app.provide(MSAL_INSTANCE_KEY, ...).`,
+            `[ui-shell] No MSAL instance provided. Cannot call "${String(prop)}()". `,
           );
         };
       },

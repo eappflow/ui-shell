@@ -84,8 +84,6 @@ export interface ThemeService {
 
 // ─── Injection Keys ──────────────────────────────────────────────────────────
 
-export const MSAL_INSTANCE_KEY: InjectionKey<msal.IPublicClientApplication> =
-  Symbol("msalInstance");
 export const AUTH_SERVICE_KEY: InjectionKey<AuthService> =
   Symbol("authService");
 export const MENU_SERVICE_KEY: InjectionKey<MenuService> =

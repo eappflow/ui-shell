@@ -125,7 +125,7 @@ export const useAuthStore = defineStore("auth", () => {
   // ─── Microsoft SSO Start ──────────────────────────────────────────────────────────
 
   async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
-    if (microsoftSSOService.config?.clientId === undefined) {
+    if (!microsoftSSOService.config?.clientId) {
       throw new Error("Microsoft SSO configuration is not available.");
     }
 
@@ -155,7 +155,8 @@ export const useAuthStore = defineStore("auth", () => {
     if (authenticationResult && authenticationResult.accessToken) {
       const result = await microsoftSSOService.login(authenticationResult);
       await saveAccessToken(result.accessToken);
-      return authenticationResult.state || "/";
+      const state = authenticationResult.state;
+      return state && state.startsWith("/") ? state : "/";
     }
     return "/";
   }

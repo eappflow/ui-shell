@@ -17,7 +17,7 @@ export function createDefaultMicrosoftSSOConfig(): MicrosoftSSOService {
     },
     async login() {
       throw new Error(
-        "[ui-shell] No MicrosoftSSOConfig provided. Implement MicrosoftSSOConfig and provide it via app.provide(MSAL_INSTANCE_KEY, ...).",
+        "[ui-shell] No MicrosoftSSOService provided. Provide one via app.provide(MICROSOFT_SSO_SERVICE_KEY, ...) or via the plugin option services.microsoftSSOService.",
       );
     },
   };
