@@ -185,7 +185,7 @@ async function handleLogout(): Promise<void> {
         <Menu :model="accountMenuItems" class="border-none" />
       </Popover>
 
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto flex flex-col">
         <!-- Page Content -->
         <main class="flex-1 p-1 md:p-2">
           <!-- Global Action Validation Message -->
