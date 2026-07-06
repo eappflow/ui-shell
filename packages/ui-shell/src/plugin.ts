@@ -35,7 +35,6 @@ import {
   type MenuService,
   type ThemeService,
   type MicrosoftSSOService,
-  MSAL_INSTANCE_KEY,
   MICROSOFT_SSO_SERVICE_KEY,
 } from "./services/interfaces";
 import { createNavigationGuards } from "./router/navigationGuards";
@@ -140,7 +139,7 @@ export const EAppFlowUIShell = {
           "[ui-shell] Microsoft SSO is enabled, but no AuthService is provided. Provide an AuthService via app.provide(AUTH_SERVICE_KEY, ...).",
         );
       }
-      authStore.initializeMsalInstance();
+      authStore.initializeMsalInstance(router);
     }
 
     // ── 7. Use Toast ────────────────────────────────────────────────────

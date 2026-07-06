@@ -4,18 +4,15 @@ import type { User } from "../types";
 import {
   AUTH_SERVICE_KEY,
   MICROSOFT_SSO_SERVICE_KEY,
-  MSAL_INSTANCE_KEY,
   type AuthService,
 } from "../services/interfaces";
 import { createDefaultAuthService } from "../services/defaultAuthService";
 import { createDefaultMsalInstance } from "../services/defaultMsalInstance";
-import { IPublicClientApplication } from "@azure/msal-browser";
 import { createDefaultMicrosoftSSOConfig } from "../services/defaultSSOService";
 import * as msal from "@azure/msal-browser";
-import { useRouter } from "vue-router";
+import { Router } from "vue-router";
 
 export const useAuthStore = defineStore("auth", () => {
-  const router = useRouter();
   const user = ref<User | null>(null);
   const accessToken = ref<string | null>(null);
   const isInitializing = ref(false);
@@ -138,7 +135,7 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
-  async function initializeMsalInstance(): Promise<void> {
+  async function initializeMsalInstance(router: Router): Promise<void> {
     try {
       msalInstance = await msal.createStandardPublicClientApplication({
         auth: microsoftSSOService.config as msal.Configuration["auth"],
