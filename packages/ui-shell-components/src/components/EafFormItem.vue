@@ -51,6 +51,7 @@ const props = withDefaults(defineProps<Props>(), {
   label: "",
   required: false,
   class: "",
+  labelClass: "",
   modelValue: undefined,
 });
 

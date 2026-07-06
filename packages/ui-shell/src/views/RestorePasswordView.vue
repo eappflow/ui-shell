@@ -70,8 +70,8 @@ function goToLogin() {
     <template #content>
       <form
         v-if="!success"
-        @submit.prevent="handleRestorePassword"
         class="flex flex-col gap-5"
+        @submit.prevent="handleRestorePassword"
       >
         <EafFormValidationSummary :form="$f" />
 
@@ -80,7 +80,7 @@ function goToLogin() {
           label="Email"
           :form="$f"
           :required="true"
-          :labelClass="uiLabel"
+          :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-envelope" />
@@ -107,8 +107,8 @@ function goToLogin() {
           <Button
             label="Back to Login"
             link
-            @click="goToLogin"
             :disabled="loading"
+            @click="goToLogin"
           />
         </div>
       </form>

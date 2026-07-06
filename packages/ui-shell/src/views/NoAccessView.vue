@@ -11,7 +11,7 @@ const router = useRouter();
     <Card>
       <template #content>
         <div class="text-center p-8">
-          <i class="pi pi-lock text-5xl text-red-400 mb-4 block"></i>
+          <i class="pi pi-lock text-5xl text-red-400 mb-4 block" />
           <h2
             class="text-2xl font-bold text-surface-900 dark:text-surface-100 mb-2"
           >

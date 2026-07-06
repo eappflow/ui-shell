@@ -55,7 +55,9 @@ const currentYear = new Date().getFullYear();
     >
       <div class="container mx-auto px-4">
         <div class="text-center">
-          <p class="mb-2 text-surface-700">{{ appConfig.name }}</p>
+          <p class="mb-2 text-surface-700">
+            {{ appConfig.name }}
+          </p>
           <p class="text-sm text-surface-500">
             &copy; {{ currentYear }} {{ appConfig.name }}. All rights reserved.
           </p>

@@ -88,8 +88,8 @@ function toggleAccount(event: Event) {
           class="p-0 h-8 w-8"
           text
           rounded
-          @click="emit('toggleSidebar')"
           aria-label="Toggle Sidebar"
+          @click="emit('toggleSidebar')"
         />
         <h1 :class="['eaf-header-title md:hidden', classes?.title]">
           <slot name="app-name" />
@@ -102,8 +102,8 @@ function toggleAccount(event: Event) {
           class="p-0 h-8 w-8"
           text
           rounded
-          @click="toggleAccount"
           aria-label="Account"
+          @click="toggleAccount"
         />
       </div>
     </div>

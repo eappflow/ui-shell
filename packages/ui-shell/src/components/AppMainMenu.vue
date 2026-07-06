@@ -83,7 +83,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             v-if="item.icon"
             :class="item.icon"
             class="w-5 shrink-0 text-[18px] opacity-90"
-          ></i>
+          />
           <span class="truncate">{{ asEafMenuItem(item).name }}</span>
         </a>
       </template>

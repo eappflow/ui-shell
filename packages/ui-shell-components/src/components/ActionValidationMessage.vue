@@ -33,8 +33,8 @@ function handleClose() {
     v-if="shouldDisplay"
     :severity="severity"
     closable
-    @close="handleClose"
     class="mb-4"
+    @close="handleClose"
   >
     <div class="flex flex-col gap-2">
       <!-- General message -->

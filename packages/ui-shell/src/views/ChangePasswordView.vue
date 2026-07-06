@@ -105,7 +105,7 @@ async function handleChangePassword() {
 
     <Card>
       <template #content>
-        <form @submit.prevent="handleChangePassword" class="space-y-6">
+        <form class="space-y-6" @submit.prevent="handleChangePassword">
           <Message
             v-if="success"
             severity="success"
@@ -140,7 +140,7 @@ async function handleChangePassword() {
               :disabled="loading"
               placeholder="Enter your current password"
               :feedback="false"
-              toggleMask
+              toggle-mask
             />
           </EafFormItem>
 
@@ -155,7 +155,7 @@ async function handleChangePassword() {
               :disabled="loading"
               placeholder="Enter your new password"
               :feedback="true"
-              toggleMask
+              toggle-mask
             />
             <small class="text-surface-500"
               >Minimum 6 characters required</small
@@ -173,7 +173,7 @@ async function handleChangePassword() {
               :disabled="loading"
               placeholder="Confirm your new password"
               :feedback="false"
-              toggleMask
+              toggle-mask
             />
           </EafFormItem>
 
@@ -182,8 +182,8 @@ async function handleChangePassword() {
               label="Cancel"
               severity="secondary"
               outlined
-              @click="resetForm"
               :disabled="loading"
+              @click="resetForm"
             />
             <Button type="submit" label="Change Password" :loading="loading" />
           </div>
@@ -195,7 +195,7 @@ async function handleChangePassword() {
       <template #header>
         <div class="px-6 pt-6">
           <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i class="pi pi-shield text-primary"></i>
+            <i class="pi pi-shield text-primary" />
             Password Security Tips
           </h3>
         </div>

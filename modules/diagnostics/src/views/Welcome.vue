@@ -11,7 +11,7 @@ const router = useRouter();
     <Panel>
       <template #header>
         <div class="flex items-center gap-4">
-          <i class="pi pi-home text-4xl text-primary"></i>
+          <i class="pi pi-home text-4xl text-primary" />
           <div>
             <span class="text-2xl font-semibold">Welcome to eAppFlow</span>
             <p class="text-zinc-500 text-sm mt-0.5">

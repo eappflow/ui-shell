@@ -138,12 +138,12 @@ async function handleLogout(): Promise<void> {
     <!-- Desktop Sidebar -->
     <AppSidebar
       :visible="sidebarVisible"
-      @toggle="toggleSidebar"
       :classes="appConfig.classes?.layout?.authorized?.sidebar"
+      @toggle="toggleSidebar"
     >
       <!-- Logo Area -->
       <template #logo>
-        <AppLogo :appName="appConfig.name" :logoSrc="appConfig.logoSrc" />
+        <AppLogo :app-name="appConfig.name" :logo-src="appConfig.logoSrc" />
       </template>
 
       <!-- Sidebar Content -->
@@ -153,7 +153,7 @@ async function handleLogout(): Promise<void> {
     <!-- Mobile Sidebar -->
     <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
-        <AppLogo :appName="appConfig.name" :logo="appConfig.logoSrc" />
+        <AppLogo :app-name="appConfig.name" :logo="appConfig.logoSrc" />
       </template>
 
       <AppMainMenu
@@ -167,7 +167,7 @@ async function handleLogout(): Promise<void> {
       <!-- Header -->
       <AppHeader
         :classes="appConfig.classes?.layout?.authorized?.header"
-        @toggleSidebar="toggleSidebar"
+        @toggle-sidebar="toggleSidebar"
         @logout="handleLogout"
       >
         <template #app-name>
@@ -197,7 +197,9 @@ async function handleLogout(): Promise<void> {
 
         <!-- Footer -->
         <AppFooter :classes="appConfig.classes?.layout?.authorized?.footer">
-          <template #app-name>{{ appConfig.name }}</template>
+          <template #app-name>
+            {{ appConfig.name }}
+          </template>
           <template #right>
             <p>Version {{ appConfig.version }}</p>
           </template>

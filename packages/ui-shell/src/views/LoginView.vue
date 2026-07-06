@@ -77,7 +77,7 @@ async function handleLogin(): Promise<void> {
       </span>
     </template>
     <template #content>
-      <form @submit.prevent="handleLogin" class="flex flex-col gap-5">
+      <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
@@ -85,7 +85,7 @@ async function handleLogin(): Promise<void> {
           label="Login"
           :form="$f"
           :required="true"
-          :labelClass="uiLabel"
+          :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-user" />
@@ -104,7 +104,7 @@ async function handleLogin(): Promise<void> {
           label="Password"
           :form="$f"
           :required="true"
-          :labelClass="uiLabel"
+          :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-lock" />
@@ -113,9 +113,9 @@ async function handleLogin(): Promise<void> {
               placeholder="Enter your password"
               :disabled="loading"
               :feedback="false"
-              toggleMask
+              toggle-mask
               class="w-full"
-              inputClass="w-full"
+              input-class="w-full"
               autocomplete="current-password"
             />
           </IconField>

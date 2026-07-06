@@ -82,25 +82,25 @@ watch(collapsed, (value) => {
 
             <Button
               v-if="showRefresh"
+              v-tooltip.top="'Refresh'"
               icon="pi pi-refresh"
               size="small"
               severity="secondary"
               text
               rounded
-              @click="emit('refresh')"
               :loading="loading"
-              v-tooltip.top="'Refresh'"
+              @click="emit('refresh')"
             />
             <Button
               v-if="showClear"
+              v-tooltip.top="'Clear filters'"
               icon="pi pi-filter-slash"
               size="small"
               severity="secondary"
               text
               rounded
-              @click="emit('clear')"
               :disabled="loading || clearDisabled"
-              v-tooltip.top="'Clear filters'"
+              @click="emit('clear')"
             />
 
             <div
@@ -121,7 +121,7 @@ watch(collapsed, (value) => {
                   :aria-label="`Remove ${filter.label} filter`"
                   @click="emit('remove-filter', filter.key)"
                 >
-                  <i class="pi pi-times text-xs"></i>
+                  <i class="pi pi-times text-xs" />
                 </button>
               </span>
             </div>

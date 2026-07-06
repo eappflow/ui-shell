@@ -55,7 +55,7 @@ function getModuleSeverity(
     <Panel toggleable>
       <template #header>
         <div class="flex items-center gap-3">
-          <i class="pi pi-box text-xl text-primary"></i>
+          <i class="pi pi-box text-xl text-primary" />
           <span class="font-semibold">Loaded eAppFlow Modules</span>
           <Tag :value="registeredModules.length" severity="info" />
         </div>
@@ -64,7 +64,7 @@ function getModuleSeverity(
         v-if="registeredModules.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2"></i>No modules registered.
+        <i class="pi pi-info-circle mr-2" />No modules registered.
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -114,7 +114,7 @@ function getModuleSeverity(
     <Panel toggleable>
       <template #header>
         <div class="flex items-center gap-3">
-          <i class="pi pi-list text-xl text-primary"></i>
+          <i class="pi pi-list text-xl text-primary" />
           <span class="font-semibold">Loaded Menu Modules &amp; Items</span>
           <Tag :value="menuModules.length" severity="info" />
         </div>
@@ -123,7 +123,7 @@ function getModuleSeverity(
         v-if="menuModules.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2"></i>No menu modules registered.
+        <i class="pi pi-info-circle mr-2" />No menu modules registered.
       </div>
       <div v-else class="flex flex-col gap-4">
         <div
@@ -134,7 +134,7 @@ function getModuleSeverity(
           <div
             class="flex items-center gap-2 px-4 py-3 bg-zinc-50 border-b border-zinc-200"
           >
-            <i :class="mod.icon || 'pi pi-folder'" class="text-primary"></i>
+            <i :class="mod.icon || 'pi pi-folder'" class="text-primary" />
             <span class="font-semibold">{{ mod.name }}</span>
             <Tag
               :value="mod.items.length"
@@ -166,7 +166,9 @@ function getModuleSeverity(
                   :key="item.name"
                   class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
                 >
-                  <td class="py-2 px-4">{{ item.name }}</td>
+                  <td class="py-2 px-4">
+                    {{ item.name }}
+                  </td>
                   <td class="py-2 px-4">
                     <code
                       class="text-xs text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded"
@@ -210,7 +212,7 @@ function getModuleSeverity(
     <Panel toggleable>
       <template #header>
         <div class="flex items-center gap-3">
-          <i class="pi pi-lock text-xl text-primary"></i>
+          <i class="pi pi-lock text-xl text-primary" />
           <span class="font-semibold">Loaded Permissions &amp; Sources</span>
           <Tag :value="registeredPermissions.length" severity="info" />
         </div>
@@ -219,7 +221,7 @@ function getModuleSeverity(
         v-if="registeredPermissions.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2"></i>No permissions declared across
+        <i class="pi pi-info-circle mr-2" />No permissions declared across
         modules.
       </div>
       <div v-else class="overflow-x-auto">
@@ -270,8 +272,8 @@ function getModuleSeverity(
                 <i
                   v-if="currentUserPermissions.includes(perm)"
                   class="pi pi-check-circle text-green-500 text-lg"
-                ></i>
-                <i v-else class="pi pi-times-circle text-red-400 text-lg"></i>
+                />
+                <i v-else class="pi pi-times-circle text-red-400 text-lg" />
               </td>
             </tr>
           </tbody>

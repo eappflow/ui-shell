@@ -96,7 +96,9 @@ function requestNewReset() {
     <template #content>
       <!-- Token error state -->
       <div v-if="tokenError" class="flex flex-col gap-5">
-        <Message severity="error" :closable="false">{{ tokenError }}</Message>
+        <Message severity="error" :closable="false">
+          {{ tokenError }}
+        </Message>
         <div class="flex flex-col gap-3">
           <Button
             label="Request New Reset Link"
@@ -118,8 +120,8 @@ function requestNewReset() {
       <!-- Form state -->
       <form
         v-else-if="!success && token"
-        @submit.prevent="handleResetPassword"
         class="flex flex-col gap-5"
+        @submit.prevent="handleResetPassword"
       >
         <EafFormValidationSummary :form="$f" />
 
@@ -132,7 +134,7 @@ function requestNewReset() {
           label="New Password"
           :form="$f"
           :required="true"
-          :labelClass="uiLabel"
+          :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-lock" />
@@ -140,10 +142,10 @@ function requestNewReset() {
               v-model="newPassword"
               placeholder="Enter new password"
               :disabled="loading"
-              toggleMask
+              toggle-mask
               :feedback="true"
               class="w-full"
-              inputClass="w-full"
+              input-class="w-full"
               autocomplete="new-password"
             />
           </IconField>
@@ -155,7 +157,7 @@ function requestNewReset() {
           label="Confirm Password"
           :form="$f"
           :required="true"
-          :labelClass="uiLabel"
+          :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-lock" />
@@ -163,10 +165,10 @@ function requestNewReset() {
               v-model="confirmPassword"
               placeholder="Confirm new password"
               :disabled="loading"
-              toggleMask
+              toggle-mask
               :feedback="false"
               class="w-full"
-              inputClass="w-full"
+              input-class="w-full"
               autocomplete="new-password"
             />
           </IconField>
@@ -184,8 +186,8 @@ function requestNewReset() {
           <Button
             label="Back to Login"
             link
-            @click="goToLogin"
             :disabled="loading"
+            @click="goToLogin"
           />
         </div>
       </form>
