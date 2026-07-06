@@ -1,0 +1,7 @@
+{
+  "name": "primevue-mcp-wrapper",
+  "private": true,
+  "dependencies": {
+    "@primevue/mcp": "4.5.5"
+  }
+}

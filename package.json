@@ -11,7 +11,8 @@
     "type-check": "pnpm -r type-check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write \"**/*.{vue,ts,json,css,md}\""
+    "format": "prettier --write \"**/*.{vue,ts,json,css,md}\"",
+    "mcp:setup": "pnpm --dir tools/mcp-primevue install"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
