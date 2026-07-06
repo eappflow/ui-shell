@@ -19,7 +19,6 @@ import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
 import { useEafMessageStore, EafActionValidationMessage } from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
-import AppLayout from "../components/AppLayout.vue";
 
 const router = useRouter()
 const auth = useEafAuth()

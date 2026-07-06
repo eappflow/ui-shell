@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import Card from "primevue/card";
+import Panel from "primevue/panel";
+import Tag from "primevue/tag";
 import { useEafNavigation } from "@eappflow/ui-shell";
 import { useAuthStore } from "@eappflow/ui-shell";
 import { computed } from "vue";
@@ -24,90 +25,117 @@ function hasModuleWithPermission(perm: string): boolean {
         perms.includes(perm),
     );
 }
+
+function getPermissionSeverity(perm: string): "success" | "danger" | "info" | "warn" | "secondary" | "contrast" {
+    if (currentUserPermissions.value.includes(perm)) return "success";
+    return "danger";
+}
+
+function getModuleSeverity(modId: string): "info" | "success" | "warn" | "danger" | "secondary" | "contrast" {
+    const colors = ["info", "success", "warn", "info", "contrast"];
+    const hash = modId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    return colors[hash % colors.length] as "info" | "success" | "warn" | "info" | "contrast";
+}
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="flex flex-col gap-6">
         <!-- Registered Modules -->
-        <Card>
-            <template #title>
-                <div class="flex items-center gap-3 bg-red-200">
-                    <i class="pi pi-box text-2xl text-primary"></i>
-                    <span class="text-xl font-semibold">Loaded eAppFlow Modules</span>
+        <Panel toggleable>
+            <template #header>
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-box text-xl text-primary"></i>
+                    <span class="font-semibold">Loaded eAppFlow Modules</span>
+                    <Tag :value="registeredModules.length" severity="info" />
                 </div>
             </template>
-            <template #content>
-                <div v-if="registeredModules.length === 0" class="text-muted-color italic">
-                    No modules registered.
+                <div v-if="registeredModules.length === 0" class="text-zinc-400 italic py-4 text-center">
+                    <i class="pi pi-info-circle mr-2"></i>No modules registered.
                 </div>
                 <div v-else class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="border-b border-surface-200 dark:border-surface-700">
-                                <th class="text-left py-2 px-3 font-medium text-muted-color">Module ID</th>
-                                <th class="text-left py-2 px-3 font-medium text-muted-color">Declared Permissions</th>
+                            <tr class="border-b border-zinc-200">
+                                <th class="text-left py-3 px-3 font-medium text-zinc-500">Module ID</th>
+                                <th class="text-left py-3 px-3 font-medium text-zinc-500">Declared Permissions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="modId in registeredModules" :key="modId" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-800">
-                                <td class="py-2 px-3 font-mono">{{ modId }}</td>
-                                <td class="py-2 px-3">
-                                    <span v-for="perm in modulePermissionsMap[modId] || []" :key="perm" class="inline-block mr-1 mb-1 px-2 py-0.5 rounded text-xs font-medium"
-                                        :class="currentUserPermissions.includes(perm) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-400'">
-                                        {{ perm }}
-                                    </span>
-                                    <span v-if="!(modulePermissionsMap[modId] || []).length" class="text-muted-color italic text-xs">
-                                        none
-                                    </span>
+                            <tr v-for="modId in registeredModules" :key="modId" class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+                                <td class="py-3 px-3">
+                                    <Tag :value="modId" :severity="getModuleSeverity(modId)" />
+                                </td>
+                                <td class="py-3 px-3">
+                                    <div class="flex flex-wrap gap-1">
+                                        <Tag
+                                            v-for="perm in modulePermissionsMap[modId] || []"
+                                            :key="perm"
+                                            :value="perm"
+                                            :severity="getPermissionSeverity(perm)"
+                                            class="text-xs"
+                                        />
+                                        <span v-if="!(modulePermissionsMap[modId] || []).length" class="text-zinc-400 italic text-xs">
+                                            none
+                                        </span>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </template>
-        </Card>
+        </Panel>
 
-        <!-- Loaded Menu Items with Parameters -->
-        <Card>
-            <template #title>
+        <!-- Loaded Menu Items -->
+        <Panel toggleable>
+            <template #header>
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-list text-2xl text-primary"></i>
-                    <span class="text-xl font-semibold">Loaded Menu Modules &amp; Items</span>
+                    <i class="pi pi-list text-xl text-primary"></i>
+                    <span class="font-semibold">Loaded Menu Modules &amp; Items</span>
+                    <Tag :value="menuModules.length" severity="info" />
                 </div>
             </template>
-            <template #content>
-                <div v-if="menuModules.length === 0" class="text-muted-color italic">
-                    No menu modules registered.
+                <div v-if="menuModules.length === 0" class="text-zinc-400 italic py-4 text-center">
+                    <i class="pi pi-info-circle mr-2"></i>No menu modules registered.
                 </div>
-                <div v-else class="space-y-4">
-                    <div v-for="mod in menuModules" :key="mod.name" class="border rounded-lg border-surface-200 dark:border-surface-700">
-                        <div class="flex items-center gap-2 px-4 py-3 bg-surface-50 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 rounded-t-lg">
+                <div v-else class="flex flex-col gap-4">
+                    <div v-for="mod in menuModules" :key="mod.name" class="border border-zinc-200 rounded-lg overflow-hidden">
+                        <div class="flex items-center gap-2 px-4 py-3 bg-zinc-50 border-b border-zinc-200">
                             <i :class="mod.icon || 'pi pi-folder'" class="text-primary"></i>
                             <span class="font-semibold">{{ mod.name }}</span>
+                            <Tag :value="mod.items.length" severity="secondary" class="ml-auto" />
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead>
-                                    <tr class="border-b border-surface-100 dark:border-surface-800">
-                                        <th class="text-left py-2 px-4 font-medium text-muted-color">Name</th>
-                                        <th class="text-left py-2 px-4 font-medium text-muted-color">Icon</th>
-                                        <th class="text-left py-2 px-4 font-medium text-muted-color">Path</th>
-                                        <th class="text-left py-2 px-4 font-medium text-muted-color">Required Permissions</th>
+                                    <tr class="border-b border-zinc-100">
+                                        <th class="text-left py-2 px-4 font-medium text-zinc-500">Name</th>
+                                        <th class="text-left py-2 px-4 font-medium text-zinc-500">Icon</th>
+                                        <th class="text-left py-2 px-4 font-medium text-zinc-500">Path</th>
+                                        <th class="text-left py-2 px-4 font-medium text-zinc-500">Required Permissions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="item in mod.items" :key="item.name" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-800">
+                                    <tr v-for="item in mod.items" :key="item.name" class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
                                         <td class="py-2 px-4">{{ item.name }}</td>
-                                        <td class="py-2 px-4 font-mono text-xs">{{ item.icon || "—" }}</td>
-                                        <td class="py-2 px-4 font-mono text-xs">{{ item.path }}</td>
                                         <td class="py-2 px-4">
-                                            <span v-for="perm in item.permissions || []" :key="perm" class="inline-block mr-1 mb-1 px-2 py-0.5 rounded text-xs font-medium"
-                                                :class="currentUserPermissions.includes(perm) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'">
-                                                {{ perm }}
-                                            </span>
-                                            <span v-if="!item.permissions || item.permissions.length === 0" class="text-muted-color italic text-xs">
-                                                public
-                                            </span>
+                                            <code class="text-xs text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded">{{ item.icon || "—" }}</code>
+                                        </td>
+                                        <td class="py-2 px-4">
+                                            <code class="text-xs text-primary bg-zinc-100 px-1.5 py-0.5 rounded">{{ item.path }}</code>
+                                        </td>
+                                        <td class="py-2 px-4">
+                                            <div class="flex flex-wrap gap-1">
+                                                <Tag
+                                                    v-for="perm in item.permissions || []"
+                                                    :key="perm"
+                                                    :value="perm"
+                                                    :severity="getPermissionSeverity(perm)"
+                                                    class="text-xs"
+                                                />
+                                                <span v-if="!item.permissions || item.permissions.length === 0" class="text-zinc-400 italic text-xs">
+                                                    public
+                                                </span>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -115,51 +143,56 @@ function hasModuleWithPermission(perm: string): boolean {
                         </div>
                     </div>
                 </div>
-            </template>
-        </Card>
+        </Panel>
 
-        <!-- Loaded Permissions with Source Information -->
-        <Card>
-            <template #title>
+        <!-- Loaded Permissions -->
+        <Panel toggleable>
+            <template #header>
                 <div class="flex items-center gap-3">
-                    <i class="pi pi-lock text-2xl text-primary"></i>
-                    <span class="text-xl font-semibold">Loaded Permissions &amp; Sources</span>
+                    <i class="pi pi-lock text-xl text-primary"></i>
+                    <span class="font-semibold">Loaded Permissions &amp; Sources</span>
+                    <Tag :value="registeredPermissions.length" severity="info" />
                 </div>
             </template>
-            <template #content>
-                <div v-if="registeredPermissions.length === 0" class="text-muted-color italic">
-                    No permissions declared across modules.
+                <div v-if="registeredPermissions.length === 0" class="text-zinc-400 italic py-4 text-center">
+                    <i class="pi pi-info-circle mr-2"></i>No permissions declared across modules.
                 </div>
                 <div v-else class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
-                            <tr class="border-b border-surface-200 dark:border-surface-700">
-                                <th class="text-left py-2 px-3 font-medium text-muted-color">Permission</th>
-                                <th class="text-left py-2 px-3 font-medium text-muted-color">Source Module(s)</th>
-                                <th class="text-left py-2 px-3 font-medium text-muted-color">Current User Has</th>
+                            <tr class="border-b border-zinc-200">
+                                <th class="text-left py-3 px-3 font-medium text-zinc-500">Permission</th>
+                                <th class="text-left py-3 px-3 font-medium text-zinc-500">Source Module(s)</th>
+                                <th class="text-left py-3 px-3 font-medium text-zinc-500">Current User Has</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="perm in registeredPermissions" :key="perm" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-800">
-                                <td class="py-2 px-3 font-mono">{{ perm }}</td>
-                                <td class="py-2 px-3">
-                                    <span v-for="modId in getModulesForPermission(perm)" :key="modId"
-                                        class="inline-block mr-1 mb-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                        {{ modId }}
-                                    </span>
-                                    <span v-if="!hasModuleWithPermission(perm)" class="text-muted-color italic text-xs">
-                                        external / runtime
-                                    </span>
+                            <tr v-for="perm in registeredPermissions" :key="perm" class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
+                                <td class="py-3 px-3">
+                                    <code class="text-sm bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded font-mono">{{ perm }}</code>
                                 </td>
-                                <td class="py-2 px-3">
-                                    <i v-if="currentUserPermissions.includes(perm)" class="pi pi-check-circle text-green-500"></i>
-                                    <i v-else class="pi pi-times-circle text-red-400"></i>
+                                <td class="py-3 px-3">
+                                    <div class="flex flex-wrap gap-1">
+                                        <Tag
+                                            v-for="modId in getModulesForPermission(perm)"
+                                            :key="modId"
+                                            :value="modId"
+                                            :severity="getModuleSeverity(modId)"
+                                            class="text-xs"
+                                        />
+                                        <span v-if="!hasModuleWithPermission(perm)" class="text-zinc-400 italic text-xs">
+                                            external / runtime
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-3">
+                                    <i v-if="currentUserPermissions.includes(perm)" class="pi pi-check-circle text-green-500 text-lg"></i>
+                                    <i v-else class="pi pi-times-circle text-red-400 text-lg"></i>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </template>
-        </Card>
+        </Panel>
     </div>
 </template>
