@@ -5,7 +5,7 @@ import type { InjectionKey } from "vue";
  */
 export interface DiagnosticsConfig {
   /** Whether to register the module in the menu */
-  registerInMenu?: boolean;  
+  registerInMenu?: boolean;
 }
 
 /** Injection key for diagnostics module config */

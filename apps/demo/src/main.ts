@@ -8,7 +8,6 @@
 
 import "./assets/main.css";
 
-
 import { createApp, type App as VueApp } from "vue";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
@@ -40,14 +39,13 @@ app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      darkModeSelector: 'none',
+      darkModeSelector: "none",
       cssLayer: false,
       prefix: "p",
     },
   },
   ripple: true,
 });
-
 
 // Use the eAppFlow UI Shell plugin — wires up Pinia, router, DI, modules
 app.use(EAppFlowUIShell, {
@@ -66,7 +64,6 @@ app.use(EAppFlowUIShell, {
     ],
   },
 });
-
 
 app.component("Button", Button);
 app.component("InputText", InputText);

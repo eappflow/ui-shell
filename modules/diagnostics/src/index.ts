@@ -5,7 +5,6 @@
  * for the eAppFlow UI Shell.
  */
 
-
 import { EafModule } from "@eappflow/ui-shell";
 import type { DiagnosticsConfig } from "./types";
 import { DIAGNOSTICS_CONFIG_KEY } from "./types";
@@ -20,7 +19,7 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
     id: "diagnostics",
     name: "Diagnostics",
     version: "0.1.0",
-    permissions: ["TechnicalAdministrator"],  
+    permissions: ["TechnicalAdministrator"],
     routes: [
       {
         path: "diagnostics/welcome",

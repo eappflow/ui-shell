@@ -52,12 +52,14 @@ export const useLayoutStore = defineStore("layout", () => {
 
   // Listen for system theme changes
   if (typeof window !== "undefined" && window.matchMedia) {
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-      if (localStorage.getItem("theme_dark_mode") === null) {
-        darkMode.value = e.matches;
-        applyTheme();
-      }
-    });
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        if (localStorage.getItem("theme_dark_mode") === null) {
+          darkMode.value = e.matches;
+          applyTheme();
+        }
+      });
   }
 
   return {

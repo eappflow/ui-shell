@@ -61,9 +61,7 @@ modules/<module-name>/
       "require": "./dist/style.css"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
     "type-check": "vue-tsc --noEmit"
@@ -93,6 +91,7 @@ modules/<module-name>/
 ```
 
 > **Notes:**
+>
 > - `"private": false` allows publishing to npm if needed.
 > - `peerDependencies` ensure the host app provides Vue, Vue Router, and the UI Shell.
 > - The `exports` map exposes two entry points: the module code (`"."`) and styles (`"./style"`).
@@ -428,20 +427,20 @@ pnpm --filter @eappflow/<module-name> build
 
 ## Summary Checklist
 
-| Step | File / Action | Purpose |
-|------|---------------|---------|
-| 1 | `modules/<module-name>/` | Create directory structure |
-| 2 | `package.json` | Define package metadata & dependencies |
-| 3 | `vite.config.ts` | Configure Vite library build with PrimeVue externalization |
-| 4 | `tsconfig.json` | TypeScript configuration extending base |
-| 5 | `src/env.d.ts` | Vite + Vue SFC type declarations |
-| 6 | `src/types.ts` | Module config interface & injection key |
-| 7 | `src/style/index.css` | TailwindCSS + PrimeVue styles with `tailwindcss-primeui` |
-| 8 | `src/index.ts` | Module factory function (routes, menus, permissions, install) |
-| 9 | `src/views/*.vue` | View components |
-| 10 | Host `main.ts` | Import & register module via plugin options |
-| 11 | Host `main.css` | Import module styles |
-| 12 | Host `vite.config.ts` + `tsconfig.json` | Source aliases for HMR |
+| Step | File / Action                           | Purpose                                                       |
+| ---- | --------------------------------------- | ------------------------------------------------------------- |
+| 1    | `modules/<module-name>/`                | Create directory structure                                    |
+| 2    | `package.json`                          | Define package metadata & dependencies                        |
+| 3    | `vite.config.ts`                        | Configure Vite library build with PrimeVue externalization    |
+| 4    | `tsconfig.json`                         | TypeScript configuration extending base                       |
+| 5    | `src/env.d.ts`                          | Vite + Vue SFC type declarations                              |
+| 6    | `src/types.ts`                          | Module config interface & injection key                       |
+| 7    | `src/style/index.css`                   | TailwindCSS + PrimeVue styles with `tailwindcss-primeui`      |
+| 8    | `src/index.ts`                          | Module factory function (routes, menus, permissions, install) |
+| 9    | `src/views/*.vue`                       | View components                                               |
+| 10   | Host `main.ts`                          | Import & register module via plugin options                   |
+| 11   | Host `main.css`                         | Import module styles                                          |
+| 12   | Host `vite.config.ts` + `tsconfig.json` | Source aliases for HMR                                        |
 
 ---
 
@@ -454,6 +453,7 @@ Ensure `/^primevue\/.*/` is in `vite.config.ts` → `build.rollupOptions.externa
 ### Styles Not Applied
 
 Make sure:
+
 - `@import "tailwindcss-primeui"` is in the module's `src/style/index.css`
 - The host app imports `@eappflow/<module-name>/style` in its CSS
 - The host app also imports `tailwindcss-primeui` in its own CSS

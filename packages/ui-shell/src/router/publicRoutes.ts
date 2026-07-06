@@ -1,4 +1,4 @@
-import  UnauthorizedLayout  from "../layouts/UnauthorizedLayout.vue";
+import UnauthorizedLayout from "../layouts/UnauthorizedLayout.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 /**
@@ -27,12 +27,12 @@ export function createPublicRoutes(): RouteRecordRaw[] {
       path: "/login",
       component: UnauthorizedLayout,
       children: [
-      {
-        path: '',
-        name: 'login',
-        component: () => import("../views/LoginView.vue"),
-        meta: { requiresAuth: false },
-      },
+        {
+          path: "",
+          name: "login",
+          component: () => import("../views/LoginView.vue"),
+          meta: { requiresAuth: false },
+        },
       ],
       meta: { public: true },
     },
@@ -40,12 +40,12 @@ export function createPublicRoutes(): RouteRecordRaw[] {
       path: "/restore-password",
       component: UnauthorizedLayout,
       children: [
-      {
-        path: '',
-        name: 'restore-password',
-        component: () => import("../views/RestorePasswordView.vue"),
-        meta: { requiresAuth: false },
-      },
+        {
+          path: "",
+          name: "restore-password",
+          component: () => import("../views/RestorePasswordView.vue"),
+          meta: { requiresAuth: false },
+        },
       ],
       meta: { public: true },
     },
@@ -53,12 +53,12 @@ export function createPublicRoutes(): RouteRecordRaw[] {
       path: "/recover-password/:token?",
       component: UnauthorizedLayout,
       children: [
-      {
-        path: '',
-        name: 'recover-password',
-        component: () => import("../views/RecoverPasswordView.vue"),
-        meta: { requiresAuth: false },
-      },
+        {
+          path: "",
+          name: "recover-password",
+          component: () => import("../views/RecoverPasswordView.vue"),
+          meta: { requiresAuth: false },
+        },
       ],
       meta: { public: true },
     },

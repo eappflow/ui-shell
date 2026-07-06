@@ -3,9 +3,8 @@ import "./assets/main.css";
 </script>
 
 <template>
-    <!-- <Button label="fdasdfasdf">ccc</Button> -->
-    <!-- Route tree handles layout: public routes render standalone,
+  <!-- <Button label="fdasdfasdf">ccc</Button> -->
+  <!-- Route tree handles layout: public routes render standalone,
          protected routes are children of AuthorizedLayout -->
-    <router-view />
-
+  <router-view />
 </template>

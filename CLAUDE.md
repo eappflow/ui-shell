@@ -126,16 +126,16 @@ pnpm test:watch                                          # Watch mode
 
 ### Key Files
 
-| File | Purpose |
-|---|---|
-| `packages/ui-shell/src/plugin.ts` | Plugin bootstrap (entry point for host apps) |
-| `packages/ui-shell/src/types/index.ts` | All TypeScript types (`EafModule`, `EafMenuItem`, `User`, etc.) |
-| `packages/ui-shell/src/services/interfaces.ts` | DI interfaces + injection keys |
-| `packages/ui-shell/src/plugins/registry.ts` | Module registration logic |
-| `packages/ui-shell/src/router/navigationGuards.ts` | Auth/permission route guards |
-| `packages/ui-shell/src/router/buildModuleRoutes.ts` | Route tree construction |
-| `packages/ui-shell/src/stores/useAuthStore.ts` | Auth state management |
-| `packages/ui-shell/src/stores/useEafNavigationStore.ts` | Navigation/menu state |
-| `packages/ui-shell/src/stores/useLayoutStore.ts` | Theme/sidebar state |
-| `packages/ui-shell/src/utils/permissions.ts` | Permission filtering utilities |
-| `doc/new-eAppFlow-module.md` | Guide for creating new modules |
+| File                                                    | Purpose                                                         |
+| ------------------------------------------------------- | --------------------------------------------------------------- |
+| `packages/ui-shell/src/plugin.ts`                       | Plugin bootstrap (entry point for host apps)                    |
+| `packages/ui-shell/src/types/index.ts`                  | All TypeScript types (`EafModule`, `EafMenuItem`, `User`, etc.) |
+| `packages/ui-shell/src/services/interfaces.ts`          | DI interfaces + injection keys                                  |
+| `packages/ui-shell/src/plugins/registry.ts`             | Module registration logic                                       |
+| `packages/ui-shell/src/router/navigationGuards.ts`      | Auth/permission route guards                                    |
+| `packages/ui-shell/src/router/buildModuleRoutes.ts`     | Route tree construction                                         |
+| `packages/ui-shell/src/stores/useAuthStore.ts`          | Auth state management                                           |
+| `packages/ui-shell/src/stores/useEafNavigationStore.ts` | Navigation/menu state                                           |
+| `packages/ui-shell/src/stores/useLayoutStore.ts`        | Theme/sidebar state                                             |
+| `packages/ui-shell/src/utils/permissions.ts`            | Permission filtering utilities                                  |
+| `doc/new-eAppFlow-module.md`                            | Guide for creating new modules                                  |

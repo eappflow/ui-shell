@@ -5,7 +5,9 @@
     "paths": {
       "@/*": ["./../../packages/ui-shell-components/src/*"],
       "@eappflow/ui-shell": ["./../../packages/ui-shell/src"],
-      "@eappflow/ui-shell-components": ["./../../packages/ui-shell-components/src"],
+      "@eappflow/ui-shell-components": [
+        "./../../packages/ui-shell-components/src"
+      ],
       "@eappflow/diagnostics": ["./../../modules/diagnostics/src"]
     }
   },

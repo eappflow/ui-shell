@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {SidebarClasses} from "../types";
+import type { SidebarClasses } from "../types";
 
 defineProps<{
   visible: boolean;
@@ -12,17 +12,28 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <aside v-if="visible"
-         :class="['eaf-sidebar', 'hidden md:flex md:flex-col transition-all duration-300', classes?.root]"
+  <aside
+    v-if="visible"
+    :class="[
+      'eaf-sidebar',
+      'hidden md:flex md:flex-col transition-all duration-300',
+      classes?.root,
+    ]"
   >
-    <div :class="['eaf-sidebar-header', 'flex items-center justify-between px-4 flex-shrink-0', classes?.header]">
+    <div
+      :class="[
+        'eaf-sidebar-header',
+        'flex items-center justify-between px-4 flex-shrink-0',
+        classes?.header,
+      ]"
+    >
       <span class="eaf-sidebar-logo">
-        <slot name="logo"/>
+        <slot name="logo" />
       </span>
       <!--            <Button icon="pi pi-times" text rounded severity="secondary" size="small" @click="emit('toggle')" aria-label="Close Sidebar" />-->
     </div>
     <div :class="['flex-1 overflow-y-auto p-3', classes?.body]">
-      <slot/>
+      <slot />
     </div>
   </aside>
 </template>

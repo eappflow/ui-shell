@@ -1,128 +1,131 @@
 <script setup lang="ts">
-import { ref, computed, inject, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import Menu from 'primevue/menu'
-import Drawer from 'primevue/drawer'
-import Popover from 'primevue/popover'
-import Toast from 'primevue/toast'
-import ConfirmDialog from 'primevue/confirmdialog'
-import { useEafAuth } from '../composables/useEafAuth'
-import { useEafLayout } from '../composables/useEafLayout'
-import { APP_CONFIG_KEY } from '../services/interfaces'
-import type { MenuItem as PrimeMenuItem } from 'primevue/menuitem'
-import { THEME_COLORS, type ThemeColorName } from '../types'
-import AppMainMenu from '../components/AppMainMenu.vue'
+import { ref, computed, inject, watch } from "vue";
+import { useRouter } from "vue-router";
+import Button from "primevue/button";
+import Menu from "primevue/menu";
+import Drawer from "primevue/drawer";
+import Popover from "primevue/popover";
+import Toast from "primevue/toast";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useEafAuth } from "../composables/useEafAuth";
+import { useEafLayout } from "../composables/useEafLayout";
+import { APP_CONFIG_KEY } from "../services/interfaces";
+import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
+import { THEME_COLORS, type ThemeColorName } from "../types";
+import AppMainMenu from "../components/AppMainMenu.vue";
 import AppFooter from "../components/AppFooter.vue";
 import AppLogo from "../components/AppLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
-import { useEafMessageStore, EafActionValidationMessage } from "@eappflow/ui-shell-components";
+import {
+  useEafMessageStore,
+  EafActionValidationMessage,
+} from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
 
-const router = useRouter()
-const auth = useEafAuth()
-const layout = useEafLayout()
-const appConfig = inject(APP_CONFIG_KEY, { name: 'App', version: '0.0.0' })
+const router = useRouter();
+const auth = useEafAuth();
+const layout = useEafLayout();
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const messageStore = useEafMessageStore();
 const toast = useToast();
 
 // Sidebar state
-const sidebarVisible = ref(true)
-const mobileSidebarVisible = ref(false)
+const sidebarVisible = ref(true);
+const mobileSidebarVisible = ref(false);
 
 // Refs for overlay panels
-const settingsPanel = ref()
-const accountPanel = ref()
+const settingsPanel = ref();
+const accountPanel = ref();
 
 // Subscribe to message store and display toasts
 watch(
-    () => messageStore.messages.length,
-    () => {
-      if (messageStore.messages.length > 0) {
-        const message = messageStore.messages[0];
-        if (message) {
-          toast.add(message);
-        }
-        messageStore.clearMessages();
+  () => messageStore.messages.length,
+  () => {
+    if (messageStore.messages.length > 0) {
+      const message = messageStore.messages[0];
+      if (message) {
+        toast.add(message);
       }
-    },
+      messageStore.clearMessages();
+    }
+  },
 );
 
 // Settings menu items
 const themeColors = computed<PrimeMenuItem[]>(() =>
-    Object.keys(THEME_COLORS).map((color) => ({
-      label: color.charAt(0).toUpperCase() + color.slice(1),
-      icon: 'pi pi-circle-fill',
-      style: { color: THEME_COLORS[color as ThemeColorName] },
-      command: () => layout.setPrimaryColor(color as ThemeColorName),
-    }))
-)
+  Object.keys(THEME_COLORS).map((color) => ({
+    label: color.charAt(0).toUpperCase() + color.slice(1),
+    icon: "pi pi-circle-fill",
+    style: { color: THEME_COLORS[color as ThemeColorName] },
+    command: () => layout.setPrimaryColor(color as ThemeColorName),
+  })),
+);
 
 const settingsMenuItems = computed<PrimeMenuItem[]>(() => [
   {
-    label: 'Dark Mode',
-    icon: layout.darkMode ? 'pi pi-moon' : 'pi pi-sun',
+    label: "Dark Mode",
+    icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
     command: () => layout.toggleDarkMode(),
   },
   {
     separator: true,
   },
   {
-    label: 'Theme Color',
-    icon: 'pi pi-palette',
+    label: "Theme Color",
+    icon: "pi pi-palette",
     items: themeColors.value,
   },
-])
+]);
 
 const accountMenuItems = computed<PrimeMenuItem[]>(() => [
   {
-    label: auth.userName || 'User',
-    icon: 'pi pi-user',
+    label: auth.userName || "User",
+    icon: "pi pi-user",
     disabled: true,
   },
   {
     separator: true,
   },
   {
-    label: 'Change Password',
-    icon: 'pi pi-key',
-    command: () => router.push('/change-password'),
+    label: "Change Password",
+    icon: "pi pi-key",
+    command: () => router.push("/change-password"),
   },
   {
     separator: true,
   },
   {
-    label: 'Logout',
-    icon: 'pi pi-sign-out',
+    label: "Logout",
+    icon: "pi pi-sign-out",
     command: () => handleLogout(),
   },
-])
+]);
 
 // Methods
 function toggleSidebar(): void {
-  sidebarVisible.value = !sidebarVisible.value
+  sidebarVisible.value = !sidebarVisible.value;
 }
 
 function toggleMobileSidebar(): void {
-  mobileSidebarVisible.value = !mobileSidebarVisible.value
+  mobileSidebarVisible.value = !mobileSidebarVisible.value;
 }
 
 function toggleSettings(event: Event): void {
-  settingsPanel.value?.toggle(event)
+  settingsPanel.value?.toggle(event);
 }
 
 function toggleAccount(event: Event): void {
-  accountPanel.value?.toggle(event)
+  accountPanel.value?.toggle(event);
 }
 
 function handleMenuItemClick(): void {
-  mobileSidebarVisible.value = false
+  mobileSidebarVisible.value = false;
 }
 
 async function handleLogout(): Promise<void> {
-  await auth.logout()
-  router.push('/login')
+  await auth.logout();
+  router.push("/login");
 }
 </script>
 
@@ -134,16 +137,13 @@ async function handleLogout(): Promise<void> {
 
     <!-- Desktop Sidebar -->
     <AppSidebar
-        :visible="sidebarVisible"
-        @toggle="toggleSidebar"
-        :classes="appConfig.classes?.layout?.authorized?.sidebar"
+      :visible="sidebarVisible"
+      @toggle="toggleSidebar"
+      :classes="appConfig.classes?.layout?.authorized?.sidebar"
     >
       <!-- Logo Area -->
       <template #logo>
-        <AppLogo
-            :appName="appConfig.name"
-            :logoSrc="appConfig.logoSrc"
-        />
+        <AppLogo :appName="appConfig.name" :logoSrc="appConfig.logoSrc" />
       </template>
 
       <!-- Sidebar Content -->
@@ -153,12 +153,12 @@ async function handleLogout(): Promise<void> {
     <!-- Mobile Sidebar -->
     <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
-        <AppLogo :appName="appConfig.name" :logo="appConfig.logoSrc"/>
+        <AppLogo :appName="appConfig.name" :logo="appConfig.logoSrc" />
       </template>
 
       <AppMainMenu
-          :classes="appConfig.classes?.layout?.authorized?.menu"
-          @item-click="handleMenuItemClick"
+        :classes="appConfig.classes?.layout?.authorized?.menu"
+        @item-click="handleMenuItemClick"
       />
     </Drawer>
 
@@ -166,9 +166,9 @@ async function handleLogout(): Promise<void> {
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
       <!-- Header -->
       <AppHeader
-          :classes="appConfig.classes?.layout?.authorized?.header"
-          @toggleSidebar="toggleSidebar"
-          @logout="handleLogout"
+        :classes="appConfig.classes?.layout?.authorized?.header"
+        @toggleSidebar="toggleSidebar"
+        @logout="handleLogout"
       >
         <template #app-name>
           {{ appConfig.name }}

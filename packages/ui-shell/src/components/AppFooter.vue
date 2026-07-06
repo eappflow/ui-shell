@@ -10,8 +10,8 @@ const props = defineProps<{
 
 <template>
   <footer :class="['eaf-footer', classes?.root]">
-    <span>&copy; {{ year }}
-      <slot name="app-name" />. All rights reserved.
+    <span
+      >&copy; {{ year }} <slot name="app-name" />. All rights reserved.
     </span>
     <slot name="right" />
   </footer>

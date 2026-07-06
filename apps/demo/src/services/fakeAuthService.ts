@@ -4,15 +4,14 @@
  * Implements the AuthService interface from @eappflow/ui-shell
  * for demo / development purposes.
  */
-import type {
-  AuthService,
-  AuthResult,
-  User,
-} from "@eappflow/ui-shell";
+import type { AuthService, AuthResult, User } from "@eappflow/ui-shell";
 
 export function createFakeAuthService(): AuthService {
   return {
-    async login(_request: { login: string; password: string }): Promise<AuthResult> {
+    async login(_request: {
+      login: string;
+      password: string;
+    }): Promise<AuthResult> {
       // Simulate network delay
       await new Promise((r) => setTimeout(r, 500));
 
@@ -33,7 +32,7 @@ export function createFakeAuthService(): AuthService {
         firstName: "Demo",
         lastName: "User",
         email: "demo@eappflow.io",
-        permissions: [          
+        permissions: [
           "Documents",
           "Employees",
           "Locations",
@@ -41,7 +40,7 @@ export function createFakeAuthService(): AuthService {
           "Workstations",
           "TenantSettings",
           "ExternalEvent",
-          "TechnicalAdministrator"
+          "TechnicalAdministrator",
         ],
       };
     },

@@ -6,18 +6,9 @@
 @import "@eappflow/ui-shell/style";
 @import "tailwindcss-primeui";
 
-
-
-
 /* PrimeVue styles */
 @import "primeicons/primeicons.css";
 
 /* Force-include classes used by packages */
-
-
-
-
-
-
 
 /* @layer tailwind-base, primeui, tailwind-utilities; */

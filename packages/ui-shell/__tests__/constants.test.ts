@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { DEFAULT_NAVIGATION_ITEMS, STORAGE_KEYS, SHELL_VERSION } from "../src/utils/constants";
+import {
+  DEFAULT_NAVIGATION_ITEMS,
+  STORAGE_KEYS,
+  SHELL_VERSION,
+} from "../src/utils/constants";
 
 describe("@eappflow/ui-shell", () => {
   it("should export version", () => {

@@ -23,7 +23,7 @@ const emit = defineEmits<{
 }>();
 
 const visibleMenuModules = computed(() =>
-    filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
+  filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
 );
 
 // PrimeVue's Menu model natively supports one level of grouping via
@@ -31,10 +31,10 @@ const visibleMenuModules = computed(() =>
 // module.items (real EafMenuItem[]) is passed through completely
 // untouched, no reshaping/renaming of your fields.
 const menuModel = computed(() =>
-    visibleMenuModules.value.map((module) => ({
-      label: module.name,
-      items: module.items,
-    })),
+  visibleMenuModules.value.map((module) => ({
+    label: module.name,
+    items: module.items,
+  })),
 );
 
 // Unchanged from your original - same router.push, same emit.
@@ -70,19 +70,19 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
 
       <template #item="{ item, props: itemProps }">
         <a
-            v-bind="itemProps.action"
-            :class="[
+          v-bind="itemProps.action"
+          :class="[
             'eaf-menu-item',
             classes?.item,
             isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
             isActive(asEafMenuItem(item).path) && classes?.['item-active'],
           ]"
-            @click="navigateToPage(asEafMenuItem(item))"
+          @click="navigateToPage(asEafMenuItem(item))"
         >
           <i
-              v-if="item.icon"
-              :class="item.icon"
-              class="w-5 shrink-0 text-[18px] opacity-90"
+            v-if="item.icon"
+            :class="item.icon"
+            class="w-5 shrink-0 text-[18px] opacity-90"
           ></i>
           <span class="truncate">{{ asEafMenuItem(item).name }}</span>
         </a>

@@ -6,7 +6,11 @@ import Menu from "primevue/menu";
 import Popover from "primevue/popover";
 import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
-import { THEME_COLORS, type ThemeColorName, type HeaderClasses } from "../types";
+import {
+  THEME_COLORS,
+  type ThemeColorName,
+  type HeaderClasses,
+} from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 
 const router = useRouter();
@@ -25,12 +29,12 @@ const emit = defineEmits<{
 const accountPanel = ref();
 
 const themeColors = computed<PrimeMenuItem[]>(() =>
-    Object.keys(THEME_COLORS).map((color) => ({
-      label: color.charAt(0).toUpperCase() + color.slice(1),
-      icon: "pi pi-circle-fill",
-      style: { color: THEME_COLORS[color as ThemeColorName] },
-      command: () => layout.setPrimaryColor(color as ThemeColorName),
-    })),
+  Object.keys(THEME_COLORS).map((color) => ({
+    label: color.charAt(0).toUpperCase() + color.slice(1),
+    icon: "pi pi-circle-fill",
+    style: { color: THEME_COLORS[color as ThemeColorName] },
+    command: () => layout.setPrimaryColor(color as ThemeColorName),
+  })),
 );
 
 const accountMenuItems = computed<PrimeMenuItem[]>(() => [
@@ -77,16 +81,30 @@ function toggleAccount(event: Event) {
 
 <template>
   <header :class="['eaf-header', classes?.root]">
-    <div class="flex items-center justify-between ">
+    <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <Button icon="pi pi-bars" class="p-0 h-8 w-8" text rounded @click="emit('toggleSidebar')" aria-label="Toggle Sidebar" />
+        <Button
+          icon="pi pi-bars"
+          class="p-0 h-8 w-8"
+          text
+          rounded
+          @click="emit('toggleSidebar')"
+          aria-label="Toggle Sidebar"
+        />
         <h1 :class="['eaf-header-title md:hidden', classes?.title]">
           <slot name="app-name" />
         </h1>
       </div>
 
       <div class="flex items-center gap-2">
-        <Button icon="pi pi-user" class="p-0 h-8 w-8" text rounded @click="toggleAccount" aria-label="Account" />
+        <Button
+          icon="pi pi-user"
+          class="p-0 h-8 w-8"
+          text
+          rounded
+          @click="toggleAccount"
+          aria-label="Account"
+        />
       </div>
     </div>
 

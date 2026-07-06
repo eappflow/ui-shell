@@ -1,5 +1,5 @@
-import { useEafMessageStore } from '@/stores/useEafMessageStore'
-import type { ApiErrorResponse } from '@/types'
+import { useEafMessageStore } from "@/stores/useEafMessageStore";
+import type { ApiErrorResponse } from "@/types";
 
 /**
  * Composable for handling business validation errors from API action responses
@@ -11,7 +11,7 @@ import type { ApiErrorResponse } from '@/types'
  * @returns Helper functions for handling validation errors
  */
 export function useActionValidation() {
-  const messageStore = useEafMessageStore()
+  const messageStore = useEafMessageStore();
 
   /**
    * Handles API error responses, specifically 422 validation errors
@@ -24,61 +24,66 @@ export function useActionValidation() {
    */
   function handleApiError(error: unknown): boolean {
     // Clear previous errors before showing new ones
-    messageStore.clearValidationMessage()
+    messageStore.clearValidationMessage();
 
     // Type guard to check if error has response structure
-    if (!error || typeof error !== 'object' || !('response' in error)) {
-      return false
+    if (!error || typeof error !== "object" || !("response" in error)) {
+      return false;
     }
 
     const axiosError = error as {
       response?: {
-        status?: number
-        data?: ApiErrorResponse
-      }
-    }
+        status?: number;
+        data?: ApiErrorResponse;
+      };
+    };
 
     // Check if it's a 422 validation error or 400 bad request
-    if (axiosError.response?.status !== 422 && axiosError.response?.status !== 400) {
-      return false
+    if (
+      axiosError.response?.status !== 422 &&
+      axiosError.response?.status !== 400
+    ) {
+      return false;
     }
 
-    const responseData = axiosError.response.data
+    const responseData = axiosError.response.data;
 
     if (!responseData) {
-      return false
+      return false;
     }
 
     // Log traceId for debugging
     if (responseData.traceId) {
-      console.warn('[Action Validation Error]', {
+      console.warn("[Action Validation Error]", {
         code: responseData.code,
         message: responseData.message,
         traceId: responseData.traceId,
         status: axiosError.response.status,
-      })
+      });
     }
 
     // Extract validation errors - flatten all field errors into a single list
-    const validationErrors: string[] = []
+    const validationErrors: string[] = [];
 
     if (responseData.validationErrors) {
-      Object.entries(responseData.validationErrors).forEach(([fieldName, messages]) => {
-        messages.forEach((msg) => {
-          // Include field name with the message for context
-          validationErrors.push(`${fieldName}: ${msg}`)
-        })
-      })
+      Object.entries(responseData.validationErrors).forEach(
+        ([fieldName, messages]) => {
+          messages.forEach((msg) => {
+            // Include field name with the message for context
+            validationErrors.push(`${fieldName}: ${msg}`);
+          });
+        },
+      );
     }
 
     // Set validation message in the global store
     messageStore.setValidationMessage(
-      responseData.message || 'Validation failed',
+      responseData.message || "Validation failed",
       validationErrors,
-      'error'
-    )
+      "error",
+    );
 
-    return true
+    return true;
   }
 
   /**
@@ -92,23 +97,23 @@ export function useActionValidation() {
   function setValidationMessage(
     generalMessage: string,
     errors?: string[],
-    severity: 'error' | 'warn' | 'info' | 'success' = 'error'
+    severity: "error" | "warn" | "info" | "success" = "error",
   ): void {
     // Clear previous errors before showing new ones
-    messageStore.clearValidationMessage()
-    messageStore.setValidationMessage(generalMessage, errors || [], severity)
+    messageStore.clearValidationMessage();
+    messageStore.setValidationMessage(generalMessage, errors || [], severity);
   }
 
   /**
    * Clears all validation errors and hides the message
    */
   function clearErrors(): void {
-    messageStore.clearValidationMessage()
+    messageStore.clearValidationMessage();
   }
 
   return {
     handleApiError,
     setValidationMessage,
     clearErrors,
-  }
+  };
 }
