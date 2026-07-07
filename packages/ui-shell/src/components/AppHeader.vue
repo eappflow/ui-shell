@@ -18,7 +18,7 @@ const router = useRouter();
 const auth = useEafAuth();
 const layout = useEafLayout();
 
-const appConfig = inject(APP_CONFIG_KEY);
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
 const emit = defineEmits<{
   toggleSidebar: [];

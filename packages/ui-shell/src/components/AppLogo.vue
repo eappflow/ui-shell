@@ -2,11 +2,12 @@
 import {inject} from "vue";
 import {APP_CONFIG_KEY} from "../services/interfaces";
 
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+
 defineProps<{
   showAppName: boolean;
 }>();
 
-const appConfig = inject(APP_CONFIG_KEY, {name: "App", version: "0.0.0"});
 const {name, logoSrc} = appConfig;
 </script>
 

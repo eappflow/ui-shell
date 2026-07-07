@@ -14,7 +14,7 @@ const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
 
-const appConfig = inject(APP_CONFIG_KEY);
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
 defineProps<{
   compact?: boolean;
@@ -88,7 +88,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             'eaf-menu-item',
             appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
-            isActive(asEafMenuItem(item).path) && classes?.['item-active'],
+            isActive(asEafMenuItem(item).path) && appConfig.classes?.layout?.authorized?.menu?.['item-active'],
           ]"
           @click="navigateToPage(asEafMenuItem(item))"
         >

@@ -3,7 +3,7 @@ import type { SidebarClasses } from "../types";
 import {inject} from "vue";
 import {APP_CONFIG_KEY} from "../services/interfaces";
 
-const appConfig = inject(APP_CONFIG_KEY);
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
 defineProps<{
   visible: boolean;
