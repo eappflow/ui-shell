@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SidebarClasses } from "../types";
-import {inject} from "vue";
-import {APP_CONFIG_KEY} from "../services/interfaces";
+import { inject } from "vue";
+import { APP_CONFIG_KEY } from "../services/interfaces";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -36,10 +36,10 @@ const emit = defineEmits<{
       <!--            <Button icon="pi pi-times" text rounded severity="secondary" size="small" @click="emit('toggle')" aria-label="Close Sidebar" />-->
     </div>
     <div
-        :class="[
-            'flex-1 overflow-y-auto p-3',
-            appConfig.classes?.layout?.authorized?.sidebar?.body
-        ]"
+      :class="[
+        'flex-1 overflow-y-auto p-3',
+        appConfig.classes?.layout?.authorized?.sidebar?.body,
+      ]"
     >
       <slot />
     </div>

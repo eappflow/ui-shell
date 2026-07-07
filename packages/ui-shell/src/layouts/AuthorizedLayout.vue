@@ -136,13 +136,10 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar
-      :visible="sidebarVisible"
-      @toggle="toggleSidebar"
-    >
+    <AppSidebar :visible="sidebarVisible" @toggle="toggleSidebar">
       <!-- Logo Area -->
       <template #logo>
-        <AppLogo :showAppName="true" />
+        <AppLogo :show-app-name="true" />
       </template>
 
       <!-- Sidebar Content -->
@@ -152,7 +149,7 @@ async function handleLogout(): Promise<void> {
     <!-- Mobile Sidebar -->
     <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
-        <AppLogo :showAppName="true" />
+        <AppLogo :show-app-name="true" />
       </template>
 
       <AppMainMenu @item-click="handleMenuItemClick" />
@@ -161,10 +158,7 @@ async function handleLogout(): Promise<void> {
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
       <!-- Header -->
-      <AppHeader
-        @toggle-sidebar="toggleSidebar"
-        @logout="handleLogout"
-      >
+      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
         <template #app-name>
           {{ appConfig.name }}
         </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FooterClasses } from "../types";
-import {inject} from "vue";
-import {APP_CONFIG_KEY} from "../services/interfaces";
+import { inject } from "vue";
+import { APP_CONFIG_KEY } from "../services/interfaces";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -10,10 +10,7 @@ const year = new Date().getFullYear();
 
 <template>
   <footer
-      :class="[
-          'eaf-footer',
-          appConfig.classes?.layout?.authorized?.footer?.root
-      ]"
+    :class="['eaf-footer', appConfig.classes?.layout?.authorized?.footer?.root]"
   >
     <span>
       &copy; {{ year }} <slot name="app-name" />. All rights reserved.

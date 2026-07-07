@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, inject} from "vue";
+import { computed, inject } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
@@ -7,7 +7,7 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
 import type { EafMenuItem, MenuClasses } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
-import {APP_CONFIG_KEY} from "../services/interfaces";
+import { APP_CONFIG_KEY } from "../services/interfaces";
 
 const router = useRouter();
 const route = useRoute();
@@ -64,18 +64,15 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
 <template>
   <nav aria-label="Main">
     <Menu
-        :model="menuModel"
-        :class="[
-            'eaf-menu',
-            appConfig.classes?.layout?.authorized?.menu?.root
-        ]"
+      :model="menuModel"
+      :class="['eaf-menu', appConfig.classes?.layout?.authorized?.menu?.root]"
     >
       <template #submenulabel="{ item }">
         <span
-            :class="[
-                'eaf-menu-group-label',
-                appConfig.classes?.layout?.authorized?.menu?.['group-label']
-            ]"
+          :class="[
+            'eaf-menu-group-label',
+            appConfig.classes?.layout?.authorized?.menu?.['group-label'],
+          ]"
         >
           {{ item.label }}
         </span>
@@ -88,7 +85,8 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             'eaf-menu-item',
             appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
-            isActive(asEafMenuItem(item).path) && appConfig.classes?.layout?.authorized?.menu?.['item-active'],
+            isActive(asEafMenuItem(item).path) &&
+              appConfig.classes?.layout?.authorized?.menu?.['item-active'],
           ]"
           @click="navigateToPage(asEafMenuItem(item))"
         >
