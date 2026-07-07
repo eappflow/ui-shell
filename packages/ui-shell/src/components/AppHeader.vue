@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import {ref, computed, inject} from "vue";
 import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
@@ -12,14 +12,13 @@ import {
   type HeaderClasses,
 } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
+import {APP_CONFIG_KEY} from "../services/interfaces";
 
 const router = useRouter();
 const auth = useEafAuth();
 const layout = useEafLayout();
 
-const props = defineProps<{
-  classes?: HeaderClasses;
-}>();
+const appConfig = inject(APP_CONFIG_KEY);
 
 const emit = defineEmits<{
   toggleSidebar: [];
@@ -80,7 +79,12 @@ function toggleAccount(event: Event) {
 </script>
 
 <template>
-  <header :class="['eaf-header', classes?.root]">
+  <header
+      :class="[
+          'eaf-header',
+          appConfig.classes?.layout?.authorized?.header?.root
+      ]"
+  >
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
         <Button
@@ -91,7 +95,12 @@ function toggleAccount(event: Event) {
           aria-label="Toggle Sidebar"
           @click="emit('toggleSidebar')"
         />
-        <h1 :class="['eaf-header-title md:hidden', classes?.title]">
+        <h1
+            :class="[
+                'eaf-header-title md:hidden',
+                appConfig.classes?.layout?.authorized?.header?.title
+            ]"
+        >
           <slot name="app-name" />
         </h1>
       </div>

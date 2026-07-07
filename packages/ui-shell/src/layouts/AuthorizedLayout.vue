@@ -138,35 +138,30 @@ async function handleLogout(): Promise<void> {
     <!-- Desktop Sidebar -->
     <AppSidebar
       :visible="sidebarVisible"
-      :classes="appConfig.classes?.layout?.authorized?.sidebar"
       @toggle="toggleSidebar"
     >
       <!-- Logo Area -->
       <template #logo>
-        <AppLogo :app-name="appConfig.name" :logo-src="appConfig.logoSrc" />
+        <AppLogo :showAppName="true" />
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu :classes="appConfig.classes?.layout?.authorized?.menu" />
+      <AppMainMenu />
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
     <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
-        <AppLogo :app-name="appConfig.name" :logo="appConfig.logoSrc" />
+        <AppLogo :showAppName="true" />
       </template>
 
-      <AppMainMenu
-        :classes="appConfig.classes?.layout?.authorized?.menu"
-        @item-click="handleMenuItemClick"
-      />
+      <AppMainMenu @item-click="handleMenuItemClick" />
     </Drawer>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
       <!-- Header -->
       <AppHeader
-        :classes="appConfig.classes?.layout?.authorized?.header"
         @toggle-sidebar="toggleSidebar"
         @logout="handleLogout"
       >
@@ -196,7 +191,7 @@ async function handleLogout(): Promise<void> {
         </main>
 
         <!-- Footer -->
-        <AppFooter :classes="appConfig.classes?.layout?.authorized?.footer">
+        <AppFooter>
           <template #app-name>
             {{ appConfig.name }}
           </template>

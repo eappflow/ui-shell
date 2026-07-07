@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { SidebarClasses } from "../types";
+import {inject} from "vue";
+import {APP_CONFIG_KEY} from "../services/interfaces";
+
+const appConfig = inject(APP_CONFIG_KEY);
 
 defineProps<{
   visible: boolean;
-  classes?: SidebarClasses;
 }>();
 
 const emit = defineEmits<{
@@ -17,14 +20,14 @@ const emit = defineEmits<{
     :class="[
       'eaf-sidebar',
       'hidden md:flex md:flex-col transition-all duration-300',
-      classes?.root,
+      appConfig.classes?.layout?.authorized?.sidebar?.root,
     ]"
   >
     <div
       :class="[
         'eaf-sidebar-header',
         'flex items-center justify-between px-4 flex-shrink-0',
-        classes?.header,
+        appConfig.classes?.layout?.authorized?.sidebar?.header,
       ]"
     >
       <span class="eaf-sidebar-logo">
@@ -32,7 +35,12 @@ const emit = defineEmits<{
       </span>
       <!--            <Button icon="pi pi-times" text rounded severity="secondary" size="small" @click="emit('toggle')" aria-label="Close Sidebar" />-->
     </div>
-    <div :class="['flex-1 overflow-y-auto p-3', classes?.body]">
+    <div
+        :class="[
+            'flex-1 overflow-y-auto p-3',
+            appConfig.classes?.layout?.authorized?.sidebar?.body
+        ]"
+    >
       <slot />
     </div>
   </aside>

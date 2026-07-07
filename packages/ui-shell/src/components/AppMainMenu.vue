@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import {computed, inject} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
@@ -7,15 +7,17 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
 import type { EafMenuItem, MenuClasses } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
+import {APP_CONFIG_KEY} from "../services/interfaces";
 
 const router = useRouter();
 const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
 
-const props = defineProps<{
+const appConfig = inject(APP_CONFIG_KEY);
+
+defineProps<{
   compact?: boolean;
-  classes?: MenuClasses;
 }>();
 
 const emit = defineEmits<{
@@ -61,9 +63,20 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
 
 <template>
   <nav aria-label="Main">
-    <Menu :model="menuModel" :class="['eaf-menu', classes?.root]">
+    <Menu
+        :model="menuModel"
+        :class="[
+            'eaf-menu',
+            appConfig.classes?.layout?.authorized?.menu?.root
+        ]"
+    >
       <template #submenulabel="{ item }">
-        <span :class="['eaf-menu-group-label', classes?.['group-label']]">
+        <span
+            :class="[
+                'eaf-menu-group-label',
+                appConfig.classes?.layout?.authorized?.menu?.['group-label']
+            ]"
+        >
           {{ item.label }}
         </span>
       </template>
@@ -73,7 +86,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
           v-bind="itemProps.action"
           :class="[
             'eaf-menu-item',
-            classes?.item,
+            appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
             isActive(asEafMenuItem(item).path) && classes?.['item-active'],
           ]"
