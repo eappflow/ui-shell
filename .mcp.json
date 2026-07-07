@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "primevue": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${CLAUDE_PROJECT_DIR:-.}/tools/mcp-primevue/node_modules/@primevue/mcp/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
+import type { EafClasses } from "./eaf-classes";
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
@@ -83,6 +84,7 @@ export interface EafModule {
   menuModules?: EafMenuModule[];
   /** Permissions declared by this module (for documentation / validation) */
   permissions?: Permission[];
+
   /**
    * Optional install hook called when the module is registered.
    * Use this to provide DI keys, register components, etc.
@@ -102,8 +104,6 @@ export interface ModuleRegistrationResult {
 }
 
 // ─── Shared core types for the eAppFlow UI Shell ─────────────────────────
-
-import type { InjectionKey } from "vue";
 
 /** Common permission type (opaque string — defined by host app) */
 export type Permission = string;
@@ -149,12 +149,30 @@ export interface ToastMessage {
   life?: number;
 }
 
+// ─── EafClasses (class overrides) ───────────────────────────────────────────
+
+export type {
+  EafClasses,
+  AuthorizedLayoutClasses,
+  SidebarClasses,
+  HeaderClasses,
+  FooterClasses,
+  MenuClasses,
+  UnauthorizedLayoutClasses,
+  UiClasses,
+  UiCardClasses,
+} from "./eaf-classes";
+
 // ─── App Config ──────────────────────────────────────────────────────────────
 
 export interface AppConfig {
   name: string;
   version: string;
   environment?: string;
+  /** Optional custom logo component rendered in the sidebar header */
+  logoSrc?: string;
+  /** Optional CSS class overrides for shell elements */
+  classes?: EafClasses;
 }
 
 // ─── Validation ──────────────────────────────────────────────────────────────

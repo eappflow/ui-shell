@@ -1,25 +1,25 @@
 {
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    },
-    "eslint.useFlatConfig": true,
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "tailwindCSS.experimental.classRegex": [],
-    "tailwindCSS.includeLanguages": {
-        "vue": "html"
-    },
-    "vue.complete.casing": {
-        "props": "camelCase",
-        "events": "camelCase"
-    },
-    "files.associations": {
-        "*.css": "tailwindcss"
-    },
-    "chat.tools.terminal.autoApprove": {
-        "pnpm": true
-    },
-     "files.exclude": {
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.useFlatConfig": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.experimental.classRegex": [],
+  "tailwindCSS.includeLanguages": {
+    "vue": "html"
+  },
+  "vue.complete.casing": {
+    "props": "camelCase",
+    "events": "camelCase"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "pnpm": true
+  },
+  "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
     "**/node_modules": true,
@@ -35,7 +35,7 @@
     "**/.husky": true,
     "**/package-lock.json": true,
     "**/*.d.ts": true,
-    "**/*.d.js": true,
+    "**/*.d.js": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -44,7 +44,7 @@
     "**/.turbo": true,
     "**/.output": true
   },
-   "files.watcherExclude": {
+  "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,
     "**/coverage/**": true,
@@ -52,10 +52,10 @@
   },
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
-  "explorer.fileNesting.patterns": {    
+  "explorer.fileNesting.patterns": {
     "tsconfig.json": "tsconfig.*.json",
     ".env": ".env.*",
     "package.json": ".*, tsconfig.json, eslint.config.js, package.json, vitest.workspace.ts, pnpm-workspace.yaml, postcss.*.js, postcss.*.ts, *.config.ts, package-lock.json, pnpm-lock.yaml, yarn.lock,tsconfig.base.json",
     "Readme.md": "Readme.*.md, License"
- }
+  }
 }

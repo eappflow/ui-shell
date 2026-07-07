@@ -11,7 +11,8 @@
     "type-check": "pnpm -r type-check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write \"**/*.{vue,ts,json,css,md}\""
+    "format": "prettier --write \"**/*.{vue,ts,json,css,md}\"",
+    "mcp:setup": "pnpm --dir tools/mcp-primevue install"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
@@ -27,6 +28,7 @@
     "typescript-eslint": "^8.61.1",
     "vite": "^8.0.16",
     "vitest": "^4.1.9",
+    "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.5"
   },
   "lint-staged": {

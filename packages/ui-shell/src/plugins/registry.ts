@@ -7,7 +7,6 @@
  */
 
 import type { App } from "vue";
-import type { Router } from "vue-router";
 import { useEafNavigationStore } from "../stores/useEafNavigationStore";
 import type { EafModule, ModuleRegistrationResult } from "../types";
 import type { EafMenuModule } from "../types";
@@ -30,7 +29,6 @@ import type { EafMenuModule } from "../types";
 export function configureModules(
   modules: EafModule[],
   app: App,
-  router: Router,
 ): ModuleRegistrationResult {
   const allRoutes: ModuleRegistrationResult["routes"] = [];
   const allMenuModules: ModuleRegistrationResult["menuModules"] = [];

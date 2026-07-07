@@ -4,6 +4,8 @@ import tsParser from "@typescript-eslint/parser";
 import { defineConfig } from "eslint/config";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import vueParser from "vue-eslint-parser";
+
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,6 +33,7 @@ export default defineConfig([
   {
     files: ["**/*.vue"],
     languageOptions: {
+      parser: vueParser,
       parserOptions: {
         parser: tsParser,
         ecmaVersion: "latest",
@@ -40,7 +43,7 @@ export default defineConfig([
     },
     rules: {
       "vue/multi-word-component-names": "off",
-      "vue/component-tags-order": [
+      "vue/block-order": [
         "warn",
         { order: ["script", "template", "style"] },
       ],

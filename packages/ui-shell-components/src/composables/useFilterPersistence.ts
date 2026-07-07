@@ -1,8 +1,8 @@
-import { ref, watch, type Ref } from 'vue'
+import { ref, watch, type Ref } from "vue";
 
 export interface TablePaginationState {
-  page: number
-  rows: number
+  page: number;
+  rows: number;
 }
 
 /**
@@ -22,42 +22,47 @@ export interface TablePaginationState {
  * })
  * ```
  */
-export function useFilterPersistence<T extends Record<string, unknown> = Record<string, unknown>>(
-  storageKey: string,
-  defaultFilters: T
-): Ref<T> {
+export function useFilterPersistence<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(storageKey: string, defaultFilters: T): Ref<T> {
   // Try to load saved filters from localStorage
   const loadFilters = (): T => {
     try {
-      const saved = localStorage.getItem(storageKey)
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
-        const parsed = JSON.parse(saved)
+        const parsed = JSON.parse(saved);
         // Merge with defaults to ensure all keys exist
-        return { ...defaultFilters, ...parsed }
+        return { ...defaultFilters, ...parsed };
       }
     } catch (error) {
-      console.warn(`Failed to load filters from localStorage (${storageKey}):`, error)
+      console.warn(
+        `Failed to load filters from localStorage (${storageKey}):`,
+        error,
+      );
     }
-    return { ...defaultFilters }
-  }
+    return { ...defaultFilters };
+  };
 
   // Create reactive filters ref with loaded or default values
-  const filters = ref<T>(loadFilters()) as Ref<T>
+  const filters = ref<T>(loadFilters()) as Ref<T>;
 
   // Save filters to localStorage whenever they change
   watch(
     filters,
     (newFilters) => {
       try {
-        localStorage.setItem(storageKey, JSON.stringify(newFilters))
+        localStorage.setItem(storageKey, JSON.stringify(newFilters));
       } catch (error) {
-        console.warn(`Failed to save filters to localStorage (${storageKey}):`, error)
+        console.warn(
+          `Failed to save filters to localStorage (${storageKey}):`,
+          error,
+        );
       }
     },
-    { deep: true }
-  )
+    { deep: true },
+  );
 
-  return filters
+  return filters;
 }
 
 /**
@@ -78,39 +83,45 @@ export function useFilterPersistence<T extends Record<string, unknown> = Record<
  */
 export function usePaginationPersistence(
   storageKey: string,
-  defaultState: TablePaginationState = { page: 0, rows: 10 }
+  defaultState: TablePaginationState = { page: 0, rows: 10 },
 ): Ref<TablePaginationState> {
   // Try to load saved pagination from localStorage
   const loadPagination = (): TablePaginationState => {
     try {
-      const saved = localStorage.getItem(storageKey)
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
-        const parsed = JSON.parse(saved)
-        return { ...defaultState, ...parsed }
+        const parsed = JSON.parse(saved);
+        return { ...defaultState, ...parsed };
       }
     } catch (error) {
-      console.warn(`Failed to load pagination from localStorage (${storageKey}):`, error)
+      console.warn(
+        `Failed to load pagination from localStorage (${storageKey}):`,
+        error,
+      );
     }
-    return { ...defaultState }
-  }
+    return { ...defaultState };
+  };
 
   // Create reactive pagination ref with loaded or default values
-  const pagination = ref<TablePaginationState>(loadPagination())
+  const pagination = ref<TablePaginationState>(loadPagination());
 
   // Save pagination to localStorage whenever it changes
   watch(
     pagination,
     (newPagination) => {
       try {
-        localStorage.setItem(storageKey, JSON.stringify(newPagination))
+        localStorage.setItem(storageKey, JSON.stringify(newPagination));
       } catch (error) {
-        console.warn(`Failed to save pagination to localStorage (${storageKey}):`, error)
+        console.warn(
+          `Failed to save pagination to localStorage (${storageKey}):`,
+          error,
+        );
       }
     },
-    { deep: true }
-  )
+    { deep: true },
+  );
 
-  return pagination
+  return pagination;
 }
 
 /**
@@ -129,8 +140,8 @@ export function usePaginationPersistence(
  */
 export function clearPersistedFilters(storageKey: string): void {
   try {
-    localStorage.removeItem(storageKey)
+    localStorage.removeItem(storageKey);
   } catch (error) {
-    console.warn(`Failed to clear persisted filters (${storageKey}):`, error)
+    console.warn(`Failed to clear persisted filters (${storageKey}):`, error);
   }
 }

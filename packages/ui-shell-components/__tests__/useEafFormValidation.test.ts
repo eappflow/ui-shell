@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { useEafFormValidation, required, minLength } from "../src/composables/useEafFormValidation";
+import {
+  useEafFormValidation,
+  required,
+  minLength,
+} from "../src/composables/useEafFormValidation";
 
 describe("useEafFormValidation", () => {
   it("should validate required fields", () => {
@@ -16,7 +20,8 @@ describe("useEafFormValidation", () => {
   });
 
   it("should track form errors", () => {
-    const { errors, validateField, hasErrors, clearErrors } = useEafFormValidation();
+    const { errors, validateField, hasErrors, clearErrors } =
+      useEafFormValidation();
 
     validateField("name", "", [required()]);
     expect(hasErrors()).toBe(true);

@@ -1,31 +1,41 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import Message from 'primevue/message'
-import { useEafMessageStore } from '@/stores/useEafMessageStore'
+import { computed } from "vue";
+import Message from "primevue/message";
+import { useEafMessageStore } from "@/stores/useEafMessageStore";
 
-const messageStore = useEafMessageStore()
+const messageStore = useEafMessageStore();
 
 // Computed properties from store
-const message = computed(() => messageStore.validationMessage?.message || '')
-const validationErrors = computed(() => messageStore.validationMessage?.validationErrors || [])
-const severity = computed(() => messageStore.validationMessage?.severity || 'error')
+const message = computed(() => messageStore.validationMessage?.message || "");
+const validationErrors = computed(
+  () => messageStore.validationMessage?.validationErrors || [],
+);
+const severity = computed(
+  () => messageStore.validationMessage?.severity || "error",
+);
 
 // Only show component if there's a message or validation errors
 const hasContent = computed(() => {
-  return message.value !== '' || validationErrors.value.length > 0
-})
+  return message.value !== "" || validationErrors.value.length > 0;
+});
 
 const shouldDisplay = computed(() => {
-  return hasContent.value && messageStore.validationMessage !== null
-})
+  return hasContent.value && messageStore.validationMessage !== null;
+});
 
 function handleClose() {
-  messageStore.clearValidationMessage()
+  messageStore.clearValidationMessage();
 }
 </script>
 
 <template>
-  <Message v-if="shouldDisplay" :severity="severity" closable @close="handleClose" class="mb-4">
+  <Message
+    v-if="shouldDisplay"
+    :severity="severity"
+    closable
+    class="mb-4"
+    @close="handleClose"
+  >
     <div class="flex flex-col gap-2">
       <!-- General message -->
       <div v-if="message" class="font-semibold">
@@ -33,8 +43,15 @@ function handleClose() {
       </div>
 
       <!-- Validation errors -->
-      <ul v-if="validationErrors.length > 0" class="list-disc list-inside space-y-1 mt-1">
-        <li v-for="(error, index) in validationErrors" :key="index" class="text-sm">
+      <ul
+        v-if="validationErrors.length > 0"
+        class="list-disc list-inside space-y-1 mt-1"
+      >
+        <li
+          v-for="(error, index) in validationErrors"
+          :key="index"
+          class="text-sm"
+        >
           {{ error }}
         </li>
       </ul>

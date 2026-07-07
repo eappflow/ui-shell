@@ -146,3 +146,6 @@ coverage/
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Intellij files
+.idea

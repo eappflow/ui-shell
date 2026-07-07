@@ -1,12 +1,36 @@
 <script setup lang="ts">
+import type { FooterClasses } from "../types";
+import { inject } from "vue";
+import { APP_CONFIG_KEY } from "../services/interfaces";
+
+const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+
 const year = new Date().getFullYear();
 </script>
 
 <template>
-    <footer class="app-footer flex items-center justify-between border-t border-slate-200 dark:border-surface-700 bg-white dark:bg-surface-800 px-6 py-3 text-xs text-surface-600 dark:text-surface-400 flex-shrink-0">
-        <span>&copy; {{ year }}
-            <slot name="app-name" />. All rights reserved.
-        </span>
-        <slot name="right" />
-    </footer>
+  <footer
+    :class="['eaf-footer', appConfig.classes?.layout?.authorized?.footer?.root]"
+  >
+    <span>
+      &copy; {{ year }} <slot name="app-name" />. All rights reserved.
+    </span>
+    <slot name="right" />
+  </footer>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--p-surface-0);
+    color: var(--p-surface-900);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--p-surface-200);
+  }
+}
+</style>
