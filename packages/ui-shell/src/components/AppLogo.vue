@@ -18,10 +18,10 @@ const { logoSrc } = useEafLogo(() => props.placement);
 <template>
   <div class="flex items-center gap-2.5">
     <img
-        v-if="logoSrc"
-        :class="['eaf-logo', classImage]"
-        :src="logoSrc"
-        :alt="appConfig.name ?? 'logo'"
+      v-if="logoSrc"
+      :class="['eaf-logo', classImage]"
+      :src="logoSrc"
+      :alt="appConfig.name ?? 'logo'"
     />
     <span
       v-if="showAppName"
