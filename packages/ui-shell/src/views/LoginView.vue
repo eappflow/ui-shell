@@ -14,6 +14,8 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import { LogoPlacement } from "../types/eaf-logo";
+import AppLogo from "../components/AppLogo.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -80,7 +82,18 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 <template>
   <Card :class="[uiCard?.root]">
     <template #title>
-      <span :class="[uiCard?.title]"> Login </span>
+      <div
+        class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
+      >
+        <AppLogo
+          class-image="max-h-18"
+          :show-app-name="false"
+          :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
+        />
+      </div>
+      <div class="mb-5">
+        <h1 :class="['eaf-login-title', uiCard?.title]">Login</h1>
+      </div>
     </template>
     <template #subtitle>
       <span :class="[uiCard?.subtitle]">
@@ -88,10 +101,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
       </span>
     </template>
     <template #content>
-      <form
-        class="flex flex-col gap-5"
-        @submit.prevent="handleLogin"
-      >
+      <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
@@ -165,3 +175,11 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
   </Card>
 </template>
 
+<style>
+@layer eaf-shell {
+  .eaf-login-title {
+    font-weight: 600;
+    font-size: 1.75rem;
+  }
+}
+</style>

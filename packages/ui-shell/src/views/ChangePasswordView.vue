@@ -5,14 +5,12 @@ import Button from "primevue/button";
 import Password from "primevue/password";
 import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
-import { useAuthStore } from "../stores/useAuthStore";
 import {
   useEafFormValidation,
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
 
-const authStore = useAuthStore();
 const toast = useToast();
 
 const $f = useEafFormValidation();

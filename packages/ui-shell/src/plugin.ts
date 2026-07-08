@@ -43,7 +43,6 @@ import { buildModuleRoutes } from "./router/buildModuleRoutes";
 import { configureModules } from "./plugins";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
-import * as msal from "@azure/msal-browser";
 
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";

@@ -38,10 +38,7 @@ function handleClose() {
   >
     <div class="flex flex-col gap-2">
       <!-- General message -->
-      <div
-        v-if="message"
-        class="font-semibold"
-      >
+      <div v-if="message" class="font-semibold">
         {{ message }}
       </div>
 

@@ -5,7 +5,7 @@ import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
 import { useEafAuth } from "../composables/useEafAuth";
 import { filterVisibleMenuModules } from "../utils/permissions";
-import type { EafMenuItem, MenuClasses } from "../types";
+import type { EafMenuItem } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 

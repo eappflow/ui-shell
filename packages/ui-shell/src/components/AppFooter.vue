@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { FooterClasses } from "../types";
 import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 

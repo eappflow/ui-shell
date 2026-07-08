@@ -52,17 +52,16 @@ export default defineConfig([
     },
     rules: {
       "vue/multi-word-component-names": "off",
-      "vue/block-order": [
-        "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
-      ],
-      "vue/multi-word-component-names": "off",
       "vue/no-reserved-component-names": "off",
+      "vue/block-order": ["error", {
+        "order": ["script", "template", "style"]
+      }],
+      "no-unused-vars": ["error", {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }]
     },
   },
 ]);
