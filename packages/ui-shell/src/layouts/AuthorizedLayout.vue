@@ -115,18 +115,6 @@ function toggleSidebar(): void {
   }
 }
 
-function toggleMobileSidebar(): void {
-  mobileSidebarVisible.value = !mobileSidebarVisible.value;
-}
-
-function toggleSettings(event: Event): void {
-  settingsPanel.value?.toggle(event);
-}
-
-function toggleAccount(event: Event): void {
-  accountPanel.value?.toggle(event);
-}
-
 function handleMenuItemClick(): void {
   mobileSidebarVisible.value = false;
 }
