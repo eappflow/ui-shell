@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
+import type { EafLogo, LogoPlacement, EafLogoSrc } from "./eaf-logo";
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
@@ -173,11 +174,13 @@ export interface AppConfig {
   name: string;
   version: string;
   environment?: string;
-  /** Optional custom logo component rendered in the sidebar header */
-  logoSrc?: string;
+  /** Optional custom logo component */
+  logo?: EafLogo | EafLogoSrc;
   /** Optional CSS class overrides for shell elements */
   classes?: EafClasses;
 }
+
+export type { EafLogo, EafLogoSrc, LogoPlacement } from "./eaf-logo";
 
 // ─── Validation ──────────────────────────────────────────────────────────────
 

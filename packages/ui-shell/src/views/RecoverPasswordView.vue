@@ -14,6 +14,8 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import {LogoPlacement} from "../types/eaf-logo";
+import AppLogo from "../components/AppLogo.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -88,7 +90,16 @@ function requestNewReset() {
 <template>
   <Card :class="[uiCard?.root]">
     <template #title>
-      <span :class="[uiCard?.title]"> Reset Your Password </span>
+      <div class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200">
+        <AppLogo
+            classImage="max-h-18"
+            :show-app-name="false"
+            :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
+        />
+      </div>
+      <div class="mb-5">
+        <h1 :class="['eaf-recover-password-title', uiCard?.title]"> Reset Your Password </h1>
+      </div>
     </template>
     <template #subtitle>
       <span :class="[uiCard?.subtitle]"> Enter your new password below </span>
@@ -208,3 +219,12 @@ function requestNewReset() {
     </template>
   </Card>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-recover-password-title{
+    font-weight: 600;
+    font-size: 1.75rem;
+  }
+}
+</style>

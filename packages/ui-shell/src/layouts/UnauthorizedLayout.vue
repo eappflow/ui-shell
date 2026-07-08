@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { inject } from "vue";
-import { APP_CONFIG_KEY } from "../services/interfaces";
+import {inject} from "vue";
+import {APP_CONFIG_KEY} from "../services/interfaces";
+import AppLogo from "../components/AppLogo.vue";
+import {LogoPlacement} from "../types/eaf-logo";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const currentYear = new Date().getFullYear();
@@ -28,7 +30,11 @@ const currentYear = new Date().getFullYear();
               appConfig.classes?.layout?.unauthorized?.header?.title,
             ]"
           >
-            {{ appConfig.name }}
+            <AppLogo
+                classImage="max-h-24"
+              :show-app-name="false"
+              :placement="LogoPlacement.UNAUTHORIZED_LAYOUT"
+            />
           </h1>
         </div>
       </div>
