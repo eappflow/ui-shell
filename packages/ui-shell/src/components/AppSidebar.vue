@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { SidebarClasses } from "../types";
 import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 
@@ -7,10 +6,6 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
 defineProps<{
   visible: boolean;
-}>();
-
-const emit = defineEmits<{
-  toggle: [];
 }>();
 </script>
 
@@ -33,7 +28,6 @@ const emit = defineEmits<{
       <span class="eaf-sidebar-logo">
         <slot name="logo" />
       </span>
-      <!--            <Button icon="pi pi-times" text rounded severity="secondary" size="small" @click="emit('toggle')" aria-label="Close Sidebar" />-->
     </div>
     <div
       :class="[

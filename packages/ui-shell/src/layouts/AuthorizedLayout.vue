@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, inject, watch } from "vue";
 import { useRouter } from "vue-router";
-import Button from "primevue/button";
 import Menu from "primevue/menu";
 import Drawer from "primevue/drawer";
 import Popover from "primevue/popover";
@@ -22,6 +21,7 @@ import {
   EafActionValidationMessage,
 } from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
+import { useBreakpoints } from "@vueuse/core";
 
 const router = useRouter();
 const auth = useEafAuth();
@@ -29,6 +29,9 @@ const layout = useEafLayout();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const messageStore = useEafMessageStore();
 const toast = useToast();
+const breakpoints = useBreakpoints({
+  md: 768,
+});
 
 // Sidebar state
 const sidebarVisible = ref(true);
@@ -104,7 +107,12 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
 
 // Methods
 function toggleSidebar(): void {
-  sidebarVisible.value = !sidebarVisible.value;
+  const isMobile = breakpoints.smaller("md");
+  if (isMobile.value) {
+    mobileSidebarVisible.value = !mobileSidebarVisible.value;
+  } else {
+    sidebarVisible.value = !sidebarVisible.value;
+  }
 }
 
 function toggleMobileSidebar(): void {

@@ -6,11 +6,7 @@ import Menu from "primevue/menu";
 import Popover from "primevue/popover";
 import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
-import {
-  THEME_COLORS,
-  type ThemeColorName,
-  type HeaderClasses,
-} from "../types";
+import { THEME_COLORS, type ThemeColorName } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 

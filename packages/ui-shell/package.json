@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^5.16.0",
+    "@vueuse/core": "^14.3.0",
     "mitt": "^3.0.1",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5"

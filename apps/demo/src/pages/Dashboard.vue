@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useAuthStore } from "@eappflow/ui-shell";
 
 const auth = useAuthStore();
-const showModal = ref(false);
 </script>
 
 <template>
