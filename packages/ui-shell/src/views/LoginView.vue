@@ -86,7 +86,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
       >
         <AppLogo
-          classImage="max-h-18"
+          class-image="max-h-18"
           :show-app-name="false"
           :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
         />

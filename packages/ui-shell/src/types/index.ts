@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
-import type { EafLogo, LogoPlacement, EafLogoSrc } from "./eaf-logo";
+import type { EafLogo, EafLogoSrc } from "./eaf-logo";
 
 // ─── User ────────────────────────────────────────────────────────────────────
 

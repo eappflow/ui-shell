@@ -31,7 +31,7 @@ const currentYear = new Date().getFullYear();
             ]"
           >
             <AppLogo
-              classImage="max-h-24"
+              class-image="max-h-24"
               :show-app-name="false"
               :placement="LogoPlacement.UNAUTHORIZED_LAYOUT"
             />
