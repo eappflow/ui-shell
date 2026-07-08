@@ -101,10 +101,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
       </span>
     </template>
     <template #content>
-      <form
-        class="flex flex-col gap-5"
-        @submit.prevent="handleLogin"
-      >
+      <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
