@@ -40,6 +40,7 @@ export type {
   AuthService,
   MenuService,
   ThemeService,
+  MicrosoftSSOService,
 } from "./services/interfaces";
 
 // ─── Vue Plugin ─────────────────────────────────────────────────────────────

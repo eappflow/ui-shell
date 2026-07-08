@@ -1,6 +1,7 @@
 import pluginVue from "eslint-plugin-vue";
 import tseslint from "typescript-eslint";
 import tsParser from "@typescript-eslint/parser";
+import unusedImports from "eslint-plugin-unused-imports";
 import { defineConfig } from "eslint/config";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -19,6 +20,11 @@ export default defineConfig([
     files: ["**/*.ts"],
   })),
   {
+    plugins: {
+      "unused-imports": unusedImports,
+    },
+  },
+  {
     files: ["**/*.ts"],
     languageOptions: {
       parserOptions: {
@@ -26,7 +32,10 @@ export default defineConfig([
       },
     },
     rules: {
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
@@ -45,8 +54,15 @@ export default defineConfig([
       "vue/multi-word-component-names": "off",
       "vue/block-order": [
         "warn",
-        { order: ["script", "template", "style"] },
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
       ],
+      "vue/multi-word-component-names": "off",
+      "vue/no-reserved-component-names": "off",
     },
   },
 ]);

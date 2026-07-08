@@ -34,6 +34,8 @@ import {
   type AuthService,
   type MenuService,
   type ThemeService,
+  type MicrosoftSSOService,
+  MICROSOFT_SSO_SERVICE_KEY,
 } from "./services/interfaces";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
@@ -41,9 +43,11 @@ import { buildModuleRoutes } from "./router/buildModuleRoutes";
 import { configureModules } from "./plugins";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
+import * as msal from "@azure/msal-browser";
 
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
+import { useAuthStore } from "./stores/useAuthStore";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
 
@@ -57,6 +61,7 @@ export interface EAppFlowUIShellPluginOptions {
   /** Optional service overrides (DI) */
   services?: {
     authService?: AuthService;
+    microsoftSSOService?: MicrosoftSSOService;
     menuService?: MenuService;
     themeService?: ThemeService;
   };
@@ -80,7 +85,7 @@ export const EAppFlowUIShell = {
   install(app: VueApp, options: EAppFlowUIShellPluginOptions): void {
     const { modules, appConfig, services, router: routerOptions } = options;
 
-    // ── 1. Pinia ──────────────────────────────────────────────────────────
+    // ── 1. Pinia ─────────────────────────────────────────────────────────
     const pinia = createPinia();
     app.use(pinia);
 
@@ -95,6 +100,9 @@ export const EAppFlowUIShell = {
     }
     if (services?.themeService) {
       app.provide(THEME_SERVICE_KEY, services.themeService);
+    }
+    if (services?.microsoftSSOService) {
+      app.provide(MICROSOFT_SSO_SERVICE_KEY, services.microsoftSSOService);
     }
 
     // ── 3. Build router ──────────────────────────────────────────────────
@@ -119,6 +127,20 @@ export const EAppFlowUIShell = {
 
     // ── 6. Use router ────────────────────────────────────────────────────
     app.use(router);
+
+    // ── 7. Microsoft SSO ─────────────────────────────────────────────────
+    const authStore = useAuthStore();
+    if (
+      services?.microsoftSSOService &&
+      services.microsoftSSOService?.enabled !== false
+    ) {
+      if (!services?.authService) {
+        throw new Error(
+          "[ui-shell] Microsoft SSO is enabled, but no AuthService is provided. Provide an AuthService via app.provide(AUTH_SERVICE_KEY, ...).",
+        );
+      }
+      authStore.initializeMsalInstance(router);
+    }
 
     // ── 7. Use Toast ────────────────────────────────────────────────────
     app.use(ToastService);

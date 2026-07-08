@@ -23,6 +23,7 @@ import { DEMO_CONFIG } from "./config/app";
 
 import App from "./App.vue";
 import { InputText } from "primevue";
+import { createFakeMicrosoftSSOService } from "./services/fakeMicrosoftSSOService";
 
 // ─── Define modules ──────────────────────────────────────────────────────────
 const diagnosticsModule = createDiagnosticsModule({
@@ -53,6 +54,7 @@ app.use(EAppFlowUIShell, {
   appConfig: DEMO_CONFIG,
   services: {
     authService: createFakeAuthService(),
+    microsoftSSOService: createFakeMicrosoftSSOService(),
   },
   router: {
     extraRoutes: [

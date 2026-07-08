@@ -18,9 +18,11 @@ import type {
   ChangePasswordRequest,
   ThemeSettings,
   AppConfig,
+  MicrosoftSSOLoginRequest,
 } from "../types";
 import type { EafMenuModule } from "../types";
 import type { InjectionKey } from "vue";
+import * as msal from "@azure/msal-browser";
 
 // ─── Auth Service ────────────────────────────────────────────────────────────
 
@@ -43,6 +45,22 @@ export interface AuthService {
   /** Change password for authenticated user */
   changePassword(request: ChangePasswordRequest): Promise<void>;
 }
+
+// ─── Microsoft SSO Service ───────────────────────────────────────────────────
+
+export interface MicrosoftSSOService {
+  enabled?: boolean;
+  config: MicrosoftSSOConfig;
+  /** Authenticate user with Microsoft SSO access token */
+  login(response: MicrosoftSSOLoginRequest): Promise<AuthResult>;
+}
+
+export type MicrosoftSSOConfig = Pick<
+  msal.Configuration["auth"],
+  "clientId" | "authority" | "redirectUri"
+> & {
+  scopes: Array<string>;
+};
 
 // ─── Menu Service ────────────────────────────────────────────────────────────
 
@@ -72,4 +90,6 @@ export const MENU_SERVICE_KEY: InjectionKey<MenuService> =
   Symbol("menuService");
 export const THEME_SERVICE_KEY: InjectionKey<ThemeService> =
   Symbol("themeService");
+export const MICROSOFT_SSO_SERVICE_KEY: InjectionKey<MicrosoftSSOService> =
+  Symbol("microsoftSSOService");
 export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol("appConfig");
