@@ -36,6 +36,8 @@ import {
   type ThemeService,
   type MicrosoftSSOService,
   MICROSOFT_SSO_SERVICE_KEY,
+  I18nService,
+  I18n_SERVICE_KEY,
 } from "./services/interfaces";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
@@ -47,6 +49,7 @@ import ConfirmationService from "primevue/confirmationservice";
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
 import { useAuthStore } from "./stores/useAuthStore";
+import { createI18nService } from "./services/I18nService";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
 
@@ -63,6 +66,7 @@ export interface EAppFlowUIShellPluginOptions {
     microsoftSSOService?: MicrosoftSSOService;
     menuService?: MenuService;
     themeService?: ThemeService;
+    i18nService?: I18nService;
   };
 
   /** Router configuration */
@@ -88,8 +92,13 @@ export const EAppFlowUIShell = {
     const pinia = createPinia();
     app.use(pinia);
 
-    // ── 2. Provide DI services ───────────────────────────────────────────
+    // ── 2. I18n Service ────────────────────────────────────────────────────
+    const { i18n, i18nService } = createI18nService(services?.i18nService);
+    app.use(i18n);
+
+    // ── 3. Provide DI services ───────────────────────────────────────────
     app.provide(APP_CONFIG_KEY, appConfig);
+    app.provide(I18n_SERVICE_KEY, i18nService);
 
     if (services?.authService) {
       app.provide(AUTH_SERVICE_KEY, services.authService);
@@ -104,7 +113,7 @@ export const EAppFlowUIShell = {
       app.provide(MICROSOFT_SSO_SERVICE_KEY, services.microsoftSSOService);
     }
 
-    // ── 3. Build router ──────────────────────────────────────────────────
+    // ── 4. Build router ──────────────────────────────────────────────────
     const layout = routerOptions?.layout ?? AuthorizedLayout;
     const extraRoutes = routerOptions?.extraRoutes ?? [];
 
@@ -118,16 +127,16 @@ export const EAppFlowUIShell = {
       }),
     });
 
-    // ── 4. Navigation guards ─────────────────────────────────────────────
+    // ── 5. Navigation guards ─────────────────────────────────────────────
     createNavigationGuards(router, routerOptions?.guards);
 
-    // ── 5. Register modules ──────────────────────────────────────────────
+    // ── 6. Register modules ──────────────────────────────────────────────
     configureModules(modules, app);
 
-    // ── 6. Use router ────────────────────────────────────────────────────
+    // ── 7. Use router ────────────────────────────────────────────────────
     app.use(router);
 
-    // ── 7. Microsoft SSO ─────────────────────────────────────────────────
+    // ── 8. Microsoft SSO ─────────────────────────────────────────────────
     const authStore = useAuthStore();
     if (
       services?.microsoftSSOService &&
@@ -141,10 +150,10 @@ export const EAppFlowUIShell = {
       authStore.initializeMsalInstance(router);
     }
 
-    // ── 7. Use Toast ────────────────────────────────────────────────────
+    // ── 9. Use Toast ────────────────────────────────────────────────────
     app.use(ToastService);
 
-    // ── 8. Use Confirmation ────────────────────────────────────────────────────
+    // ── 10. Use Confirmation ────────────────────────────────────────────────────
     app.use(ConfirmationService);
   },
 };

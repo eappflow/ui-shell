@@ -41,6 +41,7 @@ export type {
   MenuService,
   ThemeService,
   MicrosoftSSOService,
+  I18nService,
 } from "./services/interfaces";
 
 // ─── Vue Plugin ─────────────────────────────────────────────────────────────
@@ -63,6 +64,7 @@ export { createDefaultThemeService } from "./services/defaultThemeService";
 export { useEafAuth as useAuth } from "./composables/useEafAuth";
 export { useEafNavigation } from "./composables/useEafNavigation";
 export { useEafLayout as useLayout } from "./composables/useEafLayout";
+export { createScopedI18n, type ScopedT } from "./composables/createScopedI18n";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
