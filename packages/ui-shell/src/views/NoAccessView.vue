@@ -2,8 +2,10 @@
 import { useRouter } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
+import { useScopedI18n } from "../i18n";
 
 const router = useRouter();
+const { t } = useScopedI18n();
 </script>
 
 <template>
@@ -15,10 +17,16 @@ const router = useRouter();
           <h2
             class="text-2xl font-bold text-surface-900 dark:text-surface-100 mb-2"
           >
-            Access Denied
+            {{ t("access_denied", "Access Denied", "Dostęp zabroniony") }}
           </h2>
           <p class="text-surface-600 dark:text-surface-400 mb-6">
-            You don't have permission to access this page.
+            {{
+              t(
+                "no_permission",
+                "You don't have permission to access this page.",
+                "Nie masz uprawnień do dostępu do tej strony.",
+              )
+            }}
           </p>
           <Button label="Go to Dashboard" @click="router.push('/')" />
         </div>

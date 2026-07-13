@@ -16,11 +16,13 @@ import {
 } from "@eappflow/ui-shell-components";
 import { LogoPlacement } from "../types/eaf-logo";
 import AppLogo from "../components/AppLogo.vue";
+import { useScopedI18n } from "../i18n";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const { t } = useScopedI18n();
 
 const $f = useEafFormValidation();
 const newPassword = ref("");
@@ -101,12 +103,22 @@ function requestNewReset() {
       </div>
       <div class="mb-5">
         <h1 :class="['eaf-recover-password-title', uiCard?.title]">
-          Reset Your Password
+          {{
+            t("reset_password", "Reset Your Password", "Zresetuj swoje hasło")
+          }}
         </h1>
       </div>
     </template>
     <template #subtitle>
-      <span :class="[uiCard?.subtitle]"> Enter your new password below </span>
+      <span :class="[uiCard?.subtitle]">
+        {{
+          t(
+            "enter_new_password",
+            "Enter your new password below",
+            "Wprowadź swoje nowe hasło poniżej",
+          )
+        }}
+      </span>
     </template>
     <template #content>
       <!-- Token error state -->
@@ -116,13 +128,19 @@ function requestNewReset() {
         </Message>
         <div class="flex flex-col gap-3">
           <Button
-            label="Request New Reset Link"
+            :label="
+              t(
+                'request_new_reset',
+                'Request New Reset Link',
+                'Poproś o nowy link resetujący',
+              )
+            "
             :class="['w-full', uiButton]"
             size="large"
             @click="requestNewReset"
           />
           <Button
-            label="Back to Login"
+            :label="t('back_to_login', 'Back to Login', 'Wróć do logowania')"
             severity="secondary"
             outlined
             :class="['w-full', uiButton]"
@@ -146,7 +164,7 @@ function requestNewReset() {
 
         <EafFormItem
           field="newPassword"
-          label="New Password"
+          :label="t('new_password', 'New Password', 'Nowe hasło')"
           :form="$f"
           :required="true"
           :label-class="uiLabel"
@@ -155,7 +173,13 @@ function requestNewReset() {
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="newPassword"
-              placeholder="Enter new password"
+              :placeholder="
+                t(
+                  'enter_new_password',
+                  'Enter new password',
+                  'Wprowadź nowe hasło',
+                )
+              "
               :disabled="loading"
               toggle-mask
               :feedback="true"
@@ -169,7 +193,7 @@ function requestNewReset() {
 
         <EafFormItem
           field="confirmPassword"
-          label="Confirm Password"
+          :label="t('confirm_password', 'Confirm Password', 'Potwierdź hasło')"
           :form="$f"
           :required="true"
           :label-class="uiLabel"
@@ -178,7 +202,13 @@ function requestNewReset() {
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="confirmPassword"
-              placeholder="Confirm new password"
+              :placeholder="
+                t(
+                  'confirm_new_password',
+                  'Confirm new password',
+                  'Potwierdź nowe hasło',
+                )
+              "
               :disabled="loading"
               toggle-mask
               :feedback="false"
@@ -191,7 +221,7 @@ function requestNewReset() {
 
         <Button
           type="submit"
-          label="Reset Password"
+          :label="t('reset_password', 'Reset Password', 'Resetuj hasło')"
           :loading="loading"
           :class="['w-full', uiButton]"
           size="large"
@@ -199,7 +229,7 @@ function requestNewReset() {
 
         <div class="text-center">
           <Button
-            label="Back to Login"
+            :label="t('back_to_login', 'Back to Login', 'Wróć do logowania')"
             link
             :disabled="loading"
             @click="goToLogin"
@@ -214,7 +244,7 @@ function requestNewReset() {
           your new password.
         </Message>
         <Button
-          label="Go to Login"
+          :label="t('go_to_login', 'Go to Login', 'Przejdź do logowania')"
           :class="['w-full', uiButton]"
           size="large"
           @click="goToLogin"

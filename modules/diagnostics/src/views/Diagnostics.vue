@@ -4,9 +4,11 @@ import Tag from "primevue/tag";
 import { useEafNavigation } from "@eappflow/ui-shell";
 import { useAuthStore } from "@eappflow/ui-shell";
 import { computed } from "vue";
+import { useScopedI18n } from "../i18n";
 
 const navigationStore = useEafNavigation();
 const authStore = useAuthStore();
+const { t } = useScopedI18n();
 
 const registeredModules = computed(() => navigationStore.moduleIds);
 const modulePermissionsMap = computed(() => navigationStore.modulePermissions);
@@ -56,7 +58,13 @@ function getModuleSeverity(
       <template #header>
         <div class="flex items-center gap-3">
           <i class="pi pi-box text-xl text-primary" />
-          <span class="font-semibold">Loaded eAppFlow Modules</span>
+          <span class="font-semibold">{{
+            t(
+              "loaded_modules",
+              "Loaded eAppFlow Modules",
+              "Załadowane Moduły eAppFlow",
+            )
+          }}</span>
           <Tag :value="registeredModules.length" severity="info" />
         </div>
       </template>
@@ -64,17 +72,24 @@ function getModuleSeverity(
         v-if="registeredModules.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2" />No modules registered.
+        <i class="pi pi-info-circle mr-2" /> {
+        t('diagnostics.no-modules-registered') }
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-zinc-200">
               <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                Module ID
+                {{ t("diagnostics.module-id", "Module ID", "ID Modułu") }}
               </th>
               <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                Declared Permissions
+                {{
+                  t(
+                    "diagnostics.declared-permissions",
+                    "Declared Permissions",
+                    "Deklarowane Uprawnienia",
+                  )
+                }}
               </th>
             </tr>
           </thead>
@@ -115,7 +130,13 @@ function getModuleSeverity(
       <template #header>
         <div class="flex items-center gap-3">
           <i class="pi pi-list text-xl text-primary" />
-          <span class="font-semibold">Loaded Menu Modules &amp; Items</span>
+          <span class="font-semibold">{{
+            t(
+              "loaded_menu_modules_and_items",
+              "Loaded Menu Modules & Items",
+              "Załadowane Moduły i Elementy Menu",
+            )
+          }}</span>
           <Tag :value="menuModules.length" severity="info" />
         </div>
       </template>
@@ -123,7 +144,13 @@ function getModuleSeverity(
         v-if="menuModules.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2" />No menu modules registered.
+        <i class="pi pi-info-circle mr-2" />{{
+          t(
+            "diagnostics.no-menu-modules-registered",
+            "No menu modules registered.",
+            "Brak zarejestrowanych modułów menu.",
+          )
+        }}
       </div>
       <div v-else class="flex flex-col gap-4">
         <div
@@ -147,16 +174,22 @@ function getModuleSeverity(
               <thead>
                 <tr class="border-b border-zinc-100">
                   <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    Name
+                    {{ t("name", "Name", "Nazwa") }}
                   </th>
                   <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    Icon
+                    {{ t("icon", "Icon", "Ikona") }}
                   </th>
                   <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    Path
+                    {{ t("path", "Path", "Ścieżka") }}
                   </th>
                   <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    Required Permissions
+                    {{
+                      t(
+                        "required_permissions",
+                        "Required Permissions",
+                        "Wymagane Uprawnienia",
+                      )
+                    }}
                   </th>
                 </tr>
               </thead>
@@ -213,7 +246,15 @@ function getModuleSeverity(
       <template #header>
         <div class="flex items-center gap-3">
           <i class="pi pi-lock text-xl text-primary" />
-          <span class="font-semibold">Loaded Permissions &amp; Sources</span>
+          <span class="font-semibold">
+            {{
+              t(
+                "loaded_permissions_and_sources",
+                "Loaded Permissions & Sources",
+                "Załadowane Uprawnienia i Źródła",
+              )
+            }}
+          </span>
           <Tag :value="registeredPermissions.length" severity="info" />
         </div>
       </template>
@@ -221,21 +262,39 @@ function getModuleSeverity(
         v-if="registeredPermissions.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2" />No permissions declared across
-        modules.
+        <i class="pi pi-info-circle mr-2" />
+        {{
+          t(
+            "no_permissions_declared",
+            "No permissions declared across modules.",
+            "Brak zadeklarowanych uprawnień w modułach.",
+          )
+        }}
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-zinc-200">
               <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                Permission
+                {{ t("permission", "Permission", "Uprawnienie") }}
               </th>
               <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                Source Module(s)
+                {{
+                  t(
+                    "source-modules",
+                    "Source Module(s)",
+                    "Moduł(y) Źródłowy(e)",
+                  )
+                }}
               </th>
               <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                Current User Has
+                {{
+                  t(
+                    "current-user-has",
+                    "Current User Has",
+                    "Bieżący Użytkownik Ma",
+                  )
+                }}
               </th>
             </tr>
           </thead>
@@ -264,7 +323,13 @@ function getModuleSeverity(
                     v-if="!hasModuleWithPermission(perm)"
                     class="text-zinc-400 italic text-xs"
                   >
-                    external / runtime
+                    {{
+                      t(
+                        "external-runtime",
+                        "external / runtime",
+                        "zewnętrzne / w czasie wykonywania",
+                      )
+                    }}
                   </span>
                 </div>
               </td>

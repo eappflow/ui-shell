@@ -10,6 +10,7 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import { useScopedI18n } from "../i18n";
 
 const toast = useToast();
 
@@ -19,6 +20,7 @@ const currentPassword = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
 const success = ref(false);
+const { t } = useScopedI18n();
 
 function resetForm() {
   currentPassword.value = "";
@@ -110,33 +112,55 @@ async function handleChangePassword() {
             :closable="true"
             @close="success = false"
           >
-            Your password has been changed successfully!
+            {{
+              t(
+                "password_changed_successfully",
+                "Your password has been changed successfully!",
+                "Twoje hasło zostało pomyślnie zmienione!",
+              )
+            }}
           </Message>
 
           <EafFormValidationSummary :form="$f" />
 
           <Message severity="info" :closable="false">
-            For security reasons, you will need to use your new password for
-            future logins.
+            {{
+              t(
+                "password_change_info",
+                "For security reasons, you will need to use your new password for future logins.",
+                "Ze względów bezpieczeństwa będziesz musiał używać nowego hasła przy przyszłych logowaniach.",
+              )
+            }}
           </Message>
 
           <EafFormValidationSummary :form="$f" />
 
           <Message severity="info" :closable="false">
-            For security reasons, you will need to use your new password for
-            future logins.
+            {{
+              t(
+                "password_change_info",
+                "For security reasons, you will need to use your new password for future logins.",
+                "Ze względów bezpieczeństwa będziesz musiał używać nowego hasła przy przyszłych logowaniach.",
+              )
+            }}
           </Message>
 
           <EafFormItem
             field="currentPassword"
-            label="Current Password"
+            :label="t('current_password', 'Current Password', 'Aktualne hasło')"
             :form="$f"
             :required="true"
           >
             <Password
               v-model="currentPassword"
               :disabled="loading"
-              placeholder="Enter your current password"
+              :placeholder="
+                t(
+                  'enter_current_password',
+                  'Enter your current password',
+                  'Wprowadź swoje aktualne hasło',
+                )
+              "
               :feedback="false"
               toggle-mask
             />
@@ -144,32 +168,54 @@ async function handleChangePassword() {
 
           <EafFormItem
             field="newPassword"
-            label="New Password"
+            :label="t('new_password', 'New Password', 'Nowe hasło')"
             :form="$f"
             :required="true"
           >
             <Password
               v-model="newPassword"
               :disabled="loading"
-              placeholder="Enter your new password"
+              :placeholder="
+                t(
+                  'enter_new_password',
+                  'Enter your new password',
+                  'Wprowadź swoje nowe hasło',
+                )
+              "
               :feedback="true"
               toggle-mask
             />
-            <small class="text-surface-500"
-              >Minimum 6 characters required</small
-            >
+            <small class="text-surface-500">{{
+              t(
+                "minimum_6_characters",
+                "Minimum 6 characters required",
+                "Minimalnie 6 znaków wymaganych",
+              )
+            }}</small>
           </EafFormItem>
 
           <EafFormItem
             field="confirmPassword"
-            label="Confirm New Password"
+            :label="
+              t(
+                'confirm_new_password',
+                'Confirm New Password',
+                'Potwierdź nowe hasło',
+              )
+            "
             :form="$f"
             :required="true"
           >
             <Password
               v-model="confirmPassword"
               :disabled="loading"
-              placeholder="Confirm your new password"
+              :placeholder="
+                t(
+                  'confirm_new_password',
+                  'Confirm New Password',
+                  'Potwierdź nowe hasło',
+                )
+              "
               :feedback="false"
               toggle-mask
             />
@@ -177,13 +223,17 @@ async function handleChangePassword() {
 
           <div class="flex justify-end gap-3 pt-4">
             <Button
-              label="Cancel"
+              :label="t('cancel', 'Cancel', 'Anuluj')"
               severity="secondary"
               outlined
               :disabled="loading"
               @click="resetForm"
             />
-            <Button type="submit" label="Change Password" :loading="loading" />
+            <Button
+              type="submit"
+              :label="t('change_password', 'Change Password', 'Zmień hasło')"
+              :loading="loading"
+            />
           </div>
         </form>
       </template>
@@ -194,7 +244,13 @@ async function handleChangePassword() {
         <div class="px-6 pt-6">
           <h3 class="text-lg font-semibold flex items-center gap-2">
             <i class="pi pi-shield text-primary" />
-            Password Security Tips
+            {{
+              t(
+                "password_security_tips",
+                "Password Security Tips",
+                "Wskazówki dotyczące bezpieczeństwa haseł",
+              )
+            }}
           </h3>
         </div>
       </template>
@@ -202,12 +258,60 @@ async function handleChangePassword() {
         <ul
           class="list-disc list-inside space-y-2 text-surface-700 dark:text-surface-300"
         >
-          <li>Use at least 6 characters (longer is better)</li>
-          <li>Mix uppercase and lowercase letters</li>
-          <li>Include numbers and special characters</li>
-          <li>Avoid common words or personal information</li>
-          <li>Don't reuse passwords from other accounts</li>
-          <li>Change your password regularly</li>
+          <li>
+            {{
+              t(
+                "use_at_least_6_characters",
+                "Use at least 6 characters (longer is better)",
+                "Użyj co najmniej 6 znaków (im dłuższe, tym lepsze)",
+              )
+            }}
+          </li>
+          <li>
+            {{
+              t(
+                "mix_uppercase_and_lowercase",
+                "Mix uppercase and lowercase letters",
+                "Mieszaj wielkie i małe litery",
+              )
+            }}
+          </li>
+          <li>
+            {{
+              t(
+                "include_numbers_and_special_characters",
+                "Include numbers and special characters",
+                "Dołącz numery i znaki specjalne",
+              )
+            }}
+          </li>
+          <li>
+            {{
+              t(
+                "avoid_common_words",
+                "Avoid common words or personal information",
+                "Unikaj powszechnych słów lub informacji osobistych",
+              )
+            }}
+          </li>
+          <li>
+            {{
+              t(
+                "don_t_reuse_passwords",
+                "Don't reuse passwords from other accounts",
+                "Nie powtarzaj haseł z innych kont",
+              )
+            }}
+          </li>
+          <li>
+            {{
+              t(
+                "change_password_regularly",
+                "Change your password regularly",
+                "Regularnie zmieniaj swoje hasło",
+              )
+            }}
+          </li>
         </ul>
       </template>
     </Card>

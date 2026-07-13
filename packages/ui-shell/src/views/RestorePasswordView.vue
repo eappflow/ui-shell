@@ -16,10 +16,12 @@ import {
 } from "@eappflow/ui-shell-components";
 import { LogoPlacement } from "../types/eaf-logo";
 import AppLogo from "../components/AppLogo.vue";
+import { useScopedI18n } from "../i18n";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const { t } = useScopedI18n();
 
 const $f = useEafFormValidation();
 const email = ref("");
@@ -73,13 +75,19 @@ function goToLogin() {
       </div>
       <div class="mb-5">
         <h1 :class="['eaf-reset-password-title', uiCard?.title]">
-          Reset Password
+          {{ t("reset_password", "Reset Password", "Resetuj hasło") }}
         </h1>
       </div>
     </template>
     <template #subtitle>
       <span :class="[uiCard?.subtitle]">
-        Enter your email to receive password reset instructions
+        {{
+          t(
+            "enter_email",
+            "Enter your email to receive password reset instructions",
+            "Wprowadź swój email, aby otrzymać instrukcje resetowania hasła",
+          )
+        }}
       </span>
     </template>
     <template #content>
@@ -92,7 +100,7 @@ function goToLogin() {
 
         <EafFormItem
           field="email"
-          label="Email"
+          :label="t('email', 'Email', 'Email')"
           :form="$f"
           :required="true"
           :label-class="uiLabel"
@@ -102,7 +110,9 @@ function goToLogin() {
             <InputText
               v-model="email"
               type="email"
-              placeholder="Enter your email"
+              :placeholder="
+                t('enter_email', 'Enter your email', 'Wprowadź swój email')
+              "
               :disabled="loading"
               class="w-full"
               autocomplete="email"
@@ -112,7 +122,9 @@ function goToLogin() {
 
         <Button
           type="submit"
-          label="Send Reset Link"
+          :label="
+            t('send_reset_link', 'Send Reset Link', 'Wyślij link resetujący')
+          "
           :loading="loading"
           :class="['w-full', uiButton]"
           size="large"
@@ -120,7 +132,7 @@ function goToLogin() {
 
         <div class="text-center">
           <Button
-            label="Back to Login"
+            :label="t('back_to_login', 'Back to Login', 'Wróć do logowania')"
             link
             :disabled="loading"
             @click="goToLogin"
@@ -130,14 +142,25 @@ function goToLogin() {
 
       <div v-else class="flex flex-col gap-5">
         <Message severity="success" :closable="false">
-          Password reset instructions have been sent to your email address.
+          {{
+            t(
+              "reset_instructions_sent",
+              "Password reset instructions have been sent to your email address.",
+              "Instrukcje resetowania hasła zostały wysłane na Twój adres email.",
+            )
+          }}
         </Message>
         <p class="text-sm text-surface-600">
-          If the email exists, a password reset link has been sent. The link
-          will expire in 2 days.
+          {{
+            t(
+              "reset_link_validity",
+              "If the email exists, a password reset link has been sent. The link will expire in 2 days.",
+              "Jeśli adres e-mail istnieje, wysłano link do resetowania hasła. Link wygaśnie za 2 dni.",
+            )
+          }}
         </p>
         <Button
-          label="Back to Login"
+          :label="t('back_to_login', 'Back to login', 'Powrót do logowania')"
           :class="['w-full', uiButton]"
           size="large"
           @click="goToLogin"

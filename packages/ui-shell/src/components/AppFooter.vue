@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
+import { useScopedI18n } from "../i18n";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const { t } = useScopedI18n();
 
 const year = new Date().getFullYear();
 </script>
@@ -12,7 +14,14 @@ const year = new Date().getFullYear();
     :class="['eaf-footer', appConfig.classes?.layout?.authorized?.footer?.root]"
   >
     <span>
-      &copy; {{ year }} <slot name="app-name" />. All rights reserved.
+      &copy; {{ year }} <slot name="app-name" />.
+      {{
+        t(
+          "allRightsReserved",
+          "All rights reserved.",
+          "Wszystkie prawa zastrzeżone.",
+        )
+      }}
     </span>
     <slot name="right" />
   </footer>

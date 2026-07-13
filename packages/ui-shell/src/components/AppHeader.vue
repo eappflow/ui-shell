@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import Popover from "primevue/popover";
@@ -8,11 +9,15 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
 import { THEME_COLORS, type ThemeColorName } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
-import { APP_CONFIG_KEY } from "../services/interfaces";
+import { APP_CONFIG_KEY, I18n_SERVICE_KEY } from "../services/interfaces";
+import { useScopedI18n } from "../i18n";
 
 const router = useRouter();
 const auth = useEafAuth();
 const layout = useEafLayout();
+const { t } = useScopedI18n();
+const { locale } = useI18n({ useScope: "global" });
+const i18nService = inject(I18n_SERVICE_KEY);
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -42,12 +47,12 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     separator: true,
   },
   {
-    label: "Dark Mode",
+    label: t("dark_mode", "Dark Mode", "Tryb ciemny"),
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
     command: () => layout.toggleDarkMode(),
   },
   {
-    label: "Theme Color",
+    label: t("theme_color", "Theme Color", "Kolor motywu"),
     icon: "pi pi-palette",
     items: themeColors.value,
   },
@@ -55,7 +60,18 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     separator: true,
   },
   {
-    label: "Change Password",
+    label: "Language",
+    icon: "pi pi-language",
+    items: i18nService?.avaiableLocales
+      ? i18nService?.avaiableLocales.map(({ localeCode, displayName }) => ({
+          label: displayName,
+          icon: locale.value === localeCode ? "pi pi-check" : undefined,
+          command: () => (locale.value = localeCode),
+        }))
+      : [],
+  },
+  {
+    label: t("change_password", "Change Password", "Zmień hasło"),
     icon: "pi pi-key",
     command: () => router.push("/change-password"),
   },

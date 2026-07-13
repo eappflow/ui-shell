@@ -16,11 +16,13 @@ import {
 } from "@eappflow/ui-shell-components";
 import { LogoPlacement } from "../types/eaf-logo";
 import AppLogo from "../components/AppLogo.vue";
+import { useScopedI18n } from "../i18n";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const { t } = useScopedI18n();
 
 const $f = useEafFormValidation();
 const login = ref("");
@@ -92,12 +94,20 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         />
       </div>
       <div class="mb-5">
-        <h1 :class="['eaf-login-title', uiCard?.title]">Login</h1>
+        <h1 :class="['eaf-login-title', uiCard?.title]">
+          {{ t("login", "Login", "Login") }}
+        </h1>
       </div>
     </template>
     <template #subtitle>
       <span :class="[uiCard?.subtitle]">
-        Enter your credentials to access the portal
+        {{
+          t(
+            "enter_credentials",
+            "Enter your credentials to access the portal",
+            "Wprowadź swoje dane logowania, aby uzyskać dostęp do portalu",
+          )
+        }}
       </span>
     </template>
     <template #content>
@@ -106,7 +116,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 
         <EafFormItem
           field="login"
-          label="Login"
+          :label="t('login', 'Login', 'Login')"
           :form="$f"
           :required="true"
           :label-class="uiLabel"
@@ -115,7 +125,9 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
             <InputIcon class="pi pi-user" />
             <InputText
               v-model="login"
-              placeholder="Enter your login"
+              :placeholder="
+                t('enter_login', 'Enter your login', 'Wprowadź swój login')
+              "
               :disabled="loading"
               class="w-full"
               autocomplete="username"
@@ -125,7 +137,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 
         <EafFormItem
           field="password"
-          label="Password"
+          :label="t('password', 'Password', 'Hasło')"
           :form="$f"
           :required="true"
           :label-class="uiLabel"
@@ -134,7 +146,13 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="password"
-              placeholder="Enter your password"
+              :placeholder="
+                t(
+                  'enter_password',
+                  'Enter your password',
+                  'Wprowadź swoje hasło',
+                )
+              "
               :disabled="loading"
               :feedback="false"
               toggle-mask
@@ -150,13 +168,13 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
             to="/restore-password"
             class="text-sm text-primary hover:underline"
           >
-            Recover password
+            {{ t("recover_password", "Recover password", "Odzyskaj hasło") }}
           </router-link>
         </div>
 
         <Button
           type="submit"
-          label="Login"
+          :label="t('login', 'Login', 'Login')"
           :loading="loading"
           :class="['w-full', uiButton]"
           size="large"
@@ -164,7 +182,13 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <Button
           v-if="authStore.isUsingMicrosoftSSO"
           type="button"
-          label="Login with Microsoft"
+          :label="
+            t(
+              'login_with_microsoft',
+              'Login with Microsoft',
+              'Zaloguj się za pomocą Microsoft',
+            )
+          "
           :loading="loading"
           :class="['w-full', uiButton]"
           size="large"
