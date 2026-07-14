@@ -3,6 +3,26 @@ import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
 import type { EafLogo, EafLogoSrc } from "./eaf-logo";
 
+// ─── Route meta augmentation ─────────────────────────────────────────────────
+
+declare module "vue-router" {
+  interface RouteMeta {
+    /** Module that contributed this route (set automatically on registration) */
+    moduleId?: string;
+    /** Whether the route is public (no auth required) */
+    public?: boolean;
+    /** Required permissions to access the route (OR logic) */
+    permissions?: Permission[];
+    /**
+     * Translation key for the route's title, resolved via the global i18n
+     * instance (e.g. for document title / breadcrumbs). The host app must
+     * register a matching message entry (see the module's `useScopedI18n`
+     * messages / locale files).
+     */
+    titleKey?: string;
+  }
+}
+
 // ─── User ────────────────────────────────────────────────────────────────────
 
 export interface User {
@@ -117,6 +137,12 @@ export type Permission = string;
 
 export interface EafMenuItem {
   name: string;
+  /**
+   * Translation key for the item's label, resolved via the global i18n
+   * instance. When set and a translation exists, it is shown instead of
+   * `name` (which then acts as the fallback label).
+   */
+  nameKey?: string;
   icon?: string;
   path: string;
   component?: () => Promise<unknown>;

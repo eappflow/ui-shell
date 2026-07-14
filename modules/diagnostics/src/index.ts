@@ -25,13 +25,16 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
         path: "diagnostics/welcome",
         name: "welcome",
         component: () => import("./views/Welcome.vue"),
-        meta: { permissions: [] },
+        meta: { permissions: [], titleKey: "diagnostics.menu.welcome" },
       },
       {
         path: "diagnostics",
         name: "diagnostics",
         component: () => import("./views/Diagnostics.vue"),
-        meta: { permissions: ["TechnicalAdministrator"] },
+        meta: {
+          permissions: ["TechnicalAdministrator"],
+          titleKey: "diagnostics.menu.diagnostics",
+        },
       },
     ],
 
@@ -42,12 +45,14 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
         items: [
           {
             name: "Welcome",
+            nameKey: "diagnostics.menu.welcome",
             icon: "pi pi-users",
             path: "/diagnostics/welcome",
             permissions: [],
           },
           {
             name: "Diagnostics",
+            nameKey: "diagnostics.menu.diagnostics",
             icon: "pi pi-shield",
             path: "/diagnostics",
             permissions: ["TechnicalAdministrator"],

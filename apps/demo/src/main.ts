@@ -20,6 +20,8 @@ import { EAppFlowUIShell } from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
+import en from "../locales/en.json";
+import pl from "../locales/pl.json";
 
 import App from "./App.vue";
 import { InputText } from "primevue";
@@ -55,6 +57,13 @@ app.use(EAppFlowUIShell, {
   services: {
     authService: createFakeAuthService(),
     microsoftSSOService: createFakeMicrosoftSSOService(),
+    // Global translations (./locales) — used to resolve `nameKey` /
+    // `titleKey` values set on module routes and menu items (e.g. shown
+    // in AppMainMenu), since those are rendered by shared shell
+    // components running in the global i18n scope.
+    i18nService: {
+      messages: { en, pl },
+    },
   },
   router: {
     extraRoutes: [

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
 import { useEafAuth } from "../composables/useEafAuth";
@@ -13,6 +14,7 @@ const router = useRouter();
 const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
+const { t, te } = useI18n({ useScope: "global" });
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -48,6 +50,15 @@ function navigateToPage(item: EafMenuItem): void {
 // Unchanged from your original.
 function isActive(itemPath: string): boolean {
   return route.path === itemPath;
+}
+
+// Resolves the item's translated label via nameKey, falling back to the
+// plain `name` when no key is set or no translation exists for it.
+function menuItemLabel(item: EafMenuItem): string {
+  if (item.nameKey && te(item.nameKey)) {
+    return t(item.nameKey);
+  }
+  return item.name;
 }
 
 // Menu isn't a generic component, so its #item slot always types `item`
@@ -95,7 +106,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             :class="item.icon"
             class="w-5 shrink-0 text-[18px] opacity-90"
           />
-          <span class="truncate">{{ asEafMenuItem(item).name }}</span>
+          <span class="truncate">{{ menuItemLabel(asEafMenuItem(item)) }}</span>
         </a>
       </template>
     </Menu>

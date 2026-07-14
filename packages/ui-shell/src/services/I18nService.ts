@@ -1,6 +1,7 @@
 import { watch } from "vue";
 import type { I18nService } from "./interfaces";
 import { Composer, createI18n, I18n, I18nOptions } from "vue-i18n";
+import { deepMerge } from "../utils/deepMerge";
 import pl from "../locales/pl.json";
 import en from "../locales/en.json";
 
@@ -26,10 +27,17 @@ export function createI18nService(i18nService?: I18nService): {
 } {
   const savedLocale = localStorage.getItem(LOCAL_STORAGE_KEY);
   const browser = navigator.language.split("-")[0]; // 'pl-PL' -> 'pl'
+  const defaults = createDefaultI18nService();
   i18nService = {
-    ...createDefaultI18nService(),
+    ...defaults,
     locale: savedLocale ?? browser ?? "en",
     ...i18nService,
+    // Deep-merged so a host's own messages add to the shell's defaults
+    // at every nesting level instead of replacing whole namespaces.
+    messages: deepMerge(
+      defaults.messages ?? {},
+      i18nService?.messages ?? {},
+    ) as I18nOptions["messages"],
   };
 
   const options: I18nOptions = {

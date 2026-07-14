@@ -320,6 +320,82 @@ Module routes use **relative paths** (without a leading `/`). They are nested as
 - **Empty permissions array (`[]`)** → the menu item is **always visible** to any authenticated user.
 - **Permissions listed** → the item is visible only if the user has **at least one** of the listed permissions (OR logic).
 
+### Translating Menu Items & Route Titles
+
+Menu items (`EafMenuItem.nameKey`) and routes (`meta.titleKey`) can carry an
+optional translation key, resolved through the shell's **global** i18n
+instance (`AppMainMenu` looks up `nameKey` and falls back to the plain
+`name` if the key isn't set or has no translation):
+
+```ts
+menuModules: [
+  {
+    name: "eAppFlow",
+    icon: "pi pi-cog",
+    items: [
+      {
+        name: "Welcome", // fallback label
+        nameKey: "diagnostics.menu.welcome",
+        icon: "pi pi-users",
+        path: "/diagnostics/welcome",
+        permissions: [],
+      },
+    ],
+  },
+],
+routes: [
+  {
+    path: "diagnostics/welcome",
+    name: "welcome",
+    component: () => import("./views/Welcome.vue"),
+    meta: { permissions: [], titleKey: "diagnostics.menu.welcome" },
+  },
+],
+```
+
+The global instance only knows the shell's own locale files by default —
+it does **not** automatically pick up a module's `useScopedI18n` messages
+(those are local-scoped to the module's own components, used for the
+component's own inline-fallback `t()` calls).
+
+`nameKey` / `titleKey` values are rendered by **shared shell components**
+(e.g. `AppMainMenu`), so the translations backing them live in the
+**host app**, not the module. The host keeps a `locales/` folder at its
+project root and passes it as `services.i18nService.messages`, namespacing
+each module's keys under the module id to avoid collisions (see
+`apps/demo/locales/en.json` / `apps/demo/main.ts`):
+
+```json
+// apps/demo/locales/en.json
+{
+  "diagnostics": {
+    "menu": {
+      "welcome": "Welcome",
+      "diagnostics": "Diagnostics"
+    }
+  }
+}
+```
+
+```ts
+// apps/demo/src/main.ts
+import en from "../locales/en.json";
+import pl from "../locales/pl.json";
+
+app.use(EAppFlowUIShell, {
+  modules: [diagnosticsModule],
+  services: {
+    i18nService: {
+      messages: { en, pl },
+    },
+  },
+  // ...
+});
+```
+
+The shell merges this per-locale with its own built-in messages, so the
+host's `messages` add to the shell's defaults rather than replacing them.
+
 ---
 
 ## 9. Create View Components
