@@ -1,4 +1,4 @@
-import { useI18n, type UseI18nOptions } from "vue-i18n";
+import { useI18n, type UseI18nOptions, type Composer } from "vue-i18n";
 
 type Messages = UseI18nOptions["messages"];
 
@@ -76,7 +76,7 @@ export function createScopedI18n(messages: Messages) {
    * t("items_count", "{count} items", "{count} elementów", { count: n })
    * ```
    */
-  return function useScopedI18n() {
+  return function useScopedI18n(): { t: ScopedT } & Omit<Composer, "t" | "te"> {
     const { locale, t, te, ...rest } = useI18n({
       messages: messages,
       inheritLocale: true,
@@ -114,6 +114,6 @@ export function createScopedI18n(messages: Messages) {
       return t(key);
     };
 
-    return { t: scopedT };
+    return { t: scopedT, locale, ...rest };
   };
 }
