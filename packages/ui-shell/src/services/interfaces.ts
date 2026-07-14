@@ -105,7 +105,7 @@ export interface Locale {
 }
 
 export interface I18nService {
-  avaiableLocales?: Locale[];
+  availableLocales?: Locale[];
   locale?: string;
   messages?: I18nOptions["messages"];
 }

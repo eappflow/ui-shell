@@ -62,8 +62,8 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
   {
     label: "Language",
     icon: "pi pi-language",
-    items: i18nService?.avaiableLocales
-      ? i18nService?.avaiableLocales.map(({ localeCode, displayName }) => ({
+    items: i18nService?.availableLocales
+      ? i18nService?.availableLocales.map(({ localeCode, displayName }) => ({
           label: displayName,
           icon: locale.value === localeCode ? "pi pi-check" : undefined,
           command: () => (locale.value = localeCode),

@@ -9,7 +9,7 @@ const LOCAL_STORAGE_KEY = "locale";
 
 export function createDefaultI18nService(): I18nService {
   return {
-    avaiableLocales: [
+    availableLocales: [
       { localeCode: "pl", displayName: "Polski" },
       { localeCode: "en", displayName: "English" },
     ],
@@ -43,7 +43,7 @@ export function createI18nService(i18nService?: I18nService): {
   const options: I18nOptions = {
     ...i18nService,
     availableLocales:
-      i18nService.avaiableLocales?.map((l) => l.localeCode) ?? [],
+      i18nService.availableLocales?.map((l) => l.localeCode) ?? [],
     legacy: false, // Ensure we use Composition API
   };
 
