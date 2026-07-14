@@ -2,7 +2,7 @@
 import { useRouter } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
 const { t } = useScopedI18n();

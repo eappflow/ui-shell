@@ -10,7 +10,7 @@ import { useEafLayout } from "../composables/useEafLayout";
 import { THEME_COLORS, type ThemeColorName } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 import { APP_CONFIG_KEY, I18n_SERVICE_KEY } from "../services/interfaces";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
 const auth = useEafAuth();

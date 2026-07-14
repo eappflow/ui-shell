@@ -10,7 +10,7 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
 

@@ -16,7 +16,7 @@ import {
 } from "@eappflow/ui-shell-components";
 import { LogoPlacement } from "../types/eaf-logo";
 import AppLogo from "../components/AppLogo.vue";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
 const route = useRoute();

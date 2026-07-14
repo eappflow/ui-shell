@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/useScopedI18n";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();

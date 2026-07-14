@@ -49,7 +49,7 @@ import ConfirmationService from "primevue/confirmationservice";
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
 import { useAuthStore } from "./stores/useAuthStore";
-import { createI18nService } from "./services/I18nService";
+import { createI18nService } from "./composables/createI18nService";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
 

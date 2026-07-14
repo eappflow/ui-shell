@@ -1,5 +1,5 @@
 import { watch } from "vue";
-import type { I18nService } from "./interfaces";
+import type { I18nService } from "../services/interfaces";
 import { Composer, createI18n, I18n, I18nOptions } from "vue-i18n";
 import { deepMerge } from "../utils/deepMerge";
 import pl from "../locales/pl.json";
