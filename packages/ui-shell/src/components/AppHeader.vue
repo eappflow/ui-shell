@@ -60,7 +60,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     separator: true,
   },
   {
-    label: "Language",
+    label: t("language", "Language", "Język"),
     icon: "pi pi-language",
     items: i18nService?.availableLocales
       ? i18nService?.availableLocales.map(({ localeCode, displayName }) => ({
@@ -79,7 +79,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     separator: true,
   },
   {
-    label: "Logout",
+    label: t("logout", "Logout", "Wyloguj"),
     icon: "pi pi-sign-out",
     command: () => emit("logout"),
   },

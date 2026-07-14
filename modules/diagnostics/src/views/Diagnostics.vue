@@ -72,8 +72,13 @@ function getModuleSeverity(
         v-if="registeredModules.length === 0"
         class="text-zinc-400 italic py-4 text-center"
       >
-        <i class="pi pi-info-circle mr-2" /> {
-        t('diagnostics.no-modules-registered') }
+        <i class="pi pi-info-circle mr-2" />{{
+          t(
+            "diagnostics.no-modules-registered",
+            "No modules registered.",
+            "Brak zarejestrowanych modułów.",
+          )
+        }}
       </div>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-sm">
