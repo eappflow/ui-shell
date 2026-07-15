@@ -244,6 +244,8 @@ This is the core of the module. Export a **factory function** that creates an `E
 import { EafModule } from "@eappflow/ui-shell";
 import type { <ModuleName>Config } from "./types";
 import { <MODULE_NAME>_CONFIG_KEY } from "./types";
+import { menu as enMenu } from "./locales/en.json";
+import { menu as plMenu } from "./locales/pl.json";
 
 /**
  * Creates the <ModuleName> module instance.
@@ -267,13 +269,22 @@ export function create<ModuleName>Module(config?: <ModuleName>Config): EafModule
       // Add more routes as needed
     ],
 
+    // Translations for menuModules' `nameKey`s below (see "Translating
+    // Menu Items & Menu Groups") — short, local keys, scoped to this module.
+    menuI18nMessages: {
+      en: enMenu,
+      pl: plMenu,
+    },
+
     menuModules: [
       {
-        name: "<MenuGroupName>",
+        name: "<MenuGroupName>", // fallback label
+        nameKey: "group",
         icon: "pi pi-<icon>",
         items: [
           {
-            name: "<DisplayName>",
+            name: "<DisplayName>", // fallback label
+            nameKey: "<displayName>",
             icon: "pi pi-<icon>",
             path: "/<module-id>/view1",
             permissions: ["<RequiredPermission>"],
@@ -304,6 +315,8 @@ export interface EafModule {
   routes?: RouteRecordRaw[];
   /** Menu modules contributed by this module */
   menuModules?: EafMenuModule[];
+  /** Translation messages backing menuModules' `nameKey`s, per locale */
+  menuI18nMessages?: I18nOptions["messages"];
   /** Permissions declared by this module */
   permissions?: Permission[];
   /** Optional install hook called when the module is registered */
@@ -319,6 +332,70 @@ Module routes use **relative paths** (without a leading `/`). They are nested as
 
 - **Empty permissions array (`[]`)** → the menu item is **always visible** to any authenticated user.
 - **Permissions listed** → the item is visible only if the user has **at least one** of the listed permissions (OR logic).
+
+### Translating Menu Items & Menu Groups
+
+Both menu items (`EafMenuItem.nameKey`) and menu groups
+(`EafMenuModule.nameKey`) can carry an optional translation key. They are
+resolved by `AppMainMenu` through the shell's **global** i18n instance,
+falling back to the plain `name` if the key isn't set or has no
+translation for the active locale.
+
+`nameKey` on menu items/groups is a **short, local key** - just the leaf
+name, scoped to your own module. The module ships its own translations
+for these keys via `menuI18nMessages`, and the
+shell namespaces and merges them automatically; you never repeat your
+module id inside every key:
+
+```ts
+// src/index.ts
+import { menu as enMenu } from "./locales/en.json";
+import { menu as plMenu } from "./locales/pl.json";
+
+export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
+  return {
+    id: "diagnostics",
+    // ...
+    menuI18nMessages: {
+      en: enMenu,
+      pl: plMenu,
+    },
+    menuModules: [
+      {
+        name: "eAppFlow", // fallback label
+        nameKey: "group",
+        icon: "pi pi-cog",
+        items: [
+          {
+            name: "Welcome", // fallback label
+            nameKey: "welcome",
+            icon: "pi pi-users",
+            path: "/diagnostics/welcome",
+            permissions: [],
+          },
+        ],
+      },
+    ],
+  };
+}
+```
+
+```json
+// src/locales/en.json
+{
+  "menu": {
+    "group": "eAppFlow",
+    "welcome": "Welcome"
+  }
+}
+```
+
+At registration time, `configureModules()` rewrites every `nameKey` to
+`menu.<moduleId>.<yourKey>` (e.g. `menu.diagnostics.welcome`), and
+`createEafI18n()` merges each module's `menuI18nMessages` into the global
+instance under that same `menu.<moduleId>` namespace. This guarantees keys
+from different modules never collide, without any module needing to know
+about - or repeat - its own id inside every translation key.
 
 ---
 

@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write \"**/*.{vue,ts,json,css,md}\"",
-    "mcp:setup": "pnpm --dir tools/mcp-primevue install"
+    "mcp:setup": "pnpm --dir tools/mcp-primevue install",
+    "i18n": "node tools/i18n.mjs"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
@@ -31,6 +32,7 @@
     "vite": "^8.0.16",
     "vitest": "^4.1.9",
     "vue-eslint-parser": "^10.4.1",
+    "vue-i18n-extract": "^2.0.7",
     "vue-tsc": "^3.3.5"
   },
   "lint-staged": {

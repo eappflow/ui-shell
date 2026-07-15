@@ -19,7 +19,9 @@ import type {
   ThemeSettings,
   AppConfig,
   MicrosoftSSOLoginRequest,
+  I18nConfig,
 } from "../types";
+import type { I18nOptions } from "vue-i18n";
 import type { EafMenuModule } from "../types";
 import type { InjectionKey } from "vue";
 import * as msal from "@azure/msal-browser";
@@ -93,3 +95,4 @@ export const THEME_SERVICE_KEY: InjectionKey<ThemeService> =
 export const MICROSOFT_SSO_SERVICE_KEY: InjectionKey<MicrosoftSSOService> =
   Symbol("microsoftSSOService");
 export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol("appConfig");
+export const I18n_CONFIG_KEY: InjectionKey<I18nConfig> = Symbol("i18nConfig");

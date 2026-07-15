@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@modelcontextprotocol/sdk': 1.26.0
-
 importers:
 
   .:

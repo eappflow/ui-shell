@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
 import { useEafAuth } from "../composables/useEafAuth";
@@ -8,11 +9,13 @@ import { filterVisibleMenuModules } from "../utils/permissions";
 import type { EafMenuItem } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 import { APP_CONFIG_KEY } from "../services/interfaces";
+import type { EafFilteredMenuModule } from "../types";
 
 const router = useRouter();
 const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
+const { t, te } = useI18n({ useScope: "global" });
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -34,7 +37,7 @@ const visibleMenuModules = computed(() =>
 // untouched, no reshaping/renaming of your fields.
 const menuModel = computed(() =>
   visibleMenuModules.value.map((module) => ({
-    label: module.name,
+    label: moduleLabel(module),
     items: module.items,
   })),
 );
@@ -48,6 +51,23 @@ function navigateToPage(item: EafMenuItem): void {
 // Unchanged from your original.
 function isActive(itemPath: string): boolean {
   return route.path === itemPath;
+}
+
+// Resolves the item's translated label via nameKey, falling back to the
+// plain `name` when no key is set or no translation exists for it.
+function menuItemLabel(item: EafMenuItem): string {
+  if (item.nameKey && te(item.nameKey)) {
+    return t(item.nameKey);
+  }
+  return item.name;
+}
+
+// Same resolution as menuItemLabel, but for the group label (module.name).
+function moduleLabel(module: EafFilteredMenuModule): string {
+  if (module.nameKey && te(module.nameKey)) {
+    return t(module.nameKey);
+  }
+  return module.name;
 }
 
 // Menu isn't a generic component, so its #item slot always types `item`
@@ -95,7 +115,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             :class="item.icon"
             class="w-5 shrink-0 text-[18px] opacity-90"
           />
-          <span class="truncate">{{ asEafMenuItem(item).name }}</span>
+          <span class="truncate">{{ menuItemLabel(asEafMenuItem(item)) }}</span>
         </a>
       </template>
     </Menu>

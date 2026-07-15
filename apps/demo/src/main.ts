@@ -20,6 +20,8 @@ import { EAppFlowUIShell } from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
 import { DEMO_CONFIG } from "./config/app";
+import en from "../locales/en.json";
+import pl from "../locales/pl.json";
 
 import App from "./App.vue";
 import { InputText } from "primevue";
@@ -52,6 +54,17 @@ app.use(PrimeVue, {
 app.use(EAppFlowUIShell, {
   modules: eAppFlowModules,
   appConfig: DEMO_CONFIG,
+  i18nConfig: {
+    defaultLanguage: "pl",
+    supportedLanguages: [
+      { localeCode: "pl", displayNameKey: "pl" },
+      { localeCode: "en", displayNameKey: "en" },
+    ],
+    messages: {
+      pl: pl,
+      en: en,
+    },
+  },
   services: {
     authService: createFakeAuthService(),
     microsoftSSOService: createFakeMicrosoftSSOService(),

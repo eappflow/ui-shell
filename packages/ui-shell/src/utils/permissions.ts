@@ -55,6 +55,7 @@ export function filterVisibleMenuModules(
       }
       filtered.push({
         name: module.name,
+        nameKey: module.nameKey,
         icon: module.icon,
         items: visibleItems,
       });

@@ -54,7 +54,22 @@ export function configureModules(
 
     // 3. Collect menu modules
     if (mod.menuModules) {
-      allMenuModules.push(...mod.menuModules);
+      for (const menuModule of mod.menuModules) {
+        allMenuModules.push({
+          ...menuModule,
+          nameKey: menuModule.nameKey
+            ? `menu.${mod.id}.${menuModule.nameKey}`
+            : undefined,
+          items: [
+            ...menuModule.items.map((item) => ({
+              ...item,
+              nameKey: item.nameKey
+                ? `menu.${mod.id}.${item.nameKey}`
+                : undefined,
+            })),
+          ],
+        });
+      }
     }
 
     // 4. Collect permissions
