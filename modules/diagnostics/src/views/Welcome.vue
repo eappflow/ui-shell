@@ -2,7 +2,6 @@
 import Panel from "primevue/panel";
 import Button from "primevue/button";
 import { useRouter } from "vue-router";
-import { useScopedI18n } from "../";
 const { t } = useScopedI18n();
 
 const router = useRouter();
