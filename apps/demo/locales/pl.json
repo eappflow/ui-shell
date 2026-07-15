@@ -1,8 +1,4 @@
 {
-  "diagnostics": {
-    "menu": {
-      "welcome": "Powitanie",
-      "diagnostics": "Diagnostyka"
-    }
-  }
+  "pl": "Polski",
+  "en": "Angielski"
 }

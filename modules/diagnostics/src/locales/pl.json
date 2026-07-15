@@ -1,1 +1,7 @@
-{}
+{
+  "menu": {
+    "group": "eAppFlow",
+    "diagnostics": "Diagnostyka",
+    "welcome": "Witamy"
+  }
+}

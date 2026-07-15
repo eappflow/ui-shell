@@ -8,6 +8,8 @@
 import { EafModule } from "@eappflow/ui-shell";
 import type { DiagnosticsConfig } from "./types";
 import { DIAGNOSTICS_CONFIG_KEY } from "./types";
+import { menu as plMenu } from "./locales/pl.json";
+import { menu as enMenu } from "./locales/en.json";
 
 /**
  * Creates the Diagnostics module instance.
@@ -25,7 +27,7 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
         path: "diagnostics/welcome",
         name: "welcome",
         component: () => import("./views/Welcome.vue"),
-        meta: { permissions: [], titleKey: "diagnostics.menu.welcome" },
+        meta: { permissions: [] },
       },
       {
         path: "diagnostics",
@@ -33,26 +35,31 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
         component: () => import("./views/Diagnostics.vue"),
         meta: {
           permissions: ["TechnicalAdministrator"],
-          titleKey: "diagnostics.menu.diagnostics",
         },
       },
     ],
 
+    menuI18nMessages: {
+      en: enMenu,
+      pl: plMenu,
+    },
+
     menuModules: [
       {
         name: "eAppFlow",
+        nameKey: "group",
         icon: "pi pi-cog",
         items: [
           {
             name: "Welcome",
-            nameKey: "diagnostics.menu.welcome",
+            nameKey: "welcome",
             icon: "pi pi-users",
             path: "/diagnostics/welcome",
             permissions: [],
           },
           {
             name: "Diagnostics",
-            nameKey: "diagnostics.menu.diagnostics",
+            nameKey: "diagnostics",
             icon: "pi pi-shield",
             path: "/diagnostics",
             permissions: ["TechnicalAdministrator"],

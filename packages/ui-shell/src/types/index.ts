@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
 import type { EafLogo, EafLogoSrc } from "./eaf-logo";
+import { I18nOptions } from "vue-i18n";
 
 // ─── Route meta augmentation ─────────────────────────────────────────────────
 
@@ -13,13 +14,6 @@ declare module "vue-router" {
     public?: boolean;
     /** Required permissions to access the route (OR logic) */
     permissions?: Permission[];
-    /**
-     * Translation key for the route's title, resolved via the global i18n
-     * instance (e.g. for document title / breadcrumbs). The host app must
-     * register a matching message entry (see the module's `useScopedI18n`
-     * messages / locale files).
-     */
-    titleKey?: string;
   }
 }
 
@@ -107,6 +101,8 @@ export interface EafModule {
   routes?: RouteRecordRaw[];
   /** Menu modules contributed by this module */
   menuModules?: EafMenuModule[];
+  /** Translation messages for the module's menu items (resolved via i18n) */
+  menuI18nMessages?: I18nOptions["messages"];
   /** Permissions declared by this module (for documentation / validation) */
   permissions?: Permission[];
 
@@ -152,6 +148,11 @@ export interface EafMenuItem {
 
 export interface EafMenuModule {
   name: string;
+  /**
+   * Translation key for the group's label, resolved the same way as
+   * `EafMenuItem.nameKey` (see there for the full explanation).
+   */
+  nameKey?: string;
   icon: string;
   items: EafMenuItem[];
   isVisible?: (userPermissions: Permission[]) => boolean;
@@ -159,6 +160,7 @@ export interface EafMenuModule {
 
 export interface EafFilteredMenuModule {
   name: string;
+  nameKey?: string;
   icon: string;
   items: EafMenuItem[];
 }
@@ -207,6 +209,10 @@ export interface AppConfig {
 }
 
 export type { EafLogo, EafLogoSrc, LogoPlacement } from "./eaf-logo";
+
+// ─── I18n Config ──────────────────────────────────────────────────────────────
+
+export type { I18nConfig, Language } from "./i18n";
 
 // ─── Validation ──────────────────────────────────────────────────────────────
 

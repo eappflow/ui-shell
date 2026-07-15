@@ -41,7 +41,6 @@ export type {
   MenuService,
   ThemeService,
   MicrosoftSSOService,
-  I18nService,
 } from "./services/interfaces";
 
 // ─── Vue Plugin ─────────────────────────────────────────────────────────────

@@ -54,16 +54,20 @@ app.use(PrimeVue, {
 app.use(EAppFlowUIShell, {
   modules: eAppFlowModules,
   appConfig: DEMO_CONFIG,
+  i18nConfig: {
+    defaultLanguage: "pl",
+    supportedLanguages: [
+      { localeCode: "pl", displayNameKey: "pl" },
+      { localeCode: "en", displayNameKey: "en" },
+    ],
+    messages: {
+      pl: pl,
+      en: en,
+    },
+  },
   services: {
     authService: createFakeAuthService(),
     microsoftSSOService: createFakeMicrosoftSSOService(),
-    // Global translations (./locales) — used to resolve `nameKey` /
-    // `titleKey` values set on module routes and menu items (e.g. shown
-    // in AppMainMenu), since those are rendered by shared shell
-    // components running in the global i18n scope.
-    i18nService: {
-      messages: { en, pl },
-    },
   },
   router: {
     extraRoutes: [

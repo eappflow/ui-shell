@@ -9,7 +9,7 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
 import { THEME_COLORS, type ThemeColorName } from "../types";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
-import { APP_CONFIG_KEY, I18n_SERVICE_KEY } from "../services/interfaces";
+import { APP_CONFIG_KEY, I18n_CONFIG_KEY } from "../services/interfaces";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -17,7 +17,7 @@ const auth = useEafAuth();
 const layout = useEafLayout();
 const { t } = useScopedI18n();
 const { locale } = useI18n({ useScope: "global" });
-const i18nService = inject(I18n_SERVICE_KEY);
+const i18nConfig = inject(I18n_CONFIG_KEY);
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
@@ -62,12 +62,14 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
   {
     label: t("language", "Language", "Język"),
     icon: "pi pi-language",
-    items: i18nService?.availableLocales
-      ? i18nService?.availableLocales.map(({ localeCode, displayName }) => ({
-          label: displayName,
-          icon: locale.value === localeCode ? "pi pi-check" : undefined,
-          command: () => (locale.value = localeCode),
-        }))
+    items: i18nConfig?.supportedLanguages
+      ? i18nConfig?.supportedLanguages.map(
+          ({ localeCode, displayNameKey }) => ({
+            label: t(displayNameKey, displayNameKey, displayNameKey),
+            icon: locale.value === localeCode ? "pi pi-check" : undefined,
+            command: () => (locale.value = localeCode),
+          }),
+        )
       : [],
   },
   {

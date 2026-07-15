@@ -9,6 +9,7 @@ import { filterVisibleMenuModules } from "../utils/permissions";
 import type { EafMenuItem } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 import { APP_CONFIG_KEY } from "../services/interfaces";
+import type { EafFilteredMenuModule } from "../types";
 
 const router = useRouter();
 const route = useRoute();
@@ -36,7 +37,7 @@ const visibleMenuModules = computed(() =>
 // untouched, no reshaping/renaming of your fields.
 const menuModel = computed(() =>
   visibleMenuModules.value.map((module) => ({
-    label: module.name,
+    label: moduleLabel(module),
     items: module.items,
   })),
 );
@@ -59,6 +60,14 @@ function menuItemLabel(item: EafMenuItem): string {
     return t(item.nameKey);
   }
   return item.name;
+}
+
+// Same resolution as menuItemLabel, but for the group label (module.name).
+function moduleLabel(module: EafFilteredMenuModule): string {
+  if (module.nameKey && te(module.nameKey)) {
+    return t(module.nameKey);
+  }
+  return module.name;
 }
 
 // Menu isn't a generic component, so its #item slot always types `item`

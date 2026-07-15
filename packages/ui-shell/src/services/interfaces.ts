@@ -19,6 +19,7 @@ import type {
   ThemeSettings,
   AppConfig,
   MicrosoftSSOLoginRequest,
+  I18nConfig,
 } from "../types";
 import type { I18nOptions } from "vue-i18n";
 import type { EafMenuModule } from "../types";
@@ -94,18 +95,4 @@ export const THEME_SERVICE_KEY: InjectionKey<ThemeService> =
 export const MICROSOFT_SSO_SERVICE_KEY: InjectionKey<MicrosoftSSOService> =
   Symbol("microsoftSSOService");
 export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol("appConfig");
-export const I18n_SERVICE_KEY: InjectionKey<I18nService> =
-  Symbol("i18nService");
-
-// ─── I18n Service ─────────────────────────────────────────────────────────────
-
-export interface Locale {
-  localeCode: string;
-  displayName: string;
-}
-
-export interface I18nService {
-  availableLocales?: Locale[];
-  locale?: string;
-  messages?: I18nOptions["messages"];
-}
+export const I18n_CONFIG_KEY: InjectionKey<I18nConfig> = Symbol("i18nConfig");

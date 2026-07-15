@@ -4,7 +4,7 @@ import Tag from "primevue/tag";
 import { useEafNavigation } from "@eappflow/ui-shell";
 import { useAuthStore } from "@eappflow/ui-shell";
 import { computed } from "vue";
-import { useScopedI18n } from "../i18n";
+import { useScopedI18n } from "../composables/i18n";
 
 const navigationStore = useEafNavigation();
 const authStore = useAuthStore();
