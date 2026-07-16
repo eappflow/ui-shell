@@ -15,24 +15,17 @@ export default defineConfig({
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: [
         "vue",
         "vue-router",
         "pinia",
+        "vue-i18n",
         "primevue",
         /^primevue\/.*/, //VERY IPORTANT: This ensures that all PrimeVue components are treated as external dependencies, preventing them from being bundled into the library and allowing users to manage their own versions of PrimeVue components. It is need to app corectly load styles for internal components
         "primeicons",
         "@eappflow/ui-shell-components",
       ],
-      output: {
-        globals: {
-          vue: "Vue",
-          "vue-router": "VueRouter",
-          pinia: "Pinia",
-          primevue: "PrimeVue",
-        },
-      },
     },
   },
 });

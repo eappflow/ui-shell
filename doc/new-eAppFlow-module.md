@@ -69,7 +69,7 @@ modules/<module-name>/
   "peerDependencies": {
     "@eappflow/ui-shell": "workspace:*",
     "vue": "^3.5.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@eappflow/ui-shell": "workspace:*",
@@ -81,7 +81,7 @@ modules/<module-name>/
     "typescript": "~5.7.0",
     "vite": "^6.1.0",
     "vue": "^3.5.0",
-    "vue-router": "^4.5.0",
+    "vue-router": "^5.1.0",
     "vue-tsc": "^2.2.0"
   },
   "publishConfig": {

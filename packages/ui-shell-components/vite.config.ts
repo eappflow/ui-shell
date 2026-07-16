@@ -16,14 +16,8 @@ export default defineConfig({
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
     },
-    rollupOptions: {
-      external: ["vue", "primevue", /^primevue\/.*/],
-      output: {
-        globals: {
-          vue: "Vue",
-          primevue: "PrimeVue",
-        },
-      },
+    rolldownOptions: {
+      external: ["vue", "primevue", "pinia", /^primevue\/.*/],
     },
   },
 });
