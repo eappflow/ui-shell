@@ -7,6 +7,7 @@ import en from "../locales/en.json";
 import type { EafModule, I18nConfig } from "../types";
 
 const LOCAL_STORAGE_KEY = "locale";
+let i18nInstance: I18n | null = null;
 
 export function createDefaultI18nConfig(): I18nConfig {
   return {
@@ -59,6 +60,10 @@ function mergeModulesMessages(modules: EafModule[], i18nConfig?: I18nConfig) {
   return mergedMessages;
 }
 
+export function getEafI18n() {
+  return i18nInstance;
+}
+
 export function createEafI18n(
   modules: EafModule[],
   i18nConfig?: I18nConfig,
@@ -90,7 +95,7 @@ export function createEafI18n(
   };
 
   const i18n = createI18n(i18nOptions);
-
+  i18nInstance = i18n;
   watch(
     () => (i18n.global as unknown as Composer).locale.value,
     (lang) => {

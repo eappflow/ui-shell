@@ -64,6 +64,7 @@ export { useEafAuth as useAuth } from "./composables/useEafAuth";
 export { useEafNavigation } from "./composables/useEafNavigation";
 export { useEafLayout as useLayout } from "./composables/useEafLayout";
 export { createScopedI18n, type ScopedT } from "./composables/createScopedI18n";
+export { getEafI18n } from "./composables/createEafI18n";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
