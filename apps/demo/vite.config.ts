@@ -8,6 +8,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
+  server: {
+    port: 5173,
+  },
   resolve: {
     alias: {
       "@eappflow/ui-shell-components": resolve(

@@ -42,6 +42,7 @@ const hasContent = computed(() => {
 <template>
   <Message
     v-if="hasContent"
+    data-testid="form-validation-summary"
     :severity="severity"
     :closable="false"
     class="mb-4"

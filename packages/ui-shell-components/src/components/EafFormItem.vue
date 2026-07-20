@@ -135,6 +135,7 @@ const renderSlot = () => {
 <template>
   <div
     :class="['flex flex-col gap-2', props.class, hasError ? 'p-invalid' : '']"
+    :data-testid="`field-${field}`"
   >
     <!-- Label -->
     <label
@@ -149,7 +150,11 @@ const renderSlot = () => {
     <!-- Slot with p-invalid class on children when hasError -->
     <component :is="renderSlot" />
     <!-- Error message -->
-    <small v-if="hasError" class="text-red-500">
+    <small
+      v-if="hasError"
+      class="text-red-500"
+      :data-testid="`field-${field}-error`"
+    >
       {{ errorMessage }}
     </small>
   </div>

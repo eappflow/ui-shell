@@ -5,10 +5,13 @@ const auth = useAuthStore();
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6" data-testid="dashboard-page">
     <!-- Welcome -->
     <div>
-      <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-100">
+      <h1
+        class="text-3xl font-bold text-surface-900 dark:text-surface-100"
+        data-testid="dashboard-welcome-heading"
+      >
         Welcome, {{ auth.userName || "User" }}
       </h1>
       <p class="text-surface-600 dark:text-surface-400 mt-2">

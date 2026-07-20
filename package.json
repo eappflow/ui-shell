@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .vue,.ts --fix",
     "type-check": "pnpm -r type-check",
     "test": "vitest run",
+    "test:e2e": "pnpm -r test:e2e",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write \"**/*.{vue,ts,json,css,md}\"",
