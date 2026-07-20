@@ -141,15 +141,23 @@ export const useAuthStore = defineStore("auth", () => {
         auth: microsoftSSOService.config as msal.Configuration["auth"],
       });
       const redirectUrl = await handleMicrosoftSSORedirect();
-      router.push(redirectUrl).catch((err) => {
-        console.error("Failed to navigate after Microsoft SSO redirect:", err);
-      });
+      if (redirectUrl !== null) {
+        router.push(redirectUrl).catch((err) => {
+          console.error(
+            "Failed to navigate after Microsoft SSO redirect:",
+            err,
+          );
+        });
+      }
     } catch (error) {
       console.error("Failed to initialize MSAL instance:", error);
     }
   }
 
-  async function handleMicrosoftSSORedirect(): Promise<string> {
+  // Returns the URL to navigate to after a Microsoft SSO redirect, or null
+  // when the page load isn't an SSO redirect callback (the common case) so
+  // the current route is left untouched.
+  async function handleMicrosoftSSORedirect(): Promise<string | null> {
     const authenticationResult = await msalInstance.handleRedirectPromise();
 
     if (authenticationResult && authenticationResult.accessToken) {
@@ -158,7 +166,7 @@ export const useAuthStore = defineStore("auth", () => {
       const state = authenticationResult.state;
       return state && state.startsWith("/") ? state : "/";
     }
-    return "/";
+    return null;
   }
 
   // ─── Microsoft SSO End ──────────────────────────────────────────────────────────

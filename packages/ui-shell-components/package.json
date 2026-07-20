@@ -17,8 +17,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
-    "type-check": "vue-tsc --noEmit",
+    "build": "vite build && vue-tsc -b",
+    "type-check": "vue-tsc -b --noEmit",
     "test": "vitest run"
   },
   "peerDependencies": {

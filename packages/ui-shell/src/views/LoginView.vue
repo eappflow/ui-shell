@@ -125,6 +125,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
             <InputIcon class="pi pi-user" />
             <InputText
               v-model="login"
+              data-testid="login-input"
               :placeholder="
                 t('enter_login', 'Enter your login', 'Wprowadź swój login')
               "
@@ -159,6 +160,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
               class="w-full"
               input-class="w-full"
               autocomplete="current-password"
+              :pt="{ pcInputText: { root: { 'data-testid': 'password-input' } } }"
             />
           </IconField>
         </EafFormItem>
@@ -174,6 +176,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 
         <Button
           type="submit"
+          data-testid="login-button"
           :label="t('login', 'Login', 'Login')"
           :loading="loading"
           :class="['w-full', uiButton]"
@@ -182,6 +185,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <Button
           v-if="authStore.isUsingMicrosoftSSO"
           type="button"
+          data-testid="login-microsoft-sso-button"
           :label="
             t(
               'login_with_microsoft',

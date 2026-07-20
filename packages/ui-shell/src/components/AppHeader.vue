@@ -67,6 +67,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
           ({ localeCode, displayNameKey }) => ({
             label: t(displayNameKey, displayNameKey, displayNameKey),
             icon: locale.value === localeCode ? "pi pi-check" : undefined,
+            testId: `language-menu-item-${localeCode}`,
             command: () => (locale.value = localeCode),
           }),
         )
@@ -83,6 +84,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
   {
     label: t("logout", "Logout", "Wyloguj"),
     icon: "pi pi-sign-out",
+    testId: "logout-menu-item",
     command: () => emit("logout"),
   },
 ]);
@@ -101,6 +103,7 @@ function toggleAccount(event: Event) {
         <Button
           icon="pi pi-bars"
           class="p-0 h-8 w-8"
+          data-testid="toggle-sidebar-button"
           text
           rounded
           aria-label="Toggle Sidebar"
@@ -120,6 +123,7 @@ function toggleAccount(event: Event) {
         <Button
           icon="pi pi-user"
           class="p-0 h-8 w-8"
+          data-testid="account-menu-button"
           text
           rounded
           aria-label="Account"
@@ -128,8 +132,17 @@ function toggleAccount(event: Event) {
       </div>
     </div>
 
-    <Popover ref="accountPanel">
-      <Menu :model="accountMenuItems" class="border-none" />
+    <Popover ref="accountPanel" data-testid="account-menu-panel">
+      <Menu
+        :model="accountMenuItems"
+        class="border-none"
+        :pt="{
+          item: ({ context }: { context: { item: PrimeMenuItem } }) =>
+            context.item.testId
+              ? { 'data-testid': context.item.testId }
+              : {},
+        }"
+      />
     </Popover>
   </header>
 </template>

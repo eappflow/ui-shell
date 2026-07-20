@@ -12,6 +12,7 @@ defineProps<{
 <template>
   <aside
     v-if="visible"
+    data-testid="app-sidebar"
     :class="[
       'eaf-sidebar',
       'hidden md:flex md:flex-col transition-all duration-300',
