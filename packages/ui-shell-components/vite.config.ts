@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig({
+export default defineConfig((env) => ({
   plugins: [vue()],
   resolve: {
     alias: {
@@ -20,4 +20,4 @@ export default defineConfig({
       external: ["vue", "primevue", "pinia", /^primevue\/.*/],
     },
   },
-});
+}));
