@@ -78,8 +78,10 @@ A typed event bus (`packages/ui-shell/src/utils/eventBus.ts`) using `mitt` for s
 pnpm build                  # Build all packages (-r)
 pnpm lint                   # ESLint across all packages (.vue, .ts)
 pnpm type-check             # vue-tsc type checking across all packages (-r)
-pnpm test                   # Vitest run (all packages in vitest.workspace.ts)
+pnpm test                   # Vitest run (all packages, via root vitest.config.ts `test.projects`)
 pnpm test:watch             # Vitest watch mode
+pnpm test:coverage          # Vitest run with coverage (v8 provider)
+pnpm test:e2e               # Playwright e2e tests (apps/demo)
 pnpm format                 # Prettier on .vue, .ts, .json, .css, .md
 pnpm dev                    # Start demo app dev server (@eappflow/demo)
 
@@ -97,18 +99,28 @@ pnpm --filter @eappflow/demo build              # Build demo app
 - **Node.js**: >= 20.0.0
 - **pnpm**: >= 9.0.0
 
-### CI Pipeline (`.github/workflows/ci.yml`)
+### CI Pipeline
 
-Runs on PRs to `main` and pushes to `main`: `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm type-check` → `pnpm test` → `pnpm build`.
+Two workflows run on PRs to `main` and pushes to `main`:
+
+- `.github/workflows/ci.yml`: `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build` → `pnpm type-check` → `pnpm test`.
+- `.github/workflows/playwright.yml`: installs Playwright browsers and runs `pnpm exec playwright test` in `apps/demo`, uploading the HTML report as an artifact.
 
 ### Testing
 
-Tests use **Vitest with jsdom**. Test files live in `__tests__/` directories within each package:
+Unit/component tests use **Vitest with jsdom**. Test files live in `__tests__/` directories within each package:
 
 ```bash
 pnpm --filter @eappflow/ui-shell exec vitest run                         # Run all ui-shell tests
 pnpm --filter @eappflow/ui-shell exec vitest run packages/ui-shell/__tests__/constants.test.ts  # Single file
 pnpm test:watch                                          # Watch mode
+```
+
+E2e tests use **Playwright** and live in `apps/demo/e2e/`, driving the demo app against its fake `AuthService` (`apps/demo/src/services/fakeAuthService.ts`):
+
+```bash
+pnpm --filter @eappflow/demo test:e2e                    # Run e2e suite (apps/demo)
+pnpm test:e2e                                             # Same, from repo root (pnpm -r test:e2e)
 ```
 
 ### Linting & Formatting
