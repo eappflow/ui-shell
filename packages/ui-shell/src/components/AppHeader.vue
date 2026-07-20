@@ -67,6 +67,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
           ({ localeCode, displayNameKey }) => ({
             label: t(displayNameKey, displayNameKey, displayNameKey),
             icon: locale.value === localeCode ? "pi pi-check" : undefined,
+            testId: `language-menu-item-${localeCode}`,
             command: () => (locale.value = localeCode),
           }),
         )

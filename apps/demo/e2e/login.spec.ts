@@ -7,7 +7,7 @@ test("logs in and lands on the dashboard", async ({ page }) => {
   await expect(page).toHaveURL("/");
   await expect(page.getByTestId("dashboard-page")).toBeVisible();
   await expect(page.getByTestId("dashboard-welcome-heading")).toContainText(
-    "Welcome, Demo User",
+    `Welcome, Demo User`,
   );
 });
 
