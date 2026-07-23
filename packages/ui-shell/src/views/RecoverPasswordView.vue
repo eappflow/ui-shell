@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, inject, onMounted } from "vue";
+import { ref, reactive, computed, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
@@ -10,7 +10,7 @@ import InputIcon from "primevue/inputicon";
 import { useAuthStore } from "../stores/useAuthStore";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import {
-  useEafFormValidation,
+  useEafForm,
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
@@ -24,7 +24,29 @@ const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
-const $f = useEafFormValidation();
+interface RecoverPasswordForm {
+  newPassword: string;
+  confirmPassword: string;
+}
+const formData: RecoverPasswordForm = reactive({
+  newPassword: "",
+  confirmPassword: "",
+});
+
+const $f = useEafForm<RecoverPasswordForm>({
+  data: formData,
+  rules: {
+    newPassword: {
+      required: { required: true, message: "New password is required." },
+    },
+    confirmPassword: {
+      required: {
+        required: true,
+        message: "Confirm password is required.",
+      },
+    },
+  },
+});
 const newPassword = ref("");
 const confirmPassword = ref("");
 const loading = ref(false);
@@ -163,7 +185,7 @@ function requestNewReset() {
         </Message>
 
         <EafFormItem
-          field="newPassword"
+          for="newPassword"
           :label="t('new_password', 'New Password', 'Nowe hasło')"
           :form="$f"
           :required="true"
@@ -192,7 +214,7 @@ function requestNewReset() {
         </EafFormItem>
 
         <EafFormItem
-          field="confirmPassword"
+          for="confirmPassword"
           :label="t('confirm_password', 'Confirm Password', 'Potwierdź hasło')"
           :form="$f"
           :required="true"

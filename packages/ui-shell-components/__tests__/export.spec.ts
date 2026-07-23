@@ -7,7 +7,9 @@ describe("exports", () => {
     "EafFormValidationSummary",
     "EafActionValidationMessage",
     "useEafMessageStore",
-    "useEafFormValidation",
+    "useEafForm",
+    "EAF_FORM_KEY",
+    "useActionValidation",
     "default",
   ] as const;
 

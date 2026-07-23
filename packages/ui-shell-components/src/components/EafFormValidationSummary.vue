@@ -1,17 +1,17 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 import { computed, unref } from "vue";
 import Message from "primevue/message";
-import { EafFormValidation } from "../types/api-error";
+import { EafForm } from "../types/eaf-form";
 
-interface Props {
-  form?: EafFormValidation;
+export interface Props<T> {
+  form?: EafForm<T>;
   severity?: "error" | "warn" | "info" | "success";
   // Deprecated: for backward compatibility
   generalMessage?: string;
   summaryErrors?: string[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props<T>>(), {
   form: undefined,
   severity: "error",
   generalMessage: "",
