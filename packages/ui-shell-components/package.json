@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.11",
     "pinia": "^3.0.4",
     "primevue": "^4.5.5",
     "tailwindcss-primeui": "^0.6.1",

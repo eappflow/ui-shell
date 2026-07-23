@@ -10,7 +10,7 @@ import InputIcon from "primevue/inputicon";
 import { useAuthStore } from "../stores/useAuthStore";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import {
-  useEafFormValidation,
+  useEafForm,
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
@@ -23,9 +23,21 @@ const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
-const $f = useEafFormValidation();
-const email = ref("");
-const loading = ref(false);
+const $f = useEafForm({
+  data: {
+    email: "",
+  },
+  rules: {
+    email: {
+      required: { required: true, message: "Email is required." },
+      pattern: {
+        regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        message: "Enter a valid email address.",
+      },
+    },
+  },
+});
+
 const success = ref(false);
 
 const uiCard = computed(() => appConfig.classes?.ui?.card);
@@ -33,27 +45,11 @@ const uiButton = computed(() => appConfig.classes?.ui?.button);
 const uiInput = computed(() => appConfig.classes?.ui?.input);
 const uiLabel = computed(() => appConfig.classes?.ui?.label);
 
-function validateForm(): boolean {
-  $f.clearErrors();
-  let isValid = true;
-  if (!email.value.trim()) {
-    $f.setFieldError("email", "Email address is required");
-    isValid = false;
-  }
-  return isValid;
-}
-
 async function handleRestorePassword(): Promise<void> {
-  if (!validateForm()) return;
-  loading.value = true;
-  try {
-    await authStore.restorePassword(email.value);
+  $f.submit(async ({ email }) => {
+    await authStore.restorePassword(email);
     success.value = true;
-  } catch (error: unknown) {
-    $f.handleApiError(error);
-  } finally {
-    loading.value = false;
-  }
+  });
 }
 
 function goToLogin() {
@@ -99,21 +95,20 @@ function goToLogin() {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          field="email"
+          for="email"
           :label="t('email', 'Email', 'Email')"
           :form="$f"
-          :required="true"
           :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-envelope" />
             <InputText
-              v-model="email"
+              v-model="$f.data.email"
               type="email"
               :placeholder="
                 t('enter_email', 'Enter your email', 'Wprowadź swój email')
               "
-              :disabled="loading"
+              :disabled="$f.loading.value"
               class="w-full"
               autocomplete="email"
             />
@@ -125,7 +120,7 @@ function goToLogin() {
           :label="
             t('send_reset_link', 'Send Reset Link', 'Wyślij link resetujący')
           "
-          :loading="loading"
+          :loading="$f.loading.value"
           :class="['w-full', uiButton]"
           size="large"
         />
@@ -134,7 +129,7 @@ function goToLogin() {
           <Button
             :label="t('back_to_login', 'Back to Login', 'Wróć do logowania')"
             link
-            :disabled="loading"
+            :disabled="$f.loading.value"
             @click="goToLogin"
           />
         </div>

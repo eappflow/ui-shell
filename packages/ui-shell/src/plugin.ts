@@ -43,6 +43,11 @@ import {
   MICROSOFT_SSO_SERVICE_KEY,
   I18n_CONFIG_KEY,
 } from "./services/interfaces";
+import { defaultParseApiError } from "./services/defaultParseApiError";
+import {
+  EAF_FORM_KEY,
+  type EafFormApiErrorParser,
+} from "@eappflow/ui-shell-components";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
 import { buildModuleRoutes } from "./router/buildModuleRoutes";
@@ -72,6 +77,7 @@ export interface EAppFlowUIShellPluginOptions {
     microsoftSSOService?: MicrosoftSSOService;
     menuService?: MenuService;
     themeService?: ThemeService;
+    parseApiError?: EafFormApiErrorParser;
   };
 
   /** Router configuration */
@@ -123,6 +129,11 @@ export const EAppFlowUIShell = {
     if (services?.microsoftSSOService) {
       app.provide(MICROSOFT_SSO_SERVICE_KEY, services.microsoftSSOService);
     }
+
+    // useEafForm lives in ui-shell-components and can't import ui-shell's
+    // default, so (unlike the services above) the fallback is resolved here
+    // rather than at the injection site.
+    app.provide(EAF_FORM_KEY, services?.parseApiError ?? defaultParseApiError);
 
     // ── 4. Build router ──────────────────────────────────────────────────
     const layout = routerOptions?.layout ?? AuthorizedLayout;

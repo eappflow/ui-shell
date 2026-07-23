@@ -12,7 +12,14 @@ export { default as EafActionValidationMessage } from "./components/EafActionVal
 export { useEafMessageStore } from "./stores/useEafMessageStore";
 
 // ─── Composables ────────────────────────────────────────────────────────────
-export { useEafFormValidation } from "./composables/useEafFormValidation";
+export { useEafForm, EAF_FORM_KEY } from "./composables/useEafForm.js";
+export { useActionValidation } from "./composables/useActionValidation.js";
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+export type {
+  EafFormApiErrorParser,
+  ApiParsedErrorResponse,
+} from "./types";
 
 export default {
   install(app: App) {

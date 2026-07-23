@@ -19,6 +19,7 @@ import Aura from "@primeuix/themes/aura";
 import { EAppFlowUIShell } from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
+import { parseApiError } from "./services/parseApiError";
 import { DEMO_CONFIG } from "./config/app";
 import en from "../locales/en.json";
 import pl from "../locales/pl.json";
@@ -68,6 +69,7 @@ app.use(EAppFlowUIShell, {
   services: {
     authService: createFakeAuthService(),
     microsoftSSOService: createFakeMicrosoftSSOService(),
+    parseApiError,
   },
   router: {
     extraRoutes: [

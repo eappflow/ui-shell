@@ -1,40 +1,23 @@
-<script setup lang="ts">
-import { EafFormValidation } from "@/types/api-error";
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  useSlots,
-  cloneVNode,
-  type VNode,
-} from "vue";
+<script setup lang="ts" generic="T extends object">
+import { EafForm } from "../types/eaf-form";
+import { computed, useSlots, cloneVNode, type VNode } from "vue";
 
-interface Props {
+export interface Props<T> {
   /**
    * Field key for validation
    * Must match the API field name for validation to work (e.g., 'email', 'firstName')
    */
-  field: string;
+  for: Extract<keyof T, string>;
 
   /**
    * Form validation object from useEafFormValidation
    */
-  form: EafFormValidation;
-
-  /**
-   * Model value (v-model support)
-   */
-  modelValue?: unknown;
+  form: EafForm<T>;
 
   /**
    * Label text (optional)
    */
   label?: string;
-
-  /**
-   * Whether field is required (shows asterisk)
-   */
-  required?: boolean;
 
   /**
    * Additional class for the wrapper
@@ -47,42 +30,25 @@ interface Props {
   labelClass?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props<T>>(), {
   label: "",
-  required: false,
   class: "",
   labelClass: "",
-  modelValue: undefined,
 });
 
+const required = computed(() => props.form.isFieldRequired(props.for));
 const slots = useSlots();
-
-// Auto-register field on mount
-onMounted(() => {
-  if (props.form?.registerField) {
-    props.form.registerField(props.field);
-  }
-});
-
-// Cleanup: unregister field on unmount
-onUnmounted(() => {
-  if (props.form?.unregisterField) {
-    props.form.unregisterField(props.field);
-  }
-});
 
 // Computed helpers
 const hasError = computed(() => {
   return props.form?.hasFieldError
-    ? props.form.hasFieldError(props.field)
+    ? props.form.hasFieldError(props.for)
     : false;
 });
 
 const errorMessage = computed(() => {
-  return props.form?.getFieldError ? props.form.getFieldError(props.field) : "";
+  return props.form?.getFieldError ? props.form.getFieldError(props.for) : "";
 });
-
-const inputId = computed(() => `field-${props.field}`);
 
 // Function to add p-invalid class to VNodes
 const addInvalidClassAndName = (
@@ -114,7 +80,7 @@ const addInvalidClassAndName = (
 
     return cloneVNode(vnode, {
       class: newClass,
-      name: `field-${props.field}`,
+      name: props.for,
     });
   });
 };
@@ -124,7 +90,7 @@ const renderSlot = () => {
   const defaultSlot = slots.default?.({
     hasError: hasError.value,
     errorMessage: errorMessage.value,
-    field: props.field,
+    field: props.for,
   });
 
   const processedNodes = addInvalidClassAndName(defaultSlot);
@@ -135,12 +101,12 @@ const renderSlot = () => {
 <template>
   <div
     :class="['flex flex-col gap-2', props.class, hasError ? 'p-invalid' : '']"
-    :data-testid="`field-${field}`"
+    :data-testid="props.for"
   >
     <!-- Label -->
     <label
       v-if="label"
-      :for="inputId"
+      :for="props.for"
       :class="['font-medium', props.labelClass]"
     >
       {{ label }}
@@ -153,7 +119,7 @@ const renderSlot = () => {
     <small
       v-if="hasError"
       class="text-red-500"
-      :data-testid="`field-${field}-error`"
+      :data-testid="`${props.for}-error`"
     >
       {{ errorMessage }}
     </small>

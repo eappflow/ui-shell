@@ -17,7 +17,7 @@ test("shows validation errors when submitting an empty form", async ({
   await page.goto("/login");
   await page.getByTestId("login-button").click();
 
-  await expect(page.getByTestId("field-login-error")).toBeVisible();
-  await expect(page.getByTestId("field-password-error")).toBeVisible();
+  await expect(page.getByTestId("login-error")).toBeVisible();
+  await expect(page.getByTestId("password-error")).toBeVisible();
   await expect(page).toHaveURL("/login");
 });

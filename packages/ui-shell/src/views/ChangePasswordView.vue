@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import Password from "primevue/password";
 import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
 import {
-  useEafFormValidation,
+  useEafForm,
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
@@ -14,7 +14,37 @@ import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
 
-const $f = useEafFormValidation();
+interface ChangePasswordForm {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+const formData: ChangePasswordForm = reactive({
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+});
+
+const $f = useEafForm<ChangePasswordForm>({
+  data: formData,
+  rules: {
+    currentPassword: {
+      required: {
+        required: true,
+        message: "Current password is required.",
+      },
+    },
+    newPassword: {
+      required: { required: true, message: "New password is required." },
+    },
+    confirmPassword: {
+      required: {
+        required: true,
+        message: "Confirm password is required.",
+      },
+    },
+  },
+});
 const loading = ref(false);
 const currentPassword = ref("");
 const newPassword = ref("");
@@ -146,7 +176,7 @@ async function handleChangePassword() {
           </Message>
 
           <EafFormItem
-            field="currentPassword"
+            for="currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
             :form="$f"
             :required="true"
@@ -167,7 +197,7 @@ async function handleChangePassword() {
           </EafFormItem>
 
           <EafFormItem
-            field="newPassword"
+            for="newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
             :form="$f"
             :required="true"
@@ -195,7 +225,7 @@ async function handleChangePassword() {
           </EafFormItem>
 
           <EafFormItem
-            field="confirmPassword"
+            for="confirmPassword"
             :label="
               t(
                 'confirm_new_password',
