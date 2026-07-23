@@ -1,5 +1,7 @@
+import { inject } from "vue";
 import { useEafMessageStore } from "../stores/useEafMessageStore";
-import type { ApiErrorResponse } from "../types";
+import type { ApiParsedErrorResponse } from "../types";
+import { EAF_FORM_KEY } from "./useEafForm";
 
 /**
  * Composable for handling business validation errors from API action responses
@@ -12,61 +14,52 @@ import type { ApiErrorResponse } from "../types";
  */
 export function useActionValidation() {
   const messageStore = useEafMessageStore();
+  const errorParser = inject(EAF_FORM_KEY, null);
 
   /**
-   * Handles API error responses, specifically 422 validation errors
+   * Handles API error responses, specifically 422/400 validation errors
    * Extracts validation errors and general message from the response
    * and displays them using the global message store
    * Automatically clears previous validation errors before showing new ones
    *
-   * @param error The error object from the API call (typically from axios)
+   * @param rawError The error object from the API call, parsed via the
+   *   host-provided error parser (see EAF_FORM_KEY / useEafForm)
    * @returns true if error was handled as validation error, false otherwise
    */
-  function handleApiError(error: unknown): boolean {
+  function handleApiError(rawError: unknown): boolean {
     // Clear previous errors before showing new ones
     messageStore.clearValidationMessage();
 
-    // Type guard to check if error has response structure
-    if (!error || typeof error !== "object" || !("response" in error)) {
-      return false;
+    if (errorParser === null) {
+      console.warn(
+        "[useActionValidation] No error parser provided. Please provide an error parser using EAF_FORM_KEY injection.",
+      );
     }
 
-    const axiosError = error as {
-      response?: {
-        status?: number;
-        data?: ApiErrorResponse;
-      };
-    };
+    const response = (
+      errorParser ? errorParser(rawError) : rawError
+    ) as ApiParsedErrorResponse;
 
     // Check if it's a 422 validation error or 400 bad request
-    if (
-      axiosError.response?.status !== 422 &&
-      axiosError.response?.status !== 400
-    ) {
-      return false;
-    }
-
-    const responseData = axiosError.response.data;
-
-    if (!responseData) {
+    if (response.status !== 422 && response.status !== 400) {
       return false;
     }
 
     // Log traceId for debugging
-    if (responseData.traceId) {
+    if (response.traceId) {
       console.warn("[Action Validation Error]", {
-        code: responseData.code,
-        message: responseData.message,
-        traceId: responseData.traceId,
-        status: axiosError.response.status,
+        code: response.code,
+        message: response.message,
+        traceId: response.traceId,
+        status: response.status,
       });
     }
 
     // Extract validation errors - flatten all field errors into a single list
     const validationErrors: string[] = [];
 
-    if (responseData.validationErrors) {
-      Object.entries(responseData.validationErrors).forEach(
+    if (response.validationErrors) {
+      Object.entries(response.validationErrors).forEach(
         ([fieldName, messages]) => {
           messages.forEach((msg) => {
             // Include field name with the message for context
@@ -78,7 +71,7 @@ export function useActionValidation() {
 
     // Set validation message in the global store
     messageStore.setValidationMessage(
-      responseData.message || "Validation failed",
+      response.generalMessage || "Validation failed",
       validationErrors,
       "error",
     );
