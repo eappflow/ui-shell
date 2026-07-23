@@ -45,7 +45,6 @@ export interface EafFormConfig<T> {
   data: T;
   rules?: RulesForFormData<T>;
   showAllErrors?: boolean;
-  parseApiError?: EafFormApiErrorParser;
 }
 
 /*
