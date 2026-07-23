@@ -1,5 +1,5 @@
-import { useEafMessageStore } from "@/stores/useEafMessageStore";
-import type { ApiErrorResponse } from "@/types";
+import { useEafMessageStore } from "../stores/useEafMessageStore";
+import type { ApiErrorResponse } from "../types";
 
 /**
  * Composable for handling business validation errors from API action responses

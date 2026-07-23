@@ -2,9 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.vue", "__tests__/**/*.ts"]

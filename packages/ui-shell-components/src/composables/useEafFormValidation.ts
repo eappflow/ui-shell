@@ -1,5 +1,5 @@
 import { ref, reactive } from "vue";
-import type { ApiErrorResponse, EafValidationConfig } from "@/types";
+import type { ApiErrorResponse, EafValidationConfig } from "../types";
 
 /**
  * Converts PascalCase or dot-notation field names to camelCase

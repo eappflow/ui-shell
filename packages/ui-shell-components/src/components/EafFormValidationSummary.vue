@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, unref } from "vue";
 import Message from "primevue/message";
-import { EafFormValidation } from "@/types/api-error";
+import { EafFormValidation } from "../types/api-error";
 
 interface Props {
   form?: EafFormValidation;

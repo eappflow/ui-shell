@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EafFormValidation } from "@/types/api-error";
+import { EafFormValidation } from "../types/api-error";
 import {
   computed,
   onMounted,
