@@ -126,6 +126,51 @@ describe("useEafForm - rules validation", () => {
   });
 });
 
+describe("useEafForm - resetForm", () => {
+  it("restores data to the values the form was created with", () => {
+    const $f = createForm(validData);
+
+    $f.data.firstName = "Changed";
+    $f.data.age = 99;
+    $f.data.email = "changed@example.com";
+
+    $f.resetForm();
+
+    expect($f.data.firstName).toBe("Jakub");
+    expect($f.data.age).toBe(30);
+    expect($f.data.email).toBe("a@b.com");
+  });
+
+  it("clears field errors", () => {
+    const $f = createForm(validData);
+    $f.setFieldError("firstName", "Some client-side error");
+
+    $f.resetForm();
+
+    expect($f.hasFieldError("firstName")).toBe(false);
+  });
+
+  it("clears summary errors and the general message", () => {
+    const parser: EafFormApiErrorParser = (error) =>
+      error as ApiParsedErrorResponse;
+    const { result: $f } = withSetup(
+      () => useEafForm<TestForm>({ data: reactive({ ...validData }) }),
+      { [EAF_FORM_KEY]: parser },
+    );
+    $f.handleApiError({
+      status: 422,
+      success: false,
+      generalMessage: "Please fix the errors below",
+      validationErrors: { someServerOnlyField: ["Some business rule"] },
+    });
+
+    $f.resetForm();
+
+    expect($f.summaryErrors.value).toEqual([]);
+    expect($f.generalMessage.value).toBe("");
+  });
+});
+
 describe("useEafForm - handleApiError with an injected parser", () => {
   afterEach(() => {
     vi.restoreAllMocks();

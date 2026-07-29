@@ -76,6 +76,7 @@ export function useEafForm<T extends object>(
   const errorParser = inject(EAF_FORM_KEY, null);
   const showAllErrors = config.showAllErrors || false;
   const data = reactive(config.data);
+  const initialData: T = { ...config.data } as T;
 
   // Reactive validation state
   const fieldErrors = reactive(new Map<string, string[]>());
@@ -265,6 +266,11 @@ export function useEafForm<T extends object>(
     fieldErrors.delete(fieldName);
   }
 
+  function resetForm(): void {
+    clearErrors();
+    Object.assign(data, initialData);
+  }
+
   /**
    * Checks if there are any validation errors present
    *
@@ -289,6 +295,7 @@ export function useEafForm<T extends object>(
     // Helper functions
     submit,
     validate,
+    resetForm,
     isFieldRequired,
     handleApiError,
     setFieldError,

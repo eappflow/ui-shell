@@ -58,6 +58,7 @@ export interface EafForm<T> {
   generalMessage: Ref<string>;
   validate: () => boolean;
   submit: (handleSubmit: (data: T) => Promise<void>) => Promise<void>;
+  resetForm: () => void;
   isFieldRequired: (fieldName: Extract<keyof T, string>) => boolean;
   handleApiError: (error: unknown) => boolean;
   setFieldError: (fieldName: string, messages: string | string[]) => void;
