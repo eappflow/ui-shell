@@ -1,10 +1,5 @@
 import { ref, reactive, InjectionKey, inject } from "vue";
-import type {
-  ApiParsedErrorResponse,
-  EafForm,
-  EafFormApiErrorParser,
-  EafFormConfig,
-} from "../types";
+import type { EafForm, EafFormApiErrorParser, EafFormConfig } from "../types";
 import {
   getFieldViolations,
   type FieldRule,
@@ -15,7 +10,7 @@ export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
 );
 
 /**
- * Composable for handling form validation errors from API responses (422)
+ * Composable for handling form validation errors from API responses
  * and client-side validation errors
  *
  * @param config Form data and validation rules
@@ -36,7 +31,8 @@ export function useEafForm<T extends object>(
   const loading = ref(false);
 
   /**
-   * Handles API error responses, specifically 422 validation errors
+   * Handles API error responses that the errorParser marks as validation
+   * errors to handle (response.handleErrors)
    * Extracts validation errors and maps them to form fields
    *
    * @param error The error object from the API call (typically from axios)
@@ -47,14 +43,12 @@ export function useEafForm<T extends object>(
       console.warn(
         "[useEafForm] No error parser provided. Please provide an error parser using EAF_FORM_KEY injection.",
       );
+      return false;
     }
 
-    const response = (
-      errorParser ? errorParser(rawError) : rawError
-    ) as ApiParsedErrorResponse;
+    const response = errorParser(rawError);
 
-    // Check if it's a 422 validation error
-    if (response.status !== 422) {
+    if (response.handleErrors === false) {
       return false;
     }
 

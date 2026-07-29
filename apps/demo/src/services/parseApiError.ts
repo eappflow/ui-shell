@@ -16,5 +16,6 @@ export const parseApiError: EafFormApiErrorParser = (error) => {
     status: 422,
     success: false,
     generalMessage: error.message,
+    handleErrors: true,
   };
 };

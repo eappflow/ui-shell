@@ -1,6 +1,5 @@
 import { inject } from "vue";
 import { useEafMessageStore } from "../stores/useEafMessageStore";
-import type { ApiParsedErrorResponse } from "../types";
 import { EAF_FORM_KEY } from "./useEafForm";
 
 /**
@@ -8,7 +7,7 @@ import { EAF_FORM_KEY } from "./useEafForm";
  * Uses the global message store to display validation messages
  *
  * Use this for action buttons like Print, Delete, Submit, etc. where the API
- * might return validation errors (422) or business rule violations.
+ * might return validation errors or business rule violations.
  *
  * @returns Helper functions for handling validation errors
  */
@@ -17,7 +16,8 @@ export function useActionValidation() {
   const errorParser = inject(EAF_FORM_KEY, null);
 
   /**
-   * Handles API error responses, specifically 422/400 validation errors
+   * Handles API error responses that the errorParser marks as validation
+   * errors to handle (response.handleErrors)
    * Extracts validation errors and general message from the response
    * and displays them using the global message store
    * Automatically clears previous validation errors before showing new ones
@@ -34,14 +34,12 @@ export function useActionValidation() {
       console.warn(
         "[useActionValidation] No error parser provided. Please provide an error parser using EAF_FORM_KEY injection.",
       );
+      return false;
     }
 
-    const response = (
-      errorParser ? errorParser(rawError) : rawError
-    ) as ApiParsedErrorResponse;
+    const response = errorParser(rawError);
 
-    // Check if it's a 422 validation error or 400 bad request
-    if (response.status !== 422 && response.status !== 400) {
+    if (response.handleErrors === false) {
       return false;
     }
 

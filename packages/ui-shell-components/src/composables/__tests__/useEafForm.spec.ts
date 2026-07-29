@@ -205,13 +205,17 @@ describe("useEafForm - handleApiError with an injected parser", () => {
     expect($f.generalMessage.value).toBe("Please fix the errors below");
   });
 
-  it("ignores errors whose parsed status is not 422", () => {
+  it("ignores errors the parser marks as handleErrors: false", () => {
     const parser: EafFormApiErrorParser = (error) =>
       error as ApiParsedErrorResponse;
     const $f = createFormWithParser(parser);
     $f.setFieldError("firstName", "pre-existing error");
 
-    const handled = $f.handleApiError({ status: 500, success: false });
+    const handled = $f.handleApiError({
+      status: 500,
+      success: false,
+      handleErrors: false,
+    });
 
     expect(handled).toBe(false);
     // Existing state must be left untouched when the error isn't handled

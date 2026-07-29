@@ -14,6 +14,13 @@ export interface ApiParsedErrorResponse {
   details?: any;
   generalMessage?: string;
 
+  /**
+   * Whether useEafForm/useActionValidation should treat this response as a
+   * validation error to handle. The parser decides this (e.g. based on
+   * status code) rather than the consuming composable.
+   */
+  handleErrors?: boolean;
+
   // Telemetry information for debugging purposes
   code?: string;
   message?: string;

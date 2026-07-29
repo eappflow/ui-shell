@@ -30,9 +30,10 @@ export function defaultParseApiError(error: unknown): ApiParsedErrorResponse {
   }
 
   const data = error.response?.data;
+  const status = error.response?.status ?? 0;
 
   return {
-    status: error.response?.status ?? 0,
+    status,
     success: data?.success ?? false,
     code: data?.code,
     message: data?.message,
@@ -40,5 +41,6 @@ export function defaultParseApiError(error: unknown): ApiParsedErrorResponse {
     generalMessage: data?.message,
     validationErrors: data?.validationErrors,
     details: data?.details,
+    handleErrors: status === 422 || status === 400,
   };
 }

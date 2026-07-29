@@ -4,7 +4,10 @@ import { mount } from "@vue/test-utils";
 import EafFormValidationSummary from "../EafFormValidationSummary.vue";
 import EafFormItem from "../EafFormItem.vue";
 import { useEafForm, EAF_FORM_KEY } from "../../composables/useEafForm";
-import type { ApiParsedErrorResponse, EafFormApiErrorParser } from "../../types";
+import type {
+  ApiParsedErrorResponse,
+  EafFormApiErrorParser,
+} from "../../types";
 
 interface TestForm {
   firstName: string;
@@ -53,9 +56,9 @@ describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
     expect(wrapper.get('[data-testid="firstName-error"]').text()).toBe(
       "First name is already taken",
     );
-    expect(wrapper.find('[data-testid="form-validation-summary"]').exists()).toBe(
-      false,
-    );
+    expect(
+      wrapper.find('[data-testid="form-validation-summary"]').exists(),
+    ).toBe(false);
   });
 
   it("shows an unregistered field's error in the summary, not next to any field", () => {
@@ -67,10 +70,12 @@ describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
       },
     });
 
-    expect(wrapper.get('[data-testid="form-validation-summary"]').text()).toContain(
-      "someServerOnlyField: Some business rule was violated",
+    expect(
+      wrapper.get('[data-testid="form-validation-summary"]').text(),
+    ).toContain("someServerOnlyField: Some business rule was violated");
+    expect(wrapper.find('[data-testid="firstName-error"]').exists()).toBe(
+      false,
     );
-    expect(wrapper.find('[data-testid="firstName-error"]').exists()).toBe(false);
   });
 
   it("shows the general message in the summary banner", () => {
@@ -80,20 +85,23 @@ describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
       generalMessage: "Please fix the errors below",
     });
 
-    expect(wrapper.get('[data-testid="form-validation-summary"]').text()).toContain(
-      "Please fix the errors below",
-    );
+    expect(
+      wrapper.get('[data-testid="form-validation-summary"]').text(),
+    ).toContain("Please fix the errors below");
   });
 
   it("shows nothing when the backend reports no error", () => {
     const wrapper = mountFormWithBackendError({
       status: 200,
       success: true,
+      handleErrors: false,
     });
 
-    expect(wrapper.find('[data-testid="form-validation-summary"]').exists()).toBe(
+    expect(
+      wrapper.find('[data-testid="form-validation-summary"]').exists(),
+    ).toBe(false);
+    expect(wrapper.find('[data-testid="firstName-error"]').exists()).toBe(
       false,
     );
-    expect(wrapper.find('[data-testid="firstName-error"]').exists()).toBe(false);
   });
 });
