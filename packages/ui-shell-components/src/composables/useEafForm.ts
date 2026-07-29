@@ -190,7 +190,7 @@ export function useEafForm<T extends object>(
 
   function isFieldRequired(fieldName: Extract<keyof T, string>): boolean {
     const rules = config.rules?.[fieldName] as FieldRule | undefined;
-    return rules?.required?.required === true;
+    return Boolean(rules?.required);
   }
 
   /**

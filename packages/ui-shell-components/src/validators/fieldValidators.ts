@@ -16,15 +16,19 @@ function isEmptyValue(value: unknown): boolean {
   return value === null || value === undefined || value === "";
 }
 
+const DEFAULT_REQUIRED_MESSAGE = "This field is required";
+
 function validateRequired(
   value: unknown,
   rules: EafFormRuleRequired,
 ): string[] {
   const rule = rules.required;
-  if (rule?.required && isEmptyValue(value)) {
-    return [rule.message];
+  if (!rule || !isEmptyValue(value)) {
+    return [];
   }
-  return [];
+  const message =
+    typeof rule === "object" ? rule.message : DEFAULT_REQUIRED_MESSAGE;
+  return [message];
 }
 
 function validateLength(value: unknown, rules: EafFormRuleLength): string[] {

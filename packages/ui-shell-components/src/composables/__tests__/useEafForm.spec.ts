@@ -16,7 +16,7 @@ interface TestForm {
 
 const rules: RulesForFormData<TestForm> = {
   firstName: {
-    required: { required: true, message: "First name is required" },
+    required: { message: "First name is required" },
     length: {
       minLength: 2,
       maxLength: 10,

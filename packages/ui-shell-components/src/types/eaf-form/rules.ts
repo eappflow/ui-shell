@@ -14,10 +14,7 @@ export type RulesForFormData<T> = {
 
 // --- Default rules ---
 export interface EafFormRuleRequired {
-  required?: {
-    required: boolean;
-    message: string;
-  };
+  required?: boolean | { message: string };
 }
 
 // --- Rules for numbers ---

@@ -33,7 +33,6 @@ const $f = useEafForm({
   rules: {
     login: {
       required: {
-        required: true,
         message: t(
           "login_required",
           "Login is required",
@@ -43,7 +42,6 @@ const $f = useEafForm({
     },
     password: {
       required: {
-        required: true,
         message: t(
           "password_required",
           "Password is required",
