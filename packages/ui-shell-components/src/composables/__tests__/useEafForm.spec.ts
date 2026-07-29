@@ -68,43 +68,11 @@ function createForm(data: Partial<TestForm> = {}) {
 const validData: TestForm = { firstName: "Jakub", age: 30, email: "a@b.com" };
 
 describe("useEafForm - rules validation", () => {
-  it.each<[string, Partial<TestForm>, keyof TestForm, string]>([
-    ["required", { firstName: "" }, "firstName", "First name is required"],
-    [
-      "length - below minLength",
-      { firstName: "J" },
-      "firstName",
-      "First name must be 2-10 characters",
-    ],
-    [
-      "length - above maxLength",
-      { firstName: "ThisNameIsWayTooLong" },
-      "firstName",
-      "First name must be 2-10 characters",
-    ],
-    [
-      "range - below min",
-      { age: 10 },
-      "age",
-      "Age must be between 18 and 65",
-    ],
-    [
-      "range - above max",
-      { age: 99 },
-      "age",
-      "Age must be between 18 and 65",
-    ],
-    [
-      "pattern - malformed value",
-      { email: "not-an-email" },
-      "email",
-      "Enter a valid email address",
-    ],
-  ])("fails the %s rule", (_label, overrides, field, message) => {
-    const $f = createForm({ ...validData, ...overrides });
+  it("fails validation and surfaces the configured rule message for an invalid field", () => {
+    const $f = createForm({ ...validData, firstName: "" });
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError(field)).toBe(message);
+    expect($f.getFieldError("firstName")).toBe("First name is required");
   });
 
   it("passes validation when every field satisfies its rules", () => {

@@ -4,60 +4,11 @@ import type {
   EafForm,
   EafFormApiErrorParser,
   EafFormConfig,
-  EafFormRuleLength,
-  EafFormRulePattern,
-  EafFormRuleRange,
-  EafFormRuleRequired,
 } from "../types";
-
-type FieldRule = Partial<
-  EafFormRuleRequired &
-    EafFormRuleLength &
-    EafFormRulePattern &
-    EafFormRuleRange
->;
-
-function isEmptyValue(value: unknown): boolean {
-  return value === null || value === undefined || value === "";
-}
-
-/**
- * Checks a single field's value against its rules
- *
- * @returns Validation error messages for the field (empty if valid)
- */
-function getFieldViolations(value: unknown, rules: FieldRule): string[] {
-  const messages: string[] = [];
-
-  if (rules.required?.required && isEmptyValue(value)) {
-    messages.push(rules.required.message);
-  }
-
-  if (typeof value === "string") {
-    const { length, pattern } = rules;
-    if (length?.minLength !== undefined && value.length < length.minLength) {
-      messages.push(length.message);
-    }
-    if (length?.maxLength !== undefined && value.length > length.maxLength) {
-      messages.push(length.message);
-    }
-    if (pattern && !pattern.regex.test(value)) {
-      messages.push(pattern.message);
-    }
-  }
-
-  if (typeof value === "number" && rules.range) {
-    const { min, max, message } = rules.range;
-    if (min !== undefined && value < min) {
-      messages.push(message);
-    }
-    if (max !== undefined && value > max) {
-      messages.push(message);
-    }
-  }
-
-  return messages;
-}
+import {
+  getFieldViolations,
+  type FieldRule,
+} from "../validators/fieldValidators";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
