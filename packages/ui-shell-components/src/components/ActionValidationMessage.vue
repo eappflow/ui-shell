@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Message from "primevue/message";
-import { useEafMessageStore } from "@/stores/useEafMessageStore";
+import { useEafMessageStore } from "../stores/useEafMessageStore";
 
 const messageStore = useEafMessageStore();
 

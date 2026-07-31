@@ -1,87 +1,54 @@
-import { ref, reactive } from "vue";
-import type { ApiErrorResponse, EafValidationConfig } from "@/types";
+import { ref, reactive, InjectionKey, inject } from "vue";
+import type { EafForm, EafFormApiErrorParser, EafFormConfig } from "../types";
+import {
+  getFieldViolations,
+  type FieldRule,
+} from "../validators/fieldValidators";
+
+export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
+  "eaf:form-error-parser",
+);
 
 /**
- * Converts PascalCase or dot-notation field names to camelCase
- * Examples:
- * - "Email" -> "email"
- * - "FirstName" -> "firstName"
- * - "Address.Street" -> "address.street"
- */
-function convertFieldName(apiFieldName: string): string {
-  return apiFieldName
-    .split(".")
-    .map((part) => part.charAt(0).toLowerCase() + part.slice(1))
-    .join(".");
-}
-
-/**
- * Composable for handling form validation errors from API responses (422)
+ * Composable for handling form validation errors from API responses
  * and client-side validation errors
  *
- * @param config Optional configuration for registered fields and display options
+ * @param config Form data and validation rules
  * @returns Validation state and helper functions
  */
-export function useEafFormValidation(config?: EafValidationConfig) {
-  const registeredFields = ref<string[]>(config?.registeredFields || []);
-  const showAllErrors = config?.showAllErrors || false;
+export function useEafForm<T extends object>(
+  config: EafFormConfig<T>,
+): EafForm<T> {
+  const errorParser = inject(EAF_FORM_KEY, null);
+  const showAllErrors = config.showAllErrors || false;
+  const data = reactive(config.data);
+  const initialData: T = { ...config.data } as T;
 
   // Reactive validation state
   const fieldErrors = reactive(new Map<string, string[]>());
   const summaryErrors = ref<string[]>([]);
   const generalMessage = ref<string>("");
+  const loading = ref(false);
 
   /**
-   * Registers a field dynamically (used by FormItem components)
-   *
-   * @param fieldName The field name to register
-   */
-  function registerField(fieldName: string): void {
-    if (!registeredFields.value.includes(fieldName)) {
-      registeredFields.value.push(fieldName);
-    }
-  }
-
-  /**
-   * Unregisters a field (cleanup when FormItem unmounts)
-   *
-   * @param fieldName The field name to unregister
-   */
-  function unregisterField(fieldName: string): void {
-    const index = registeredFields.value.indexOf(fieldName);
-    if (index > -1) {
-      registeredFields.value.splice(index, 1);
-    }
-  }
-
-  /**
-   * Handles API error responses, specifically 422 validation errors
+   * Handles API error responses that the errorParser marks as validation
+   * errors to handle (response.handleErrors)
    * Extracts validation errors and maps them to form fields
    *
    * @param error The error object from the API call (typically from axios)
    * @returns true if error was handled as validation error, false otherwise
    */
-  function handleApiError(error: unknown): boolean {
-    // Type guard to check if error has response structure
-    if (!error || typeof error !== "object" || !("response" in error)) {
+  function handleApiError(rawError: unknown): boolean {
+    if (errorParser === null) {
+      console.warn(
+        "[useEafForm] No error parser provided. Please provide an error parser using EAF_FORM_KEY injection.",
+      );
       return false;
     }
 
-    const axiosError = error as {
-      response?: {
-        status?: number;
-        data?: ApiErrorResponse;
-      };
-    };
+    const response = errorParser(rawError);
 
-    // Check if it's a 422 validation error
-    if (axiosError.response?.status !== 422) {
-      return false;
-    }
-
-    const responseData = axiosError.response.data;
-
-    if (!responseData) {
+    if (response.handleErrors === false) {
       return false;
     }
 
@@ -89,31 +56,27 @@ export function useEafFormValidation(config?: EafValidationConfig) {
     clearErrors();
 
     // Extract general message
-    if (responseData.message) {
-      generalMessage.value = responseData.message;
+    if (response?.generalMessage) {
+      generalMessage.value = response.generalMessage;
     }
 
     // Log traceId for debugging
-    if (responseData.traceId) {
-      console.warn("[Validation Error]", {
-        code: responseData.code,
-        message: responseData.message,
-        traceId: responseData.traceId,
+    if (response?.traceId) {
+      console.warn("[Validatio1n Error]", {
+        code: response.code,
+        message: response.message,
+        traceId: response.traceId,
       });
     }
 
     // Process validation errors
-    if (responseData.validationErrors) {
+    if (response?.validationErrors) {
       const unmatchedErrors: string[] = [];
 
-      Object.entries(responseData.validationErrors).forEach(
-        ([apiFieldName, messages]) => {
-          const fieldName = convertFieldName(apiFieldName);
-
+      Object.entries(response.validationErrors).forEach(
+        ([fieldName, messages]) => {
           // Check if this field is registered in the form
-          const isRegistered =
-            registeredFields.value.length === 0 ||
-            registeredFields.value.includes(fieldName);
+          const isRegistered = fieldName in data;
 
           if (isRegistered && messages.length > 0) {
             // Map to form field
@@ -121,7 +84,7 @@ export function useEafFormValidation(config?: EafValidationConfig) {
           } else {
             // Field not registered, add to summary
             messages.forEach((msg) => {
-              unmatchedErrors.push(`${apiFieldName}: ${msg}`);
+              unmatchedErrors.push(`${fieldName}: ${msg}`);
             });
           }
         },
@@ -131,6 +94,50 @@ export function useEafFormValidation(config?: EafValidationConfig) {
     }
 
     return true;
+  }
+
+  function validate(): boolean {
+    clearErrors();
+
+    const rules = config.rules;
+    if (!rules) {
+      return true;
+    }
+
+    for (const fieldName of Object.keys(rules) as Array<
+      Extract<keyof T, string>
+    >) {
+      const fieldRules = rules[fieldName] as FieldRule | undefined;
+      if (!fieldRules) {
+        continue;
+      }
+
+      const value = (data as T)[fieldName];
+      const messages = getFieldViolations(value, fieldRules);
+
+      if (messages.length > 0) {
+        setFieldError(fieldName, messages);
+      }
+    }
+
+    return !hasErrors();
+  }
+
+  async function submit(
+    handleSubmit: (data: T) => Promise<void>,
+  ): Promise<void> {
+    if (!validate()) {
+      return;
+    }
+
+    loading.value = true;
+    try {
+      await handleSubmit(data as T);
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
   /**
@@ -181,6 +188,11 @@ export function useEafFormValidation(config?: EafValidationConfig) {
     return errors !== undefined && errors.length > 0;
   }
 
+  function isFieldRequired(fieldName: Extract<keyof T, string>): boolean {
+    const rules = config.rules?.[fieldName] as FieldRule | undefined;
+    return Boolean(rules?.required);
+  }
+
   /**
    * Clears all validation errors (field-level, summary, and general message)
    */
@@ -199,6 +211,11 @@ export function useEafFormValidation(config?: EafValidationConfig) {
     fieldErrors.delete(fieldName);
   }
 
+  function resetForm(): void {
+    clearErrors();
+    Object.assign(data, initialData);
+  }
+
   /**
    * Checks if there are any validation errors present
    *
@@ -214,11 +231,17 @@ export function useEafFormValidation(config?: EafValidationConfig) {
 
   return {
     // Reactive state
+    data,
+    loading,
     fieldErrors,
     summaryErrors,
     generalMessage,
 
     // Helper functions
+    submit,
+    validate,
+    resetForm,
+    isFieldRequired,
     handleApiError,
     setFieldError,
     getFieldError,
@@ -227,7 +250,5 @@ export function useEafFormValidation(config?: EafValidationConfig) {
     clearErrors,
     clearFieldError,
     hasErrors,
-    registerField,
-    unregisterField,
   };
 }

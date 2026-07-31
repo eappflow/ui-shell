@@ -6,76 +6,70 @@ import Password from "primevue/password";
 import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
 import {
-  useEafFormValidation,
+  useEafForm,
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
-
-const $f = useEafFormValidation();
-const loading = ref(false);
-const currentPassword = ref("");
-const newPassword = ref("");
-const confirmPassword = ref("");
-const success = ref(false);
 const { t } = useScopedI18n();
 
+interface ChangePasswordForm {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+const $f = useEafForm<ChangePasswordForm>({
+  data: {
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  },
+  rules: {
+    currentPassword: {
+      required: { message: "Current password is required." },
+    },
+    newPassword: {
+      required: { message: "New password is required." },
+      length: {
+        minLength: 6,
+        message: "Password must be at least 6 characters",
+      },
+    },
+    confirmPassword: {
+      required: { message: "Confirm password is required." },
+    },
+  },
+});
+const success = ref(false);
+
 function resetForm() {
-  currentPassword.value = "";
-  newPassword.value = "";
-  confirmPassword.value = "";
-  $f.clearErrors();
+  $f.resetForm();
   success.value = false;
 }
 
-function validateForm(): boolean {
-  $f.clearErrors();
-  let isValid = true;
+async function handleChangePassword(): Promise<void> {
+  if (!$f.validate()) return;
 
-  if (!currentPassword.value) {
-    $f.setFieldError("currentPassword", "Current password is required");
-    isValid = false;
-  }
-
-  if (!newPassword.value) {
-    $f.setFieldError("newPassword", "New password is required");
-    isValid = false;
-  } else if (newPassword.value.length < 6) {
-    $f.setFieldError("newPassword", "Password must be at least 6 characters");
-    isValid = false;
-  }
-
-  if (!confirmPassword.value) {
-    $f.setFieldError("confirmPassword", "Please confirm your new password");
-    isValid = false;
-  } else if (newPassword.value !== confirmPassword.value) {
+  // Cross-field checks the declarative `rules` engine can't express
+  const { currentPassword, newPassword, confirmPassword } = $f.data;
+  if (newPassword !== confirmPassword) {
     $f.setFieldError("confirmPassword", "Passwords do not match");
-    isValid = false;
+    return;
   }
-
-  if (
-    currentPassword.value &&
-    newPassword.value &&
-    currentPassword.value === newPassword.value
-  ) {
+  if (currentPassword === newPassword) {
     $f.setFieldError(
       "newPassword",
       "New password must be different from current password",
     );
-    isValid = false;
+    return;
   }
 
-  return isValid;
-}
-
-async function handleChangePassword() {
-  if (!validateForm()) return;
-  loading.value = true;
-  try {
+  await $f.submit(async () => {
     // In real scenario: this would call authService via store
-    // await authService.changePassword({ currentPassword: ..., newPassword: ... })
+    // await authService.changePassword({ currentPassword, newPassword })
     success.value = true;
     resetForm();
     toast.add({
@@ -84,11 +78,7 @@ async function handleChangePassword() {
       detail: "Your password has been changed successfully",
       life: 5000,
     });
-  } catch (error: unknown) {
-    $f.handleApiError(error);
-  } finally {
-    loading.value = false;
-  }
+  });
 }
 </script>
 
@@ -146,14 +136,14 @@ async function handleChangePassword() {
           </Message>
 
           <EafFormItem
-            field="currentPassword"
+            for="currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
             :form="$f"
             :required="true"
           >
             <Password
-              v-model="currentPassword"
-              :disabled="loading"
+              v-model="$f.data.currentPassword"
+              :disabled="$f.loading.value"
               :placeholder="
                 t(
                   'enter_current_password',
@@ -167,14 +157,14 @@ async function handleChangePassword() {
           </EafFormItem>
 
           <EafFormItem
-            field="newPassword"
+            for="newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
             :form="$f"
             :required="true"
           >
             <Password
-              v-model="newPassword"
-              :disabled="loading"
+              v-model="$f.data.newPassword"
+              :disabled="$f.loading.value"
               :placeholder="
                 t(
                   'enter_new_password',
@@ -195,7 +185,7 @@ async function handleChangePassword() {
           </EafFormItem>
 
           <EafFormItem
-            field="confirmPassword"
+            for="confirmPassword"
             :label="
               t(
                 'confirm_new_password',
@@ -207,8 +197,8 @@ async function handleChangePassword() {
             :required="true"
           >
             <Password
-              v-model="confirmPassword"
-              :disabled="loading"
+              v-model="$f.data.confirmPassword"
+              :disabled="$f.loading.value"
               :placeholder="
                 t(
                   'confirm_new_password',
@@ -226,13 +216,13 @@ async function handleChangePassword() {
               :label="t('cancel', 'Cancel', 'Anuluj')"
               severity="secondary"
               outlined
-              :disabled="loading"
+              :disabled="$f.loading.value"
               @click="resetForm"
             />
             <Button
               type="submit"
               :label="t('change_password', 'Change Password', 'Zmień hasło')"
-              :loading="loading"
+              :loading="$f.loading.value"
             />
           </div>
         </form>

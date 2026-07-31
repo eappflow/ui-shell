@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useEafMessageStore } from "../useEafMessageStore";
 import { createPinia, setActivePinia } from "pinia";
-import { ToastMessage } from "@/types";
+import { ToastMessage } from "../../types";
 
 describe("useEafMessageStore", () => {
   beforeEach(() => {
