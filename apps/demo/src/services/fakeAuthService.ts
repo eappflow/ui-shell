@@ -67,5 +67,10 @@ export function createFakeAuthService(): AuthService {
       await new Promise((r) => setTimeout(r, 300));
       // In demo mode, any password change succeeds
     },
+
+    async linkMicrosoftAccount(_request: { accessToken: string }): Promise<void> {
+      await new Promise((r) => setTimeout(r, 300));
+      // Always succeeds in demo mode
+    },
   };
 }

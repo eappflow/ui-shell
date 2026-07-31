@@ -12,10 +12,16 @@ import { createDefaultMicrosoftSSOConfig } from "../services/defaultSSOService";
 import * as msal from "@azure/msal-browser";
 import { Router } from "vue-router";
 
+const LINK_MICROSOFT_ACCOUNT_STATE_PREFIX = "link-account:";
+
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const accessToken = ref<string | null>(null);
   const isInitializing = ref(false);
+  const microsoftAccountLinkResult = ref<
+    { success: true } | { success: false; error: unknown } | null
+  >(null);
+  const microsoftLoginError = ref<unknown>(null);
 
   let msalInstance = createDefaultMsalInstance();
 
@@ -135,6 +141,30 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
+  /**
+   * Links a Microsoft account via the same redirect flow as loginWithMicrosoftSSO, not a popup -
+   * a popup would boot this app a second time inside itself, and that throwaway instance would
+   * read the opener's real session token from shared localStorage, risking a silent logout race.
+   */
+  async function linkMicrosoftAccount(returnUrl: string): Promise<void> {
+    if (!microsoftSSOService.config?.clientId) {
+      throw new Error("Microsoft SSO configuration is not available.");
+    }
+
+    await msalInstance.loginRedirect({
+      scopes: microsoftSSOService.config.scopes,
+      state: `${LINK_MICROSOFT_ACCOUNT_STATE_PREFIX}${returnUrl}`,
+    });
+  }
+
+  function clearMicrosoftAccountLinkResult(): void {
+    microsoftAccountLinkResult.value = null;
+  }
+
+  function clearMicrosoftLoginError(): void {
+    microsoftLoginError.value = null;
+  }
+
   async function initializeMsalInstance(router: Router): Promise<void> {
     try {
       msalInstance = await msal.createStandardPublicClientApplication({
@@ -160,19 +190,46 @@ export const useAuthStore = defineStore("auth", () => {
   async function handleMicrosoftSSORedirect(): Promise<string | null> {
     const authenticationResult = await msalInstance.handleRedirectPromise();
 
-    if (authenticationResult && authenticationResult.accessToken) {
+    if (!authenticationResult || !authenticationResult.accessToken) {
+      return null;
+    }
+
+    const state = authenticationResult.state ?? "";
+    if (state.startsWith(LINK_MICROSOFT_ACCOUNT_STATE_PREFIX)) {
+      const returnUrl = state.slice(LINK_MICROSOFT_ACCOUNT_STATE_PREFIX.length);
+      try {
+        await authService.linkMicrosoftAccount({
+          accessToken: authenticationResult.accessToken,
+        });
+        microsoftAccountLinkResult.value = { success: true };
+        await loadCurrentUser();
+      } catch (error) {
+        microsoftAccountLinkResult.value = { success: false, error };
+      }
+      return returnUrl.startsWith("/") ? returnUrl : "/";
+    }
+
+    try {
       const result = await microsoftSSOService.login(authenticationResult);
       await saveAccessToken(result.accessToken);
-      const state = authenticationResult.state;
-      return state && state.startsWith("/") ? state : "/";
+    } catch (error) {
+      microsoftLoginError.value = error;
+      return "/login";
     }
-    return null;
+    return state.startsWith("/") ? state : "/";
   }
 
   // ─── Microsoft SSO End ──────────────────────────────────────────────────────────
 
-  // Initialize on store creation
-  initializeFromStorage();
+  // Initialize on store creation. Deferred by one microtask: this store is created
+  // synchronously during EAppFlowUIShell's plugin install(), which runs before the host
+  // app calls setAxiosInstance() (see apps/web-hq-portal/src/main.ts) - calling this
+  // immediately would race the API client's readiness and silently log the user out.
+  // Confirmed as a real, reproducible bug (not just theoretical) via the Microsoft
+  // account-linking redirect flow, which always does a full page reload on return.
+  queueMicrotask(() => {
+    initializeFromStorage();
+  });
 
   return {
     user,
@@ -180,6 +237,8 @@ export const useAuthStore = defineStore("auth", () => {
     isInitializing,
     isAuthenticated,
     isUsingMicrosoftSSO,
+    microsoftAccountLinkResult,
+    microsoftLoginError,
     userPermissions,
     userName,
     login,
@@ -192,6 +251,9 @@ export const useAuthStore = defineStore("auth", () => {
     hasAllPermissions,
     initializeFromStorage,
     loginWithMicrosoftSSO,
+    linkMicrosoftAccount,
+    clearMicrosoftAccountLinkResult,
+    clearMicrosoftLoginError,
     initializeMsalInstance,
   };
 });

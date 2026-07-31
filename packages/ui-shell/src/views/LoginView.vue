@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, inject } from "vue";
+import { ref, computed, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
@@ -73,6 +73,13 @@ async function handleLogin(): Promise<void> {
     router.push(redirectUrl.value);
   });
 }
+
+onMounted(() => {
+  const error = authStore.microsoftLoginError;
+  if (!error) return;
+  $f.handleApiError(error);
+  authStore.clearMicrosoftLoginError();
+});
 
 async function handleLoginWithMicrosoftSSO(): Promise<void> {
   loadingSSO.value = true;
