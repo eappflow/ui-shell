@@ -46,6 +46,9 @@ export interface AuthService {
 
   /** Change password for authenticated user */
   changePassword(request: ChangePasswordRequest): Promise<void>;
+
+  /** Link a Microsoft account (already validated via an Entra ID access token) to the current user */
+  linkMicrosoftAccount(request: MicrosoftSSOLoginRequest): Promise<void>;
 }
 
 // ─── Microsoft SSO Service ───────────────────────────────────────────────────

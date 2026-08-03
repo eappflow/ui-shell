@@ -13,6 +13,7 @@ function createFakeAuthService(user: User): AuthService {
     requestPasswordReset: vi.fn(async () => {}),
     confirmPasswordReset: vi.fn(async () => {}),
     changePassword: vi.fn(async () => {}),
+    linkMicrosoftAccount: vi.fn(async () => {}),
   };
 }
 
