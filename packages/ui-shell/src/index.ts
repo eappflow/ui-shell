@@ -75,6 +75,7 @@ export type {
   User,
   AuthState,
   LoginRequest,
+  MicrosoftSSOLoginRequest,
   AuthResult,
   PasswordResetRequest,
   PasswordResetConfirm,

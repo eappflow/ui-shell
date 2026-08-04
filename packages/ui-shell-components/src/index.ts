@@ -17,6 +17,8 @@ export { useActionValidation } from "./composables/useActionValidation.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
+  EafForm,
+  EafFormConfig,
   EafFormApiErrorParser,
   ApiParsedErrorResponse,
 } from "./types";
