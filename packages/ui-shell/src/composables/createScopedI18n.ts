@@ -44,6 +44,14 @@ export interface ScopedT {
 }
 
 /**
+ * Composable returned by {@link createScopedI18n} - named so consumers that
+ * build with `declaration`/composite project references (e.g. `vue-tsc -b`)
+ * get a portable type reference instead of an inline `Omit<Composer, ...>`
+ * instantiation, which TS can't re-print across a package boundary (TS2883).
+ */
+export type ScopedI18nComposer = { t: ScopedT } & Omit<Composer, "t" | "te">;
+
+/**
  * Factory that creates a `useScopedI18n` composable pre-loaded with the
  * given locale message maps.
  *
@@ -57,7 +65,7 @@ export interface ScopedT {
  * // inside a component
  * const { t } = useScopedI18n();
  */
-export function createScopedI18n(messages: Messages) {
+export function createScopedI18n(messages: Messages): () => ScopedI18nComposer {
   /**
    * Vue composable that exposes `{ t }` for scoped translations.
    *
@@ -76,7 +84,7 @@ export function createScopedI18n(messages: Messages) {
    * t("items_count", "{count} items", "{count} elementów", { count: n })
    * ```
    */
-  return function useScopedI18n(): { t: ScopedT } & Omit<Composer, "t" | "te"> {
+  return function useScopedI18n(): ScopedI18nComposer {
     const { locale, t, te, ...rest } = useI18n({
       messages: messages,
       inheritLocale: true,
