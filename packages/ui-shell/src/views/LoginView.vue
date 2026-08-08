@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, inject, onMounted } from "vue";
+import { ref, computed, inject } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
@@ -74,22 +74,16 @@ async function handleLogin(): Promise<void> {
   });
 }
 
-onMounted(() => {
-  const error = authStore.microsoftLoginError;
-  if (!error) return;
-  $f.handleApiError(error);
-  authStore.clearMicrosoftLoginError();
-});
-
 async function handleLoginWithMicrosoftSSO(): Promise<void> {
   loadingSSO.value = true;
   try {
+    // It should redirect to Microsoft login page, so we don't need to handle the result here
     await authStore.loginWithMicrosoftSSO(redirectUrl.value);
-  } catch (error: unknown) {
-    $f.handleApiError(error);
+  } catch {
+    // Already parsed and shown via the shared validation banner in useAuthStore.
+  } finally {
+    loadingSSO.value = false;
   }
-
-  loadingSSO.value = false;
 }
 </script>
 
