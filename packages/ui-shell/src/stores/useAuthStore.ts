@@ -51,6 +51,7 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   async function login(login: string, password: string): Promise<void> {
+    actionValidation.clearErrors();
     const result = await authService.login({ login, password });
 
     if (!result.accessToken) {
