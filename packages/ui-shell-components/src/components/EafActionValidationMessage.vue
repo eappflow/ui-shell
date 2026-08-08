@@ -15,18 +15,30 @@ const messageStore = useEafMessageStore();
       <template #default>
         <div>
           <p class="font-medium">
-            {{ messageStore.validationMessage.message }}
+            {{ messageStore.validationMessage.generalMessage }}
           </p>
           <ul
-            v-if="messageStore.validationMessage.validationErrors.length > 0"
+            v-if="messageStore.validationMessage.validationErrors.size > 0"
             class="mt-1 list-disc list-inside text-sm"
           >
             <li
-              v-for="(err, idx) in messageStore.validationMessage
+              v-for="[field, messages] in messageStore.validationMessage
                 .validationErrors"
-              :key="idx"
+              :key="field"
             >
-              {{ err }}
+              <strong>{{ field }}:</strong>
+              <ul
+                v-if="messages && messages.length > 0"
+                class="list-disc list-inside space-y-1 mt-1 ml-4"
+              >
+                <li
+                  v-for="(error, index) in messages"
+                  :key="index"
+                  class="text-sm"
+                >
+                  {{ error }}
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
