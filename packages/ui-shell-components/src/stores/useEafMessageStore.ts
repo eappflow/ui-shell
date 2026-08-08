@@ -15,11 +15,11 @@ export const useEafMessageStore = defineStore("eafMessage", () => {
   }
 
   function setValidationMessage(
-    message: string,
-    validationErrors: string[] = [],
+    generalMessage: string,
+    validationErrors: Map<string, string[]> = new Map(),
     severity: "error" | "warn" | "info" | "success" = "error",
   ) {
-    validationMessage.value = { message, validationErrors, severity };
+    validationMessage.value = { generalMessage, validationErrors, severity };
   }
 
   function clearValidationMessage() {

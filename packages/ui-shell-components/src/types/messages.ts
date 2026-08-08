@@ -12,7 +12,7 @@ export interface ToastMessage {
  * Validation message for form/action validation errors
  */
 export interface ValidationMessage {
-  message: string;
-  validationErrors: string[];
+  generalMessage: string;
+  validationErrors: Map<string, string[]>;
   severity?: "error" | "warn" | "info" | "success";
 }

@@ -53,16 +53,13 @@ export function useActionValidation() {
       });
     }
 
-    // Extract validation errors - flatten all field errors into a single list
-    const validationErrors: string[] = [];
+    // Extract validation errors
+    const validationErrors: Map<string, string[]> = new Map();
 
     if (response.validationErrors) {
       Object.entries(response.validationErrors).forEach(
         ([fieldName, messages]) => {
-          messages.forEach((msg) => {
-            // Include field name with the message for context
-            validationErrors.push(`${fieldName}: ${msg}`);
-          });
+          validationErrors.set(fieldName, messages);
         },
       );
     }
@@ -87,12 +84,16 @@ export function useActionValidation() {
    */
   function setValidationMessage(
     generalMessage: string,
-    errors?: string[],
+    errors?: Map<string, string[]>,
     severity: "error" | "warn" | "info" | "success" = "error",
   ): void {
     // Clear previous errors before showing new ones
     messageStore.clearValidationMessage();
-    messageStore.setValidationMessage(generalMessage, errors || [], severity);
+    messageStore.setValidationMessage(
+      generalMessage,
+      errors || new Map(),
+      severity,
+    );
   }
 
   /**
