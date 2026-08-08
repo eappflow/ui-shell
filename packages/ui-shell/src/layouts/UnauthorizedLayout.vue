@@ -3,6 +3,7 @@ import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import AppLogo from "../components/AppLogo.vue";
 import { LogoPlacement } from "../types/eaf-logo";
+import { EafActionValidationMessage } from "@eappflow/ui-shell-components";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const currentYear = new Date().getFullYear();
@@ -48,6 +49,7 @@ const currentYear = new Date().getFullYear();
       ]"
     >
       <div class="w-full max-w-md">
+        <EafActionValidationMessage />
         <router-view />
       </div>
     </main>
