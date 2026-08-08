@@ -1,4 +1,5 @@
 import type { App } from "vue";
+import "./style/index.css";
 import EafFormItem from "./components/EafFormItem.vue";
 import EafFormValidationSummary from "./components/EafFormValidationSummary.vue";
 import EafActionValidationMessage from "./components/EafActionValidationMessage.vue";

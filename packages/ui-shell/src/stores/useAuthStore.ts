@@ -9,6 +9,7 @@ import {
 import { createDefaultAuthService } from "../services/defaultAuthService";
 import { createDefaultMsalInstance } from "../services/defaultMsalInstance";
 import { createDefaultMicrosoftSSOConfig } from "../services/defaultSSOService";
+import { useActionValidation } from "@eappflow/ui-shell-components";
 import * as msal from "@azure/msal-browser";
 import { Router } from "vue-router";
 
@@ -18,10 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const accessToken = ref<string | null>(null);
   const isInitializing = ref(false);
-  const microsoftAccountLinkResult = ref<
-    { success: true } | { success: false; error: unknown } | null
-  >(null);
-  const microsoftLoginError = ref<unknown>(null);
+  const microsoftAccountLinkResult = ref<boolean | null>(null);
 
   let msalInstance = createDefaultMsalInstance();
 
@@ -33,6 +31,9 @@ export const useAuthStore = defineStore("auth", () => {
   // Get AuthService via DI, fall back to default (throws on real use)
   const authService: AuthService =
     inject(AUTH_SERVICE_KEY, undefined) ?? createDefaultAuthService();
+
+  // Parses and displays API/service errors via the shared validation banner
+  const actionValidation = useActionValidation();
 
   const isUsingMicrosoftSSO = computed(
     () => microsoftSSOService.enabled !== false,
@@ -131,14 +132,19 @@ export const useAuthStore = defineStore("auth", () => {
   // ─── Microsoft SSO Start ──────────────────────────────────────────────────────────
 
   async function loginWithMicrosoftSSO(redirectUrl: string): Promise<void> {
-    if (!microsoftSSOService.config?.clientId) {
-      throw new Error("Microsoft SSO configuration is not available.");
-    }
+    try {
+      if (!microsoftSSOService.config?.clientId) {
+        throw new Error("Microsoft SSO configuration is not available.");
+      }
 
-    await msalInstance.loginRedirect({
-      scopes: microsoftSSOService.config.scopes,
-      state: redirectUrl,
-    });
+      await msalInstance.loginRedirect({
+        scopes: microsoftSSOService.config.scopes,
+        state: redirectUrl,
+      });
+    } catch (error) {
+      actionValidation.handleApiError(error);
+      throw error;
+    }
   }
 
   /**
@@ -147,22 +153,23 @@ export const useAuthStore = defineStore("auth", () => {
    * read the opener's real session token from shared localStorage, risking a silent logout race.
    */
   async function linkMicrosoftAccount(returnUrl: string): Promise<void> {
-    if (!microsoftSSOService.config?.clientId) {
-      throw new Error("Microsoft SSO configuration is not available.");
-    }
+    try {
+      if (!microsoftSSOService.config?.clientId) {
+        throw new Error("Microsoft SSO configuration is not available.");
+      }
 
-    await msalInstance.loginRedirect({
-      scopes: microsoftSSOService.config.scopes,
-      state: `${LINK_MICROSOFT_ACCOUNT_STATE_PREFIX}${returnUrl}`,
-    });
+      await msalInstance.loginRedirect({
+        scopes: microsoftSSOService.config.scopes,
+        state: `${LINK_MICROSOFT_ACCOUNT_STATE_PREFIX}${returnUrl}`,
+      });
+    } catch (error) {
+      actionValidation.handleApiError(error);
+      throw error;
+    }
   }
 
   function clearMicrosoftAccountLinkResult(): void {
     microsoftAccountLinkResult.value = null;
-  }
-
-  function clearMicrosoftLoginError(): void {
-    microsoftLoginError.value = null;
   }
 
   async function initializeMsalInstance(router: Router): Promise<void> {
@@ -201,10 +208,11 @@ export const useAuthStore = defineStore("auth", () => {
         await authService.linkMicrosoftAccount({
           accessToken: authenticationResult.accessToken,
         });
-        microsoftAccountLinkResult.value = { success: true };
+        microsoftAccountLinkResult.value = true;
         await loadCurrentUser();
       } catch (error) {
-        microsoftAccountLinkResult.value = { success: false, error };
+        microsoftAccountLinkResult.value = false;
+        actionValidation.handleApiError(error);
       }
       return returnUrl.startsWith("/") ? returnUrl : "/";
     }
@@ -213,7 +221,7 @@ export const useAuthStore = defineStore("auth", () => {
       const result = await microsoftSSOService.login(authenticationResult);
       await saveAccessToken(result.accessToken);
     } catch (error) {
-      microsoftLoginError.value = error;
+      actionValidation.handleApiError(error);
       return "/login";
     }
     return state.startsWith("/") ? state : "/";
@@ -238,7 +246,6 @@ export const useAuthStore = defineStore("auth", () => {
     isAuthenticated,
     isUsingMicrosoftSSO,
     microsoftAccountLinkResult,
-    microsoftLoginError,
     userPermissions,
     userName,
     login,
@@ -253,7 +260,6 @@ export const useAuthStore = defineStore("auth", () => {
     loginWithMicrosoftSSO,
     linkMicrosoftAccount,
     clearMicrosoftAccountLinkResult,
-    clearMicrosoftLoginError,
     initializeMsalInstance,
   };
 });

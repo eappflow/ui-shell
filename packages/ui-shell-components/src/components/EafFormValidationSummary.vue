@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<Props<T>>(), {
 });
 
 // Support both new form object and old individual props pattern
-const message = computed(() => {
+const generalMessage = computed(() => {
   const formMessage = props.form?.generalMessage
     ? unref(props.form.generalMessage)
     : "";
@@ -35,7 +35,7 @@ const errors = computed(() => {
 
 // Only show component if there's a message or summary errors
 const hasContent = computed(() => {
-  return message.value !== "" || errors.value.length > 0;
+  return generalMessage.value !== "" || errors.value.length > 0;
 });
 </script>
 
@@ -49,8 +49,8 @@ const hasContent = computed(() => {
   >
     <div class="flex flex-col gap-2">
       <!-- General message -->
-      <div v-if="message" class="font-semibold">
-        {{ message }}
+      <div v-if="generalMessage" class="font-semibold">
+        {{ generalMessage }}
       </div>
 
       <!-- Summary errors (unmapped validation errors) -->

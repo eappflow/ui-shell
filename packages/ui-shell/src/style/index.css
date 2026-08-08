@@ -6,4 +6,5 @@
 @source "../components";
 @source "../views";
 @source "../layouts";
+@import "@eappflow/ui-shell-components/style";
 @import "tailwindcss-primeui";

@@ -11,6 +11,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./style": {
+      "style": "./dist/ui-shell-components.css",
+      "import": "./dist/ui-shell-components.css",
+      "require": "./dist/ui-shell-components.css"
     }
   },
   "files": [
@@ -27,10 +32,12 @@
     "vue": "^3.5.0 || ^4.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.11",
     "pinia": "^3.0.4",
     "primevue": "^4.5.5",
+    "tailwindcss": "^4.3.1",
     "tailwindcss-primeui": "^0.6.1",
     "typescript": "~6.0.3",
     "vite": "^8.0.16",
