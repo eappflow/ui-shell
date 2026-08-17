@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { reactive } from "vue";
 import { mount } from "@vue/test-utils";
+import { createI18n } from "vue-i18n";
 import { useEafForm, EAF_FORM_KEY } from "../useEafForm";
 import type {
   ApiParsedErrorResponse,
@@ -91,6 +92,47 @@ describe("useEafForm - rules validation", () => {
     expect($f.hasFieldError("firstName")).toBe(true);
     expect($f.hasFieldError("age")).toBe(true);
     expect($f.hasFieldError("email")).toBe(true);
+  });
+});
+
+describe("useEafForm - required: true fallback message", () => {
+  it("falls back to a hardcoded message when no vue-i18n plugin is installed", () => {
+    const { result: $f } = withSetup(() =>
+      useEafForm<Pick<TestForm, "firstName">>({
+        data: reactive({ firstName: "" }),
+        rules: { firstName: { required: true } },
+      }),
+    );
+
+    expect($f.validate()).toBe(false);
+    expect($f.getFieldError("firstName")).toBe("This field is required");
+  });
+
+  it("uses the app's global vue-i18n translation when the plugin is installed", () => {
+    const i18n = createI18n({
+      legacy: false,
+      locale: "pl",
+      messages: {
+        pl: { validation: { required: "To pole jest wymagane" } },
+      },
+    });
+
+    let $f!: ReturnType<typeof useEafForm<Pick<TestForm, "firstName">>>;
+    mount(
+      {
+        setup() {
+          $f = useEafForm<Pick<TestForm, "firstName">>({
+            data: reactive({ firstName: "" }),
+            rules: { firstName: { required: true } },
+          });
+          return () => null;
+        },
+      },
+      { global: { plugins: [i18n] } },
+    );
+
+    expect($f.validate()).toBe(false);
+    expect($f.getFieldError("firstName")).toBe("To pole jest wymagane");
   });
 });
 

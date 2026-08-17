@@ -29,17 +29,17 @@ const $f = useEafForm<ChangePasswordForm>({
   },
   rules: {
     currentPassword: {
-      required: { message: "Current password is required." },
+      required: true,
     },
     newPassword: {
-      required: { message: "New password is required." },
+      required: true,
       length: {
         minLength: 6,
         message: "Password must be at least 6 characters",
       },
     },
     confirmPassword: {
-      required: { message: "Confirm password is required." },
+      required: true,
     },
   },
 });

@@ -37,10 +37,10 @@ const $f = useEafForm<RecoverPasswordForm>({
   data: formData,
   rules: {
     newPassword: {
-      required: { message: "New password is required." },
+      required: true,
     },
     confirmPassword: {
-      required: { message: "Confirm password is required." },
+      required: true,
     },
   },
 });

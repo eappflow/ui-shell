@@ -1,4 +1,5 @@
 import { ref, reactive, InjectionKey, inject } from "vue";
+import { useI18n, type Composer } from "vue-i18n";
 import type { EafForm, EafFormApiErrorParser, EafFormConfig } from "../types";
 import {
   getFieldViolations,
@@ -8,6 +9,9 @@ import {
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
 );
+
+// Overridable via i18nConfig.messages, like any other shell translation.
+const REQUIRED_MESSAGE_KEY = "validation.required";
 
 /**
  * Composable for handling form validation errors from API responses
@@ -20,6 +24,15 @@ export function useEafForm<T extends object>(
   config: EafFormConfig<T>,
 ): EafForm<T> {
   const errorParser = inject(EAF_FORM_KEY, null);
+
+  // null when no vue-i18n plugin is installed
+  let t: Composer["t"] | null = null;
+  try {
+    ({ t } = useI18n({ useScope: "global" }));
+  } catch {
+    /* no-op */
+  }
+
   const showAllErrors = config.showAllErrors || false;
   const data = reactive(config.data);
   const initialData: T = { ...config.data } as T;
@@ -112,8 +125,13 @@ export function useEafForm<T extends object>(
         continue;
       }
 
+      const resolvedRules: FieldRule =
+        fieldRules.required === true && t
+          ? { ...fieldRules, required: { message: t(REQUIRED_MESSAGE_KEY) } }
+          : fieldRules;
+
       const value = (data as T)[fieldName];
-      const messages = getFieldViolations(value, fieldRules);
+      const messages = getFieldViolations(value, resolvedRules);
 
       if (messages.length > 0) {
         setFieldError(fieldName, messages);
