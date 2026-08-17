@@ -29,7 +29,7 @@ const $f = useEafForm({
   },
   rules: {
     email: {
-      required: { message: "Email is required." },
+      required: true,
       pattern: {
         regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         message: "Enter a valid email address.",

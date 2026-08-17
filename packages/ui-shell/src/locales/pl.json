@@ -1,1 +1,5 @@
-{}
+{
+  "validation": {
+    "required": "To pole jest wymagane"
+  }
+}
