@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Panel from "primevue/panel";
 import Tag from "primevue/tag";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 import { useEafNavigation } from "@eappflow/ui-shell";
 import { useAuthStore } from "@eappflow/ui-shell";
 import { computed } from "vue";
@@ -16,6 +18,15 @@ const registeredPermissions = computed(
   () => navigationStore.registeredPermissions,
 );
 const menuModules = computed(() => navigationStore.menuModules);
+const menuItemRows = computed(() =>
+  menuModules.value.flatMap((mod) =>
+    mod.items.map((item) => ({
+      ...item,
+      moduleName: mod.name,
+      moduleIcon: mod.icon,
+    })),
+  ),
+);
 const currentUserPermissions = computed(() => authStore.userPermissions);
 
 function getModulesForPermission(perm: string): string[] {
@@ -65,12 +76,15 @@ function getModuleSeverity(
               "Załadowane Moduły eAppFlow",
             )
           }}</span>
-          <Tag :value="registeredModules.length" severity="info" />
+          <Tag
+            :value="registeredModules.length"
+            severity="info"
+          />
         </div>
       </template>
       <div
         v-if="registeredModules.length === 0"
-        class="text-zinc-400 italic py-4 text-center"
+        class="text-eaf-ink-muted italic py-4 text-center"
       >
         <i class="pi pi-info-circle mr-2" />{{
           t(
@@ -80,54 +94,49 @@ function getModuleSeverity(
           )
         }}
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-zinc-200">
-              <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                {{ t("diagnostics.module-id", "Module ID", "ID Modułu") }}
-              </th>
-              <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                {{
-                  t(
-                    "diagnostics.declared-permissions",
-                    "Declared Permissions",
-                    "Deklarowane Uprawnienia",
-                  )
-                }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="modId in registeredModules"
-              :key="modId"
-              class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
-            >
-              <td class="py-3 px-3">
-                <Tag :value="modId" :severity="getModuleSeverity(modId)" />
-              </td>
-              <td class="py-3 px-3">
-                <div class="flex flex-wrap gap-1">
-                  <Tag
-                    v-for="perm in modulePermissionsMap[modId] || []"
-                    :key="perm"
-                    :value="perm"
-                    :severity="getPermissionSeverity(perm)"
-                    class="text-xs"
-                  />
-                  <span
-                    v-if="!(modulePermissionsMap[modId] || []).length"
-                    class="text-zinc-400 italic text-xs"
-                  >
-                    none
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        v-else
+        :value="registeredModules.map((id) => ({ id }))"
+      >
+        <Column
+          field="id"
+          :header="t('diagnostics.module-id', 'Module ID', 'ID Modułu')"
+        >
+          <template #body="{ data }">
+            <Tag
+              :value="data.id"
+              :severity="getModuleSeverity(data.id)"
+            />
+          </template>
+        </Column>
+        <Column
+          :header="
+            t(
+              'diagnostics.declared-permissions',
+              'Declared Permissions',
+              'Deklarowane Uprawnienia',
+            )
+          "
+        >
+          <template #body="{ data }">
+            <div class="flex flex-wrap gap-1">
+              <Tag
+                v-for="perm in modulePermissionsMap[data.id] || []"
+                :key="perm"
+                :value="perm"
+                :severity="getPermissionSeverity(perm)"
+                class="text-xs"
+              />
+              <span
+                v-if="!(modulePermissionsMap[data.id] || []).length"
+                class="text-eaf-ink-muted italic text-xs"
+              >
+                none
+              </span>
+            </div>
+          </template>
+        </Column>
+      </DataTable>
     </Panel>
 
     <!-- Loaded Menu Items -->
@@ -142,12 +151,15 @@ function getModuleSeverity(
               "Załadowane Moduły i Elementy Menu",
             )
           }}</span>
-          <Tag :value="menuModules.length" severity="info" />
+          <Tag
+            :value="menuItemRows.length"
+            severity="info"
+          />
         </div>
       </template>
       <div
-        v-if="menuModules.length === 0"
-        class="text-zinc-400 italic py-4 text-center"
+        v-if="menuItemRows.length === 0"
+        class="text-eaf-ink-muted italic py-4 text-center"
       >
         <i class="pi pi-info-circle mr-2" />{{
           t(
@@ -157,93 +169,65 @@ function getModuleSeverity(
           )
         }}
       </div>
-      <div v-else class="flex flex-col gap-4">
-        <div
-          v-for="mod in menuModules"
-          :key="mod.name"
-          class="border border-zinc-200 rounded-lg overflow-hidden"
-        >
-          <div
-            class="flex items-center gap-2 px-4 py-3 bg-zinc-50 border-b border-zinc-200"
-          >
-            <i :class="mod.icon || 'pi pi-folder'" class="text-primary" />
-            <span class="font-semibold">{{ mod.name }}</span>
+      <DataTable
+        v-else
+        :value="menuItemRows"
+      >
+        <Column :header="t('module', 'Module', 'Moduł')">
+          <template #body="{ data }">
             <Tag
-              :value="mod.items.length"
+              :value="data.moduleName"
+              :icon="data.moduleIcon"
               severity="secondary"
-              class="ml-auto"
             />
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b border-zinc-100">
-                  <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    {{ t("name", "Name", "Nazwa") }}
-                  </th>
-                  <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    {{ t("icon", "Icon", "Ikona") }}
-                  </th>
-                  <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    {{ t("path", "Path", "Ścieżka") }}
-                  </th>
-                  <th class="text-left py-2 px-4 font-medium text-zinc-500">
-                    {{
-                      t(
-                        "required_permissions",
-                        "Required Permissions",
-                        "Wymagane Uprawnienia",
-                      )
-                    }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in mod.items"
-                  :key="item.name"
-                  class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
-                >
-                  <td class="py-2 px-4">
-                    {{ item.name }}
-                  </td>
-                  <td class="py-2 px-4">
-                    <code
-                      class="text-xs text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded"
-                      >{{ item.icon || "—" }}</code
-                    >
-                  </td>
-                  <td class="py-2 px-4">
-                    <code
-                      class="text-xs text-primary bg-zinc-100 px-1.5 py-0.5 rounded"
-                      >{{ item.path }}</code
-                    >
-                  </td>
-                  <td class="py-2 px-4">
-                    <div class="flex flex-wrap gap-1">
-                      <Tag
-                        v-for="perm in item.permissions || []"
-                        :key="perm"
-                        :value="perm"
-                        :severity="getPermissionSeverity(perm)"
-                        class="text-xs"
-                      />
-                      <span
-                        v-if="
-                          !item.permissions || item.permissions.length === 0
-                        "
-                        class="text-zinc-400 italic text-xs"
-                      >
-                        public
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+          </template>
+        </Column>
+        <Column
+          field="name"
+          :header="t('name', 'Name', 'Nazwa')"
+        />
+        <Column :header="t('icon', 'Icon', 'Ikona')">
+          <template #body="{ data }">
+            <code
+              class="text-xs text-eaf-ink-muted bg-surface-100 dark:bg-surface-700 px-1.5 py-0.5 rounded"
+            >{{ data.icon || "—" }}</code>
+          </template>
+        </Column>
+        <Column :header="t('path', 'Path', 'Ścieżka')">
+          <template #body="{ data }">
+            <code
+              class="text-xs text-primary bg-surface-100 dark:bg-surface-700 px-1.5 py-0.5 rounded"
+            >{{ data.path }}</code>
+          </template>
+        </Column>
+        <Column
+          :header="
+            t(
+              'required_permissions',
+              'Required Permissions',
+              'Wymagane Uprawnienia',
+            )
+          "
+        >
+          <template #body="{ data }">
+            <div class="flex flex-wrap gap-1">
+              <Tag
+                v-for="perm in data.permissions || []"
+                :key="perm"
+                :value="perm"
+                :severity="getPermissionSeverity(perm)"
+                class="text-xs"
+              />
+              <span
+                v-if="!data.permissions || data.permissions.length === 0"
+                class="text-eaf-ink-muted italic text-xs"
+              >
+                public
+              </span>
+            </div>
+          </template>
+        </Column>
+      </DataTable>
     </Panel>
 
     <!-- Loaded Permissions -->
@@ -260,12 +244,15 @@ function getModuleSeverity(
               )
             }}
           </span>
-          <Tag :value="registeredPermissions.length" severity="info" />
+          <Tag
+            :value="registeredPermissions.length"
+            severity="info"
+          />
         </div>
       </template>
       <div
         v-if="registeredPermissions.length === 0"
-        class="text-zinc-400 italic py-4 text-center"
+        class="text-eaf-ink-muted italic py-4 text-center"
       >
         <i class="pi pi-info-circle mr-2" />
         {{
@@ -276,79 +263,66 @@ function getModuleSeverity(
           )
         }}
       </div>
-      <div v-else class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-zinc-200">
-              <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                {{ t("permission", "Permission", "Uprawnienie") }}
-              </th>
-              <th class="text-left py-3 px-3 font-medium text-zinc-500">
+      <DataTable
+        v-else
+        :value="registeredPermissions.map((permission) => ({ permission }))"
+      >
+        <Column
+          field="permission"
+          :header="t('permission', 'Permission', 'Uprawnienie')"
+        >
+          <template #body="{ data }">
+            <code
+              class="text-sm bg-surface-100 dark:bg-surface-700 text-eaf-ink px-2 py-0.5 rounded font-mono"
+            >{{ data.permission }}</code>
+          </template>
+        </Column>
+        <Column
+          :header="
+            t('source-modules', 'Source Module(s)', 'Moduł(y) Źródłowy(e)')
+          "
+        >
+          <template #body="{ data }">
+            <div class="flex flex-wrap gap-1">
+              <Tag
+                v-for="modId in getModulesForPermission(data.permission)"
+                :key="modId"
+                :value="modId"
+                :severity="getModuleSeverity(modId)"
+                class="text-xs"
+              />
+              <span
+                v-if="!hasModuleWithPermission(data.permission)"
+                class="text-eaf-ink-muted italic text-xs"
+              >
                 {{
                   t(
-                    "source-modules",
-                    "Source Module(s)",
-                    "Moduł(y) Źródłowy(e)",
+                    "external-runtime",
+                    "external / runtime",
+                    "zewnętrzne / w czasie wykonywania",
                   )
                 }}
-              </th>
-              <th class="text-left py-3 px-3 font-medium text-zinc-500">
-                {{
-                  t(
-                    "current-user-has",
-                    "Current User Has",
-                    "Bieżący Użytkownik Ma",
-                  )
-                }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="perm in registeredPermissions"
-              :key="perm"
-              class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
-            >
-              <td class="py-3 px-3">
-                <code
-                  class="text-sm bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded font-mono"
-                  >{{ perm }}</code
-                >
-              </td>
-              <td class="py-3 px-3">
-                <div class="flex flex-wrap gap-1">
-                  <Tag
-                    v-for="modId in getModulesForPermission(perm)"
-                    :key="modId"
-                    :value="modId"
-                    :severity="getModuleSeverity(modId)"
-                    class="text-xs"
-                  />
-                  <span
-                    v-if="!hasModuleWithPermission(perm)"
-                    class="text-zinc-400 italic text-xs"
-                  >
-                    {{
-                      t(
-                        "external-runtime",
-                        "external / runtime",
-                        "zewnętrzne / w czasie wykonywania",
-                      )
-                    }}
-                  </span>
-                </div>
-              </td>
-              <td class="py-3 px-3">
-                <i
-                  v-if="currentUserPermissions.includes(perm)"
-                  class="pi pi-check-circle text-green-500 text-lg"
-                />
-                <i v-else class="pi pi-times-circle text-red-400 text-lg" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </span>
+            </div>
+          </template>
+        </Column>
+        <Column
+          :header="
+            t('current-user-has', 'Current User Has', 'Bieżący Użytkownik Ma')
+          "
+        >
+          <template #body="{ data }">
+            <i
+              v-if="currentUserPermissions.includes(data.permission)"
+              class="pi pi-check-circle text-green-500 text-lg"
+            />
+            <i
+              v-else
+              class="pi pi-times-circle text-red-400 text-lg"
+            />
+          </template>
+        </Column>
+      </DataTable>
     </Panel>
   </div>
 </template>

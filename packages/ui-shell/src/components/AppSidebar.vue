@@ -32,7 +32,7 @@ defineProps<{
     </div>
     <div
       :class="[
-        'flex-1 overflow-y-auto p-3',
+        'flex-1 overflow-y-auto p-2',
         appConfig.classes?.layout?.authorized?.sidebar?.body,
       ]"
     >
@@ -46,20 +46,20 @@ defineProps<{
   .eaf-sidebar {
     width: 16rem;
     flex-shrink: 0;
-    background-color: var(--p-surface-0);
-    border-right: 1px solid var(--p-surface-200);
+    background-color: var(--p-content-background);
+    border-right: 1px solid var(--p-content-border-color);
   }
 
   .eaf-sidebar-header {
     height: 3.5rem;
-    border-bottom: 1px solid var(--p-surface-200);
+    border-bottom: 1px solid var(--p-content-border-color);
   }
 
   .eaf-sidebar-logo {
     font-size: 1.125rem;
     font-weight: 700;
     letter-spacing: 0.025em;
-    color: var(--p-surface-900);
+    color: var(--p-text-color);
   }
 }
 </style>

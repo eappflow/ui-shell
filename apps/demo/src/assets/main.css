@@ -1,6 +1,8 @@
 /* Tailwind CSS base styles */
 
 @import "tailwindcss";
+/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
 /* VERY IMPORTANT */
 @import "@eappflow/diagnostics/style";
 @import "@eappflow/ui-shell/style";

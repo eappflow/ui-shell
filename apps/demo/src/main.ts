@@ -43,7 +43,7 @@ app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      darkModeSelector: "none",
+      darkModeSelector: ".dark",
       cssLayer: false,
       prefix: "p",
     },

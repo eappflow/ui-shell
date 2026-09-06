@@ -145,7 +145,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
   .eaf-menu-item-active {
     font-weight: 600;
     color: var(--p-primary-color);
-    background-color: var(--p-primary-50);
+    background-color: var(--p-highlight-background);
   }
 }
 </style>

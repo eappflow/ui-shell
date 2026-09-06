@@ -152,15 +152,15 @@ function toggleAccount(event: Event) {
   .eaf-header {
     flex-shrink: 0;
     padding: 0.75rem 1rem;
-    background-color: var(--p-surface-0);
-    border-bottom: 1px solid var(--p-surface-200);
+    background-color: var(--p-content-background);
+    border-bottom: 1px solid var(--p-content-border-color);
     max-height: 56px;
   }
 
   .eaf-header-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--p-surface-900);
+    color: var(--p-text-color);
   }
 }
 </style>

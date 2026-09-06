@@ -22,10 +22,10 @@ const { logoSrc } = useEafLogo(() => props.placement);
       :class="['eaf-logo', classImage]"
       :src="logoSrc"
       :alt="appConfig.name ?? 'logo'"
-    />
+    >
     <span
       v-if="showAppName"
-      class="text-base text-surface-900 font-bold tracking-wide truncate"
+      class="text-base text-eaf-ink font-bold tracking-wide truncate"
     >
       {{ appConfig.name }}
     </span>

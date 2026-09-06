@@ -35,10 +35,10 @@ const year = new Date().getFullYear();
     justify-content: space-between;
     flex-shrink: 0;
     padding: 0.75rem 1.5rem;
-    background-color: var(--p-surface-0);
-    color: var(--p-surface-900);
+    background-color: var(--p-content-background);
+    color: var(--p-text-color);
     font-size: 0.75rem;
-    border-top: 1px solid var(--p-surface-200);
+    border-top: 1px solid var(--p-content-border-color);
   }
 }
 </style>

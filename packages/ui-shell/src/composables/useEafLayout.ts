@@ -24,9 +24,15 @@ export function useEafLayout(): LayoutContext {
   }
 
   return {
-    sidebarCollapsed: store.sidebarCollapsed,
-    darkMode: store.darkMode,
-    primaryColor: store.primaryColor,
+    get sidebarCollapsed() {
+      return store.sidebarCollapsed;
+    },
+    get darkMode() {
+      return store.darkMode;
+    },
+    get primaryColor() {
+      return store.primaryColor;
+    },
     toggleSidebar: store.toggleSidebar,
     setSidebarCollapsed: store.setSidebarCollapsed,
     toggleDarkMode: store.toggleDarkMode,

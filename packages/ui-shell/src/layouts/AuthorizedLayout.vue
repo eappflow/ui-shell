@@ -174,7 +174,8 @@ async function handleLogout(): Promise<void> {
         <!-- Page Content -->
         <main class="flex-1 p-1 md:p-2">
           <!-- Global Action Validation Message -->
-          <div class="w-full max-w-4xl mx-auto px-1 md:px-4 mb-2">
+
+          <div class="w-full max-w-4xl mx-auto px-1 md:px-4 ">
             <EafActionValidationMessage />
           </div>
           <router-view class="flex gap-2 flex-col" />
