@@ -43,9 +43,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: "pi pi-user",
     disabled: true,
   },
-  {
-    separator: true,
-  },
+
   {
     label: t("dark_mode", "Dark Mode", "Tryb ciemny"),
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
@@ -56,9 +54,7 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: "pi pi-palette",
     items: themeColors.value,
   },
-  {
-    separator: true,
-  },
+
   {
     label: t("language", "Language", "Język"),
     icon: "pi pi-language",
@@ -66,7 +62,10 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
       ? i18nConfig?.supportedLanguages.map(
           ({ localeCode, displayNameKey }) => ({
             label: t(displayNameKey, displayNameKey, displayNameKey),
-            icon: locale.value === localeCode ? "pi pi-check" : undefined,
+            icon:
+              locale.value === localeCode
+                ? "pi pi-circle-fill"
+                : "pi pi-circle",
             testId: `language-menu-item-${localeCode}`,
             command: () => (locale.value = localeCode),
           }),
@@ -74,13 +73,14 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
       : [],
   },
   {
+    separator: true,
+  },
+  {
     label: t("change_password", "Change Password", "Zmień hasło"),
     icon: "pi pi-key",
     command: () => router.push("/change-password"),
   },
-  {
-    separator: true,
-  },
+
   {
     label: t("logout", "Logout", "Wyloguj"),
     icon: "pi pi-sign-out",
@@ -135,12 +135,10 @@ function toggleAccount(event: Event) {
     <Popover ref="accountPanel" data-testid="account-menu-panel">
       <Menu
         :model="accountMenuItems"
-        class="border-none"
+        class="border-none!"
         :pt="{
           item: ({ context }: { context: { item: PrimeMenuItem } }) =>
-            context.item.testId
-              ? { 'data-testid': context.item.testId }
-              : {},
+            context.item.testId ? { 'data-testid': context.item.testId } : {},
         }"
       />
     </Popover>

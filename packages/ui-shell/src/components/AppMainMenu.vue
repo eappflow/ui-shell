@@ -85,7 +85,11 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
   <nav aria-label="Main">
     <Menu
       :model="menuModel"
-      :class="['eaf-menu', appConfig.classes?.layout?.authorized?.menu?.root]"
+      :class="[
+        'eaf-menu',
+        '!border-none',
+        appConfig.classes?.layout?.authorized?.menu?.root,
+      ]"
     >
       <template #submenulabel="{ item }">
         <span
