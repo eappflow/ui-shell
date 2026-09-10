@@ -6,6 +6,7 @@ import { LogoPlacement } from "../types/eaf-logo";
 import { EafActionValidationMessage } from "@eappflow/ui-shell-components";
 import { useEafLayout } from "../composables/useEafLayout";
 import DarkModeToggle from "../components/ui/DarkModeToggle.vue";
+import LanguageSelect from "../components/ui/LanguageSelect.vue";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const layout = useEafLayout();
@@ -15,7 +16,7 @@ const currentYear = new Date().getFullYear();
 <template>
   <div
     :class="[
-      'min-h-screen flex flex-col text-eaf-ink',
+      'min-h-screen flex flex-col text-eaf-ink bg-surface-50 dark:bg-surface-950',
       appConfig.classes?.layout?.unauthorized?.page?.root,
     ]"
   >
@@ -28,7 +29,9 @@ const currentYear = new Date().getFullYear();
     >
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-[1fr_auto_1fr] items-center">
-          <div />
+          <div class="flex items-center">
+            <LanguageSelect class="w-40" />
+          </div>
           <h1
             :class="[
               'text-3xl font-bold',
@@ -36,7 +39,7 @@ const currentYear = new Date().getFullYear();
             ]"
           >
             <AppLogo
-              class-image="max-h-24"
+              class-image="max-h-12"
               :show-app-name="false"
               :placement="LogoPlacement.UNAUTHORIZED_LAYOUT"
             />
@@ -51,7 +54,7 @@ const currentYear = new Date().getFullYear();
     <!-- Main Content Area -->
     <main
       :class="[
-        'bg-surface-100 dark:bg-surface-950 flex-1 flex items-center justify-center px-4 py-8',
+        'flex-1 flex items-center justify-center px-4 py-8',
         appConfig.classes?.layout?.unauthorized?.content?.root,
       ]"
     >
@@ -63,16 +66,10 @@ const currentYear = new Date().getFullYear();
 
     <!-- Footer -->
     <footer
-      :class="[
-        'border-t border-surface-200 dark:border-surface-600! bg-surface-0 dark:bg-surface-900 py-6',
-        appConfig.classes?.layout?.unauthorized?.footer?.root,
-      ]"
+      :class="['py-6 ', appConfig.classes?.layout?.unauthorized?.footer?.root]"
     >
       <div class="container mx-auto px-4">
         <div class="text-center">
-          <p class="mb-2 text-surface-700 dark:text-surface-200">
-            {{ appConfig.name }}
-          </p>
           <p class="text-sm text-surface-500 dark:text-surface-400">
             &copy; {{ currentYear }} {{ appConfig.name }}. All rights reserved.
           </p>

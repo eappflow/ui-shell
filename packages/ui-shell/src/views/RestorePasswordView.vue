@@ -60,36 +60,15 @@ function goToLogin() {
 <template>
   <Card :class="[uiCard?.root]">
     <template #title>
-      <div
-        class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
-      >
-        <AppLogo
-          class-image="max-h-18"
-          :show-app-name="false"
-          :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
-        />
-      </div>
-      <div class="mb-5">
-        <h1 :class="['eaf-reset-password-title', uiCard?.title]">
-          {{ t("reset_password", "Reset Password", "Resetuj hasło") }}
-        </h1>
-      </div>
+      <h1 :class="[uiCard?.title]">
+        {{ t("reset_password", "Reset Password", "Resetuj hasło") }}
+      </h1>
     </template>
-    <template #subtitle>
-      <span :class="[uiCard?.subtitle]">
-        {{
-          t(
-            "enter_email",
-            "Enter your email to receive password reset instructions",
-            "Wprowadź swój email, aby otrzymać instrukcje resetowania hasła",
-          )
-        }}
-      </span>
-    </template>
+
     <template #content>
       <form
         v-if="!success"
-        class="flex flex-col gap-5"
+        class="flex flex-col gap-5 mt-5"
         @submit.prevent="handleRestorePassword"
       >
         <EafFormValidationSummary :form="$f" />
@@ -164,12 +143,3 @@ function goToLogin() {
     </template>
   </Card>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-reset-password-title {
-    font-weight: 600;
-    font-size: 1.75rem;
-  }
-}
-</style>

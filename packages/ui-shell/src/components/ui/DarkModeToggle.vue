@@ -21,7 +21,7 @@ const { t } = useScopedI18n();
 </script>
 <template>
   <div class="flex justify-between items-center gap-4 w-fit">
-    <div>
+    <div class="flex items-center gap-1">
       <i
         :class="darkMode ? 'pi pi-moon' : 'pi pi-sun'"
         class="text-surface-600 dark:text-surface-200"

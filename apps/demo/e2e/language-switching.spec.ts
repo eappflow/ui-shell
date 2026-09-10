@@ -10,18 +10,23 @@ async function openAccountMenu(page: Page): Promise<void> {
   await page.getByTestId("account-menu-button").click();
 }
 
+async function selectLanguage(page: Page, code: string): Promise<void> {
+  await page.getByTestId("language-select").click();
+  await page.getByTestId(`language-option-${code}`).click();
+}
+
 test("switches the UI language via the account menu", async ({ page }) => {
   await login(page);
 
   await openAccountMenu(page);
-  await page.getByTestId("language-menu-item-pl").click();
+  await selectLanguage(page, "pl");
   await expect(page.locator("html")).toHaveAttribute("lang", "pl");
 
   await openAccountMenu(page);
   await expect(page.getByTestId("logout-menu-item")).toHaveText("Wyloguj");
 
   await openAccountMenu(page);
-  await page.getByTestId("language-menu-item-en").click();
+  await selectLanguage(page, "en");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 
   await openAccountMenu(page);

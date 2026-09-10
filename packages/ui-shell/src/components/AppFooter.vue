@@ -11,10 +11,13 @@ const year = new Date().getFullYear();
 
 <template>
   <footer
-    :class="['flex items-center justify-between shrink-0 px-6 py-3 text-sm border-t border-surface-200 dark:border-surface-600! bg-surface-0 dark:bg-surface-900!', appConfig.classes?.layout?.authorized?.footer?.root]">
+    :class="[
+      'flex items-center justify-between shrink-0 px-6 py-3 text-sm text-surface-500 dark:text-surface-400',
+      appConfig.classes?.layout?.authorized?.footer?.root,
+    ]"
+  >
     <span>
-      &copy; {{ year }}
-      <slot name="app-name" />.
+      &copy; {{ year }} <slot name="app-name" />.
       {{
         t(
           "allRightsReserved",

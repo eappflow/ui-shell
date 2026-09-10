@@ -152,7 +152,9 @@ async function handleLogout(): Promise<void> {
     </Drawer>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
+    <div
+      class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950"
+    >
       <!-- Header -->
       <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
         <template #app-name>
@@ -174,7 +176,7 @@ async function handleLogout(): Promise<void> {
         <!-- Page Content -->
         <main
           :class="[
-            'bg-surface-50 dark:bg-surface-950 flex-1 p-1 md:p-5',
+            'flex-1 p-1 md:p-5',
             appConfig.classes?.layout?.authorized?.content?.root,
           ]"
         >
