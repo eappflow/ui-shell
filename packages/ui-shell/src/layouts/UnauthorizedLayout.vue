@@ -1,30 +1,34 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import AppLogo from "../components/AppLogo.vue";
 import { LogoPlacement } from "../types/eaf-logo";
 import { EafActionValidationMessage } from "@eappflow/ui-shell-components";
+import { useEafLayout } from "../composables/useEafLayout";
+import DarkModeToggle from "../components/ui/DarkModeToggle.vue";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const layout = useEafLayout();
 const currentYear = new Date().getFullYear();
 </script>
 
 <template>
   <div
     :class="[
-      'app-page-background min-h-screen flex flex-col bg-surface-50',
+      'min-h-screen flex flex-col text-eaf-ink',
       appConfig.classes?.layout?.unauthorized?.page?.root,
     ]"
   >
     <!-- Header with Logo -->
     <header
       :class="[
-        'app-header border-b border-surface-200 py-6',
+        'border-b border-surface-200 dark:border-surface-600! bg-surface-0 dark:bg-surface-900 py-6',
         appConfig.classes?.layout?.unauthorized?.header?.root,
       ]"
     >
       <div class="container mx-auto px-4">
-        <div class="flex justify-center">
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center">
+          <div />
           <h1
             :class="[
               'text-3xl font-bold',
@@ -37,6 +41,9 @@ const currentYear = new Date().getFullYear();
               :placement="LogoPlacement.UNAUTHORIZED_LAYOUT"
             />
           </h1>
+          <div class="flex justify-end items-center">
+            <DarkModeToggle />
+          </div>
         </div>
       </div>
     </header>
@@ -44,7 +51,7 @@ const currentYear = new Date().getFullYear();
     <!-- Main Content Area -->
     <main
       :class="[
-        'app-content flex-1 flex items-center justify-center px-4 py-8',
+        'bg-surface-100 dark:bg-surface-950 flex-1 flex items-center justify-center px-4 py-8',
         appConfig.classes?.layout?.unauthorized?.content?.root,
       ]"
     >
@@ -57,16 +64,16 @@ const currentYear = new Date().getFullYear();
     <!-- Footer -->
     <footer
       :class="[
-        'app-footer border-t border-surface-200 py-6',
+        'border-t border-surface-200 dark:border-surface-600! bg-surface-0 dark:bg-surface-900 py-6',
         appConfig.classes?.layout?.unauthorized?.footer?.root,
       ]"
     >
       <div class="container mx-auto px-4">
         <div class="text-center">
-          <p class="mb-2 text-surface-700">
+          <p class="mb-2 text-surface-700 dark:text-surface-200">
             {{ appConfig.name }}
           </p>
-          <p class="text-sm text-surface-500">
+          <p class="text-sm text-surface-500 dark:text-surface-400">
             &copy; {{ currentYear }} {{ appConfig.name }}. All rights reserved.
           </p>
         </div>

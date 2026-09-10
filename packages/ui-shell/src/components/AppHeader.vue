@@ -5,6 +5,8 @@ import { useI18n } from "vue-i18n";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import Popover from "primevue/popover";
+import ToggleSwitch from "primevue/toggleswitch";
+import DarkModeToggle from "../components/ui/DarkModeToggle.vue";
 import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
 import { THEME_COLORS, type ThemeColorName } from "../types";
@@ -45,9 +47,9 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
   },
 
   {
+    key: "dark-mode-toggle",
     label: t("dark_mode", "Dark Mode", "Tryb ciemny"),
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
-    command: () => layout.toggleDarkMode(),
   },
   {
     label: t("theme_color", "Theme Color", "Kolor motywu"),
@@ -60,16 +62,16 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: "pi pi-language",
     items: i18nConfig?.supportedLanguages
       ? i18nConfig?.supportedLanguages.map(
-          ({ localeCode, displayNameKey }) => ({
-            label: t(displayNameKey, displayNameKey, displayNameKey),
-            icon:
-              locale.value === localeCode
-                ? "pi pi-circle-fill"
-                : "pi pi-circle",
-            testId: `language-menu-item-${localeCode}`,
-            command: () => (locale.value = localeCode),
-          }),
-        )
+        ({ localeCode, displayNameKey }) => ({
+          label: t(displayNameKey, displayNameKey, displayNameKey),
+          icon:
+            locale.value === localeCode
+              ? "pi pi-circle-fill"
+              : "pi pi-circle",
+          testId: `language-menu-item-${localeCode}`,
+          command: () => (locale.value = localeCode),
+        }),
+      )
       : [],
   },
   {
@@ -95,52 +97,40 @@ function toggleAccount(event: Event) {
 </script>
 
 <template>
-  <header
-    :class="['eaf-header', appConfig.classes?.layout?.authorized?.header?.root]"
-  >
+  <header :class="['eaf-header', appConfig.classes?.layout?.authorized?.header?.root]">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <Button
-          icon="pi pi-bars"
-          class="p-0 h-8 w-8"
-          data-testid="toggle-sidebar-button"
-          text
-          rounded
-          aria-label="Toggle Sidebar"
-          @click="emit('toggleSidebar')"
-        />
-        <h1
-          :class="[
-            'eaf-header-title md:hidden',
-            appConfig.classes?.layout?.authorized?.header?.title,
-          ]"
-        >
+        <Button icon="pi pi-bars" class="p-0 h-8 w-8" data-testid="toggle-sidebar-button" text rounded
+          aria-label="Toggle Sidebar" @click="emit('toggleSidebar')" />
+        <h1 :class="[
+          'eaf-header-title md:hidden',
+          appConfig.classes?.layout?.authorized?.header?.title,
+        ]">
           <slot name="app-name" />
         </h1>
       </div>
 
       <div class="flex items-center gap-2">
-        <Button
-          icon="pi pi-user"
-          class="p-0 h-8 w-8"
-          data-testid="account-menu-button"
-          text
-          rounded
-          aria-label="Account"
-          @click="toggleAccount"
-        />
+        <Button icon="pi pi-user" class="p-0 h-8 w-8" data-testid="account-menu-button" text rounded
+          aria-label="Account" @click="toggleAccount" />
       </div>
     </div>
 
     <Popover ref="accountPanel" data-testid="account-menu-panel">
-      <Menu
-        :model="accountMenuItems"
-        class="border-none!"
-        :pt="{
-          item: ({ context }: { context: { item: PrimeMenuItem } }) =>
-            context.item.testId ? { 'data-testid': context.item.testId } : {},
-        }"
-      />
+      <Menu :model="accountMenuItems" class="border-none!" :pt="{
+        item: ({ context }: { context: { item: PrimeMenuItem } }) =>
+          context.item.testId ? { 'data-testid': context.item.testId } : {},
+      }">
+        <template #item="{ item, props }">
+          <div v-if="item.key === 'dark-mode-toggle'" class="flex p-menu-item-link">
+            <DarkModeToggle withLabel class="w-full" />
+          </div>
+          <a v-else v-bind="props.action">
+            <span :class="item.icon" />
+            <span>{{ item.label }}</span>
+          </a>
+        </template>
+      </Menu>
     </Popover>
   </header>
 </template>

@@ -172,10 +172,15 @@ async function handleLogout(): Promise<void> {
 
       <div class="flex-1 overflow-y-auto flex flex-col">
         <!-- Page Content -->
-        <main class="flex-1 p-1 md:p-2">
+        <main
+          :class="[
+            'bg-surface-50 dark:bg-surface-950 flex-1 p-1 md:p-5',
+            appConfig.classes?.layout?.authorized?.content?.root,
+          ]"
+        >
           <!-- Global Action Validation Message -->
 
-          <div class="w-full max-w-4xl mx-auto px-1 md:px-4 ">
+          <div class="w-full max-w-4xl mx-auto px-1 md:px-4">
             <EafActionValidationMessage />
           </div>
           <router-view class="flex gap-2 flex-col" />
@@ -194,3 +199,11 @@ async function handleLogout(): Promise<void> {
     </div>
   </div>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-authorized-content {
+    background-color: var(--p-content-background);
+  }
+}
+</style>

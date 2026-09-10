@@ -1,7 +1,7 @@
 /* Tailwind CSS base styles */
 @import "tailwindcss";
 /* Enable class-based dark mode (toggled via the `dark` class on <html>) */
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 /* Semantic tokens that flip automatically between light and dark, unlike
    the raw surface/primary scale which stays the same shade in both themes.

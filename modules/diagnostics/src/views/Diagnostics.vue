@@ -76,10 +76,7 @@ function getModuleSeverity(
               "Załadowane Moduły eAppFlow",
             )
           }}</span>
-          <Tag
-            :value="registeredModules.length"
-            severity="info"
-          />
+          <Tag :value="registeredModules.length" severity="info" />
         </div>
       </template>
       <div
@@ -94,19 +91,13 @@ function getModuleSeverity(
           )
         }}
       </div>
-      <DataTable
-        v-else
-        :value="registeredModules.map((id) => ({ id }))"
-      >
+      <DataTable v-else :value="registeredModules.map((id) => ({ id }))">
         <Column
           field="id"
           :header="t('diagnostics.module-id', 'Module ID', 'ID Modułu')"
         >
           <template #body="{ data }">
-            <Tag
-              :value="data.id"
-              :severity="getModuleSeverity(data.id)"
-            />
+            <Tag :value="data.id" :severity="getModuleSeverity(data.id)" />
           </template>
         </Column>
         <Column
@@ -151,10 +142,7 @@ function getModuleSeverity(
               "Załadowane Moduły i Elementy Menu",
             )
           }}</span>
-          <Tag
-            :value="menuItemRows.length"
-            severity="info"
-          />
+          <Tag :value="menuItemRows.length" severity="info" />
         </div>
       </template>
       <div
@@ -169,10 +157,7 @@ function getModuleSeverity(
           )
         }}
       </div>
-      <DataTable
-        v-else
-        :value="menuItemRows"
-      >
+      <DataTable v-else :value="menuItemRows">
         <Column :header="t('module', 'Module', 'Moduł')">
           <template #body="{ data }">
             <Tag
@@ -182,22 +167,21 @@ function getModuleSeverity(
             />
           </template>
         </Column>
-        <Column
-          field="name"
-          :header="t('name', 'Name', 'Nazwa')"
-        />
+        <Column field="name" :header="t('name', 'Name', 'Nazwa')" />
         <Column :header="t('icon', 'Icon', 'Ikona')">
           <template #body="{ data }">
             <code
-              class="text-xs text-eaf-ink-muted bg-surface-100 dark:bg-surface-700 px-1.5 py-0.5 rounded"
-            >{{ data.icon || "—" }}</code>
+              class="text-xs text-eaf-ink-muted bg-surface-100 dark:bg-surface-800 px-1.5 py-1 rounded"
+              >{{ data.icon || "—" }}</code
+            >
           </template>
         </Column>
         <Column :header="t('path', 'Path', 'Ścieżka')">
           <template #body="{ data }">
             <code
-              class="text-xs text-primary bg-surface-100 dark:bg-surface-700 px-1.5 py-0.5 rounded"
-            >{{ data.path }}</code>
+              class="text-xs text-primary bg-surface-100 dark:bg-surface-800 px-1.5 py-1 rounded"
+              >{{ data.path }}</code
+            >
           </template>
         </Column>
         <Column
@@ -220,9 +204,9 @@ function getModuleSeverity(
               />
               <span
                 v-if="!data.permissions || data.permissions.length === 0"
-                class="text-eaf-ink-muted italic text-xs"
+                class="text-eaf-ink-muted text-sm font-mono"
               >
-                public
+                none
               </span>
             </div>
           </template>
@@ -244,10 +228,7 @@ function getModuleSeverity(
               )
             }}
           </span>
-          <Tag
-            :value="registeredPermissions.length"
-            severity="info"
-          />
+          <Tag :value="registeredPermissions.length" severity="info" />
         </div>
       </template>
       <div
@@ -273,8 +254,9 @@ function getModuleSeverity(
         >
           <template #body="{ data }">
             <code
-              class="text-sm bg-surface-100 dark:bg-surface-700 text-eaf-ink px-2 py-0.5 rounded font-mono"
-            >{{ data.permission }}</code>
+              class="text-sm bg-surface-100 dark:bg-surface-800 text-eaf-ink px-2 py-1 rounded font-mono"
+              >{{ data.permission }}</code
+            >
           </template>
         </Column>
         <Column
@@ -316,10 +298,7 @@ function getModuleSeverity(
               v-if="currentUserPermissions.includes(data.permission)"
               class="pi pi-check-circle text-green-500 text-lg"
             />
-            <i
-              v-else
-              class="pi pi-times-circle text-red-400 text-lg"
-            />
+            <i v-else class="pi pi-times-circle text-red-400 text-lg" />
           </template>
         </Column>
       </DataTable>

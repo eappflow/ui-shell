@@ -18,15 +18,6 @@ const router = useRouter();
             <span class="text-2xl font-semibold">{{
               t("welcome", "Welcome to eAppFlow", "Witaj w eAppFlow")
             }}</span>
-            <p class="text-eaf-ink-muted text-sm mt-0.5">
-              {{
-                t(
-                  "your-modular-application-shell",
-                  "Your modular application shell",
-                  "Twoja modułowa powłoka aplikacji",
-                )
-              }}
-            </p>
           </div>
         </div>
       </template>

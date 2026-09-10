@@ -11,10 +11,10 @@ const year = new Date().getFullYear();
 
 <template>
   <footer
-    :class="['eaf-footer', appConfig.classes?.layout?.authorized?.footer?.root]"
-  >
+    :class="['flex items-center justify-between shrink-0 px-6 py-3 text-sm border-t border-surface-200 dark:border-surface-600! bg-surface-0 dark:bg-surface-900!', appConfig.classes?.layout?.authorized?.footer?.root]">
     <span>
-      &copy; {{ year }} <slot name="app-name" />.
+      &copy; {{ year }}
+      <slot name="app-name" />.
       {{
         t(
           "allRightsReserved",
@@ -26,19 +26,3 @@ const year = new Date().getFullYear();
     <slot name="right" />
   </footer>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--p-content-background);
-    color: var(--p-text-color);
-    font-size: 0.75rem;
-    border-top: 1px solid var(--p-content-border-color);
-  }
-}
-</style>
