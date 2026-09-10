@@ -86,15 +86,14 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
     <Menu
       :model="menuModel"
       :class="[
-        'eaf-menu',
-        '!border-none',
+        'w-full !border-none !bg-transparent',
         appConfig.classes?.layout?.authorized?.menu?.root,
       ]"
     >
       <template #submenulabel="{ item }">
         <span
           :class="[
-            'eaf-menu-group-label',
+            'text-[0.65625rem] uppercase tracking-[0.7px]',
             appConfig.classes?.layout?.authorized?.menu?.['group-label'],
           ]"
         >
@@ -106,9 +105,10 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         <a
           v-bind="itemProps.action"
           :class="[
-            'eaf-menu-item',
+            'flex items-center w-full text-[0.8125rem] font-medium',
             appConfig.classes?.layout?.authorized?.menu?.item,
-            isActive(asEafMenuItem(item).path) && 'eaf-menu-item-active',
+            isActive(asEafMenuItem(item).path) &&
+              'font-semibold text-primary bg-eaf-highlight',
             isActive(asEafMenuItem(item).path) &&
               appConfig.classes?.layout?.authorized?.menu?.['item-active'],
           ]"
@@ -125,31 +125,3 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
     </Menu>
   </nav>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-menu {
-    width: 100%;
-  }
-
-  .eaf-menu-group-label {
-    font-size: 0.65625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-  }
-
-  .eaf-menu-item {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    font-size: 0.8125rem;
-    font-weight: 500;
-  }
-
-  .eaf-menu-item-active {
-    font-weight: 600;
-    color: var(--p-primary-color);
-    background-color: var(--p-highlight-background);
-  }
-}
-</style>

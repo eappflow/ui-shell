@@ -89,7 +89,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 <template>
   <Card>
     <template #title>
-      <h1>
+      <h1 class="eaf-login-title text-eaf-ink">
         {{ t("login", "Login", "Zaloguj się") }}
       </h1>
     </template>
