@@ -86,7 +86,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
     <Menu
       :model="menuModel"
       :class="[
-        'w-full !border-none !bg-transparent',
+        'w-full border-none! bg-transparent!',
         appConfig.classes?.layout?.authorized?.menu?.root,
       ]"
     >
@@ -108,7 +108,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             'flex items-center w-full text-[0.8125rem] font-medium',
             appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(asEafMenuItem(item).path) &&
-              'font-semibold text-primary bg-eaf-highlight',
+              'font-semibold bg-eaf-highlight',
             isActive(asEafMenuItem(item).path) &&
               appConfig.classes?.layout?.authorized?.menu?.['item-active'],
           ]"
@@ -116,7 +116,10 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         >
           <i
             v-if="item.icon"
-            :class="item.icon"
+            :class="[
+              item.icon,
+              isActive(asEafMenuItem(item).path) && 'text-primary',
+            ]"
             class="w-5 shrink-0 text-[18px] opacity-90"
           />
           <span class="truncate">{{ menuItemLabel(asEafMenuItem(item)) }}</span>
