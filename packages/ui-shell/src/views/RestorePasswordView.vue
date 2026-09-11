@@ -14,8 +14,6 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { LogoPlacement } from "../types/eaf-logo";
-import AppLogo from "../components/AppLogo.vue";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -114,8 +112,14 @@ function goToLogin() {
         </div>
       </form>
 
-      <div v-else class="flex flex-col gap-5">
-        <Message severity="success" :closable="false">
+      <div
+        v-else
+        class="flex flex-col gap-5"
+      >
+        <Message
+          severity="success"
+          :closable="false"
+        >
           {{
             t(
               "reset_instructions_sent",

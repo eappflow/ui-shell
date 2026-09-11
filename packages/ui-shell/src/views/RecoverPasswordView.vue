@@ -141,8 +141,14 @@ function requestNewReset() {
     </template>
     <template #content>
       <!-- Token error state -->
-      <div v-if="tokenError" class="flex flex-col gap-5">
-        <Message severity="error" :closable="false">
+      <div
+        v-if="tokenError"
+        class="flex flex-col gap-5"
+      >
+        <Message
+          severity="error"
+          :closable="false"
+        >
           {{ tokenError }}
         </Message>
         <div class="flex flex-col gap-3">
@@ -177,7 +183,10 @@ function requestNewReset() {
       >
         <EafFormValidationSummary :form="$f" />
 
-        <Message severity="info" :closable="false">
+        <Message
+          severity="info"
+          :closable="false"
+        >
           Password reset links are valid for 2 days and can only be used once.
         </Message>
 
@@ -257,8 +266,14 @@ function requestNewReset() {
       </form>
 
       <!-- Success state -->
-      <div v-else-if="success" class="flex flex-col gap-5">
-        <Message severity="success" :closable="false">
+      <div
+        v-else-if="success"
+        class="flex flex-col gap-5"
+      >
+        <Message
+          severity="success"
+          :closable="false"
+        >
           Your password has been successfully reset! You can now log in with
           your new password.
         </Message>

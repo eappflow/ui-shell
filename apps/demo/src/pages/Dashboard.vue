@@ -12,7 +12,10 @@ const stats = [
 </script>
 
 <template>
-  <div class="space-y-6" data-testid="dashboard-page">
+  <div
+    class="space-y-6"
+    data-testid="dashboard-page"
+  >
     <!-- Welcome -->
     <div>
       <h1
@@ -28,7 +31,10 @@ const stats = [
 
     <!-- Stats cards -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card v-for="stat in stats" :key="stat.label">
+      <Card
+        v-for="stat in stats"
+        :key="stat.label"
+      >
         <template #title>
           {{ stat.label }}
         </template>

@@ -49,7 +49,10 @@ const hasContent = computed(() => {
   >
     <div class="flex flex-col gap-2">
       <!-- General message -->
-      <div v-if="generalMessage" class="font-semibold">
+      <div
+        v-if="generalMessage"
+        class="font-semibold"
+      >
         {{ generalMessage }}
       </div>
 
@@ -58,7 +61,11 @@ const hasContent = computed(() => {
         v-if="errors && errors.length > 0"
         class="list-disc list-inside space-y-1 mt-1"
       >
-        <li v-for="(error, index) in errors" :key="index" class="text-sm">
+        <li
+          v-for="(error, index) in errors"
+          :key="index"
+          class="text-sm"
+        >
           {{ error }}
         </li>
       </ul>

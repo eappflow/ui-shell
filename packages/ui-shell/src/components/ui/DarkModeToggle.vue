@@ -27,7 +27,10 @@ const { t } = useScopedI18n();
         class="text-surface-600 dark:text-surface-200"
         aria-hidden="true"
       />
-      <span v-if="props.withLabel" class="ml-2">
+      <span
+        v-if="props.withLabel"
+        class="ml-2"
+      >
         {{
           darkMode
             ? t("dark_mode", "Dark Mode", "Tryb ciemny")

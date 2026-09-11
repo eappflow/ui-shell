@@ -40,7 +40,7 @@ function getLocale(i18nConfig: I18nConfig): string {
 }
 
 function mergeModulesMessages(modules: EafModule[], i18nConfig?: I18nConfig) {
-  let mergedMessages = { ...i18nConfig?.messages };
+  const mergedMessages = { ...i18nConfig?.messages };
 
   modules.forEach((module) => {
     if (module.menuI18nMessages) {
@@ -73,7 +73,7 @@ export function createEafI18n(
 } {
   const defaults = createDefaultI18nConfig();
 
-  let eafI18nConfig: I18nConfig = {
+  const eafI18nConfig: I18nConfig = {
     ...defaults,
     ...i18nConfig,
     // Deep-merged so a host's own messages add to the shell's defaults

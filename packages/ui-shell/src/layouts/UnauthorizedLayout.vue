@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import AppLogo from "../components/AppLogo.vue";
 import { LogoPlacement } from "../types/eaf-logo";
 import { EafActionValidationMessage } from "@eappflow/ui-shell-components";
-import { useEafLayout } from "../composables/useEafLayout";
 import DarkModeToggle from "../components/ui/DarkModeToggle.vue";
 import LanguageSelect from "../components/ui/LanguageSelect.vue";
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
-const layout = useEafLayout();
 const currentYear = new Date().getFullYear();
 </script>
 

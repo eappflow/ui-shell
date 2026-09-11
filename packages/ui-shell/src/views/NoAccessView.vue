@@ -28,7 +28,10 @@ const { t } = useScopedI18n();
               )
             }}
           </p>
-          <Button label="Go to Dashboard" @click="router.push('/')" />
+          <Button
+            label="Go to Dashboard"
+            @click="router.push('/')"
+          />
         </div>
       </template>
     </Card>

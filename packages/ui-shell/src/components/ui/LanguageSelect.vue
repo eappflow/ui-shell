@@ -35,7 +35,10 @@ const languageSelectPt = {
 
 <template>
   <div class="flex flex-col gap-2">
-    <span v-if="withLabel" class="text-sm">{{
+    <span
+      v-if="withLabel"
+      class="text-sm"
+    >{{
       t("language", "Language", "Język")
     }}</span>
     <Select

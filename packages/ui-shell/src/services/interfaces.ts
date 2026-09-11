@@ -21,7 +21,6 @@ import type {
   MicrosoftSSOLoginRequest,
   I18nConfig,
 } from "../types";
-import type { I18nOptions } from "vue-i18n";
 import type { EafMenuModule } from "../types";
 import type { InjectionKey } from "vue";
 import * as msal from "@azure/msal-browser";
