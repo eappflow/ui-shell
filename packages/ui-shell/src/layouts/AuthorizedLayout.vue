@@ -132,7 +132,10 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar :visible="sidebarVisible" @toggle="toggleSidebar">
+    <AppSidebar
+      :visible="sidebarVisible"
+      @toggle="toggleSidebar"
+    >
       <!-- Logo Area -->
       <template #logo>
         <AppLogo :show-app-name="true" />
@@ -143,7 +146,10 @@ async function handleLogout(): Promise<void> {
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
-    <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
+    <Drawer
+      v-model:visible="mobileSidebarVisible"
+      class="md:hidden"
+    >
       <template #header>
         <AppLogo :show-app-name="true" />
       </template>
@@ -152,9 +158,14 @@ async function handleLogout(): Promise<void> {
     </Drawer>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
+    <div
+      class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950"
+    >
       <!-- Header -->
-      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
+      <AppHeader
+        @toggle-sidebar="toggleSidebar"
+        @logout="handleLogout"
+      >
         <template #app-name>
           {{ appConfig.name }}
         </template>
@@ -162,19 +173,31 @@ async function handleLogout(): Promise<void> {
 
       <!-- Settings Overlay -->
       <Popover ref="settingsPanel">
-        <Menu :model="settingsMenuItems" class="border-none" />
+        <Menu
+          :model="settingsMenuItems"
+          class="border-none"
+        />
       </Popover>
 
       <!-- Account Overlay -->
       <Popover ref="accountPanel">
-        <Menu :model="accountMenuItems" class="border-none" />
+        <Menu
+          :model="accountMenuItems"
+          class="border-none"
+        />
       </Popover>
 
       <div class="flex-1 overflow-y-auto flex flex-col">
         <!-- Page Content -->
-        <main class="flex-1 p-1 md:p-2">
+        <main
+          :class="[
+            'flex-1 p-1 md:p-5',
+            appConfig.classes?.layout?.authorized?.content?.root,
+          ]"
+        >
           <!-- Global Action Validation Message -->
-          <div class="w-full max-w-4xl mx-auto px-1 md:px-4 mb-2">
+
+          <div class="w-full max-w-4xl mx-auto px-1 md:px-4">
             <EafActionValidationMessage />
           </div>
           <router-view class="flex gap-2 flex-col" />
@@ -193,3 +216,11 @@ async function handleLogout(): Promise<void> {
     </div>
   </div>
 </template>
+
+<style>
+@layer eaf-shell {
+  .eaf-authorized-content {
+    background-color: var(--p-content-background);
+  }
+}
+</style>

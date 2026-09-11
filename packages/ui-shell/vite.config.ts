@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((configEnv) => ({
+export default defineConfig((_) => ({
   plugins: [vue(), tailwindcss()],
   build: {
     lib: {

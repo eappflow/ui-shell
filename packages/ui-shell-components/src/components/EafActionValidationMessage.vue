@@ -6,7 +6,10 @@ const messageStore = useEafMessageStore();
 </script>
 
 <template>
-  <div v-if="messageStore.validationMessage" class="mb-4">
+  <div
+    v-if="messageStore.validationMessage"
+    class="mb-4"
+  >
     <Message
       :severity="messageStore.validationMessage.severity ?? 'error'"
       :closable="true"

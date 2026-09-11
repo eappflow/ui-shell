@@ -110,7 +110,10 @@ const renderSlot = () => {
       :class="['font-medium', props.labelClass]"
     >
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span
+        v-if="required"
+        class="text-red-500"
+      >*</span>
     </label>
 
     <!-- Slot with p-invalid class on children when hasError -->

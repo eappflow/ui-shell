@@ -14,8 +14,6 @@ import {
   EafFormValidationSummary,
   useEafForm,
 } from "@eappflow/ui-shell-components";
-import { LogoPlacement } from "../types/eaf-logo";
-import AppLogo from "../components/AppLogo.vue";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -54,7 +52,6 @@ const $f = useEafForm({
 const loadingSSO = ref(false);
 const loading = computed(() => $f.loading.value || loadingSSO.value);
 
-const uiCard = computed(() => appConfig.classes?.ui?.card);
 const uiButton = computed(() => appConfig.classes?.ui?.button);
 const uiInput = computed(() => appConfig.classes?.ui?.input);
 const uiLabel = computed(() => appConfig.classes?.ui?.label);
@@ -88,36 +85,17 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
 </script>
 
 <template>
-  <Card :class="[uiCard?.root]">
+  <Card>
     <template #title>
-      <div
-        class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
-      >
-        <AppLogo
-          class-image="max-h-18"
-          :show-app-name="false"
-          :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
-        />
-      </div>
-      <div class="mb-5">
-        <h1 :class="['eaf-login-title', uiCard?.title]">
-          {{ t("login", "Login", "Login") }}
-        </h1>
-      </div>
-    </template>
-    <template #subtitle>
-      <span :class="[uiCard?.subtitle]">
-        {{
-          t(
-            "enter_credentials",
-            "Enter your credentials to access the portal",
-            "Wprowadź swoje dane logowania, aby uzyskać dostęp do portalu",
-          )
-        }}
-      </span>
+      <h1 class="eaf-login-title text-eaf-ink">
+        {{ t("login", "Login", "Zaloguj się") }}
+      </h1>
     </template>
     <template #content>
-      <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
+      <form
+        class="flex flex-col gap-5 mt-5"
+        @submit.prevent="handleLogin"
+      >
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
@@ -149,7 +127,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
           :required="true"
           :label-class="uiLabel"
         >
-          <IconField :class="[uiInput]">
+          <IconField>
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="$f.data.password"
@@ -193,6 +171,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <Button
           v-if="authStore.isUsingMicrosoftSSO"
           type="button"
+          variant="outlined"
           data-testid="login-microsoft-sso-button"
           :label="
             t(
@@ -210,12 +189,3 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
     </template>
   </Card>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-login-title {
-    font-weight: 600;
-    font-size: 1.75rem;
-  }
-}
-</style>

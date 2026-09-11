@@ -1,5 +1,19 @@
 /* Tailwind CSS base styles */
 @import "tailwindcss";
+/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
+@custom-variant dark (&:is(.dark, .dark *));
+
+/* Semantic tokens that flip automatically between light and dark, unlike
+   the raw surface/primary scale which stays the same shade in both themes.
+   Prefixed eaf- because this stylesheet ships into host apps as a library,
+   so these become global utility classes on the host page. */
+@theme inline {
+  --color-eaf-ink: var(--p-text-color);
+  --color-eaf-ink-muted: var(--p-text-muted-color);
+  --color-eaf-card: var(--p-content-background);
+  --color-eaf-card-border: var(--p-content-border-color);
+  --color-eaf-highlight: var(--p-highlight-background);
+}
 
 /* PrimeVue styles */
 @import "primeicons/primeicons.css";

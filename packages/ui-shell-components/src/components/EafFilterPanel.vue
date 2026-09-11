@@ -112,9 +112,7 @@ watch(collapsed, (value) => {
                 :key="filter.key"
                 class="inline-flex items-center gap-1 rounded-full border border-surface-200 bg-surface-50 px-2 py-1 text-sm text-surface-700 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-200"
               >
-                <span class="truncate"
-                  >{{ filter.label }}: {{ filter.value }}</span
-                >
+                <span class="truncate">{{ filter.label }}: {{ filter.value }}</span>
                 <button
                   type="button"
                   class="inline-flex h-4 w-4 items-center justify-center rounded-full text-surface-500 transition-colors hover:bg-surface-200 hover:text-surface-900 dark:hover:bg-surface-700 dark:hover:text-surface-0"

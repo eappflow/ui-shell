@@ -12,6 +12,8 @@ export default defineConfig({
     port: 5173,
   },
   resolve: {
+    // Workspace packages must share the app's theme registry and Vue runtime.
+    dedupe: ["vue", "primevue", "@primevue/core", "@primeuix/styled"],
     alias: {
       "@eappflow/ui-shell-components": resolve(
         __dirname,

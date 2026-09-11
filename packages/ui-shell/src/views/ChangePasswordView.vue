@@ -95,7 +95,10 @@ async function handleChangePassword(): Promise<void> {
 
     <Card>
       <template #content>
-        <form class="space-y-6" @submit.prevent="handleChangePassword">
+        <form
+          class="space-y-6"
+          @submit.prevent="handleChangePassword"
+        >
           <Message
             v-if="success"
             severity="success"
@@ -113,7 +116,10 @@ async function handleChangePassword(): Promise<void> {
 
           <EafFormValidationSummary :form="$f" />
 
-          <Message severity="info" :closable="false">
+          <Message
+            severity="info"
+            :closable="false"
+          >
             {{
               t(
                 "password_change_info",
@@ -125,7 +131,10 @@ async function handleChangePassword(): Promise<void> {
 
           <EafFormValidationSummary :form="$f" />
 
-          <Message severity="info" :closable="false">
+          <Message
+            severity="info"
+            :closable="false"
+          >
             {{
               t(
                 "password_change_info",

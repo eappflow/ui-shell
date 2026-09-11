@@ -14,8 +14,6 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { LogoPlacement } from "../types/eaf-logo";
-import AppLogo from "../components/AppLogo.vue";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -60,36 +58,15 @@ function goToLogin() {
 <template>
   <Card :class="[uiCard?.root]">
     <template #title>
-      <div
-        class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
-      >
-        <AppLogo
-          class-image="max-h-18"
-          :show-app-name="false"
-          :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
-        />
-      </div>
-      <div class="mb-5">
-        <h1 :class="['eaf-reset-password-title', uiCard?.title]">
-          {{ t("reset_password", "Reset Password", "Resetuj hasło") }}
-        </h1>
-      </div>
+      <h1 :class="[uiCard?.title]">
+        {{ t("reset_password", "Reset Password", "Resetuj hasło") }}
+      </h1>
     </template>
-    <template #subtitle>
-      <span :class="[uiCard?.subtitle]">
-        {{
-          t(
-            "enter_email",
-            "Enter your email to receive password reset instructions",
-            "Wprowadź swój email, aby otrzymać instrukcje resetowania hasła",
-          )
-        }}
-      </span>
-    </template>
+
     <template #content>
       <form
         v-if="!success"
-        class="flex flex-col gap-5"
+        class="flex flex-col gap-5 mt-5"
         @submit.prevent="handleRestorePassword"
       >
         <EafFormValidationSummary :form="$f" />
@@ -135,8 +112,14 @@ function goToLogin() {
         </div>
       </form>
 
-      <div v-else class="flex flex-col gap-5">
-        <Message severity="success" :closable="false">
+      <div
+        v-else
+        class="flex flex-col gap-5"
+      >
+        <Message
+          severity="success"
+          :closable="false"
+        >
           {{
             t(
               "reset_instructions_sent",
@@ -164,12 +147,3 @@ function goToLogin() {
     </template>
   </Card>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-reset-password-title {
-    font-weight: 600;
-    font-size: 1.75rem;
-  }
-}
-</style>

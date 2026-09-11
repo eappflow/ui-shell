@@ -14,25 +14,23 @@ defineProps<{
     v-if="visible"
     data-testid="app-sidebar"
     :class="[
-      'eaf-sidebar',
-      'hidden md:flex md:flex-col transition-all duration-300',
+      'hidden md:flex md:flex-col transition-all duration-300 bg-transparent w-64 border-r border-eaf-card-border',
       appConfig.classes?.layout?.authorized?.sidebar?.root,
     ]"
   >
     <div
       :class="[
-        'eaf-sidebar-header',
-        'flex items-center justify-between px-4 flex-shrink-0',
+        'flex items-center justify-between px-4 shrink-0 h-14 border-b border-eaf-card-border',
         appConfig.classes?.layout?.authorized?.sidebar?.header,
       ]"
     >
-      <span class="eaf-sidebar-logo">
+      <span class="text-lg font-bold tracking-wide text-eaf-ink">
         <slot name="logo" />
       </span>
     </div>
     <div
       :class="[
-        'flex-1 overflow-y-auto p-3',
+        'flex-1 overflow-y-auto p-2',
         appConfig.classes?.layout?.authorized?.sidebar?.body,
       ]"
     >
@@ -40,26 +38,3 @@ defineProps<{
     </div>
   </aside>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-sidebar {
-    width: 16rem;
-    flex-shrink: 0;
-    background-color: var(--p-surface-0);
-    border-right: 1px solid var(--p-surface-200);
-  }
-
-  .eaf-sidebar-header {
-    height: 3.5rem;
-    border-bottom: 1px solid var(--p-surface-200);
-  }
-
-  .eaf-sidebar-logo {
-    font-size: 1.125rem;
-    font-weight: 700;
-    letter-spacing: 0.025em;
-    color: var(--p-surface-900);
-  }
-}
-</style>
