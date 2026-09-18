@@ -13,8 +13,8 @@ export function createDefaultI18nConfig(): I18nConfig {
   return {
     defaultLanguage: "en",
     supportedLanguages: [
-      { localeCode: "pl", displayNameKey: "pl" },
-      { localeCode: "en", displayNameKey: "en" },
+      { localeCode: "pl", displayName: "Polski" },
+      { localeCode: "en", displayName: "English" },
     ],
     messages: {
       pl: pl,

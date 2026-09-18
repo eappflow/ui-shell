@@ -58,8 +58,8 @@ app.use(EAppFlowUIShell, {
   i18nConfig: {
     defaultLanguage: "pl",
     supportedLanguages: [
-      { localeCode: "pl", displayNameKey: "pl" },
-      { localeCode: "en", displayNameKey: "en" },
+      { localeCode: "pl", displayName: "Polski" },
+      { localeCode: "en", displayName: "English" },
     ],
     messages: {
       pl: pl,
