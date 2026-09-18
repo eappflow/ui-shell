@@ -1,5 +1,12 @@
 # @eappflow/ui-shell
 
+## 0.2.0
+
+### Minor Changes
+
+- 24db455: `supportedLanguages` uses `displayName` shown as-is instead of translated `displayNameKey`.
+- 24db455: Logo is now a Vue component, set per area: `authorized.logo` / `unauthorized.logo`.
+
 ## 0.1.1
 
 ### Patch Changes
