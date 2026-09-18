@@ -24,8 +24,8 @@ const messages = {
 const i18nConfig: I18nConfig = {
   defaultLanguage: "en",
   supportedLanguages: [
-    { localeCode: "en", displayNameKey: "english" },
-    { localeCode: "pl", displayNameKey: "polish" },
+    { localeCode: "en", displayName: "English" },
+    { localeCode: "pl", displayName: "Polski" },
   ],
   messages: messages,
 };

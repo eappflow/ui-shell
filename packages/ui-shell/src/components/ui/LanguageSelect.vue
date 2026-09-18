@@ -18,12 +18,10 @@ const { locale } = useI18n({ useScope: "global" });
 const i18nConfig = inject(I18n_CONFIG_KEY);
 
 const languageOptions = computed(() =>
-  (i18nConfig?.supportedLanguages ?? []).map(
-    ({ localeCode, displayNameKey }) => ({
-      label: t(displayNameKey, displayNameKey, displayNameKey),
-      value: localeCode,
-    }),
-  ),
+  (i18nConfig?.supportedLanguages ?? []).map(({ localeCode, displayName }) => ({
+    label: displayName,
+    value: localeCode,
+  })),
 );
 
 const languageSelectPt = {

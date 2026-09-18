@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
-import type { EafLogo, EafLogoSrc } from "./eaf-logo";
+import type { EafLogo } from "./eaf-logo";
 import { I18nOptions } from "vue-i18n";
 
 // ─── Route meta augmentation ─────────────────────────────────────────────────
@@ -198,17 +198,24 @@ export type {
 
 // ─── App Config ──────────────────────────────────────────────────────────────
 
+export interface EafAreaConfig {
+  /** Optional custom logo component */
+  logo?: EafLogo;
+}
+
 export interface AppConfig {
   name: string;
   version: string;
   environment?: string;
-  /** Optional custom logo component */
-  logo?: EafLogo | EafLogoSrc;
+  /** Settings for the authenticated area (sidebar, header) */
+  authorized?: EafAreaConfig;
+  /** Settings for public pages (login, password recovery) */
+  unauthorized?: EafAreaConfig;
   /** Optional CSS class overrides for shell elements */
   classes?: EafClasses;
 }
 
-export type { EafLogo, EafLogoSrc, LogoPlacement } from "./eaf-logo";
+export type { EafLogo } from "./eaf-logo";
 
 // ─── I18n Config ──────────────────────────────────────────────────────────────
 

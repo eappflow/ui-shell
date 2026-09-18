@@ -13,7 +13,7 @@ import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 import { THEME_COLORS, type ThemeColorName } from "../types";
 import AppMainMenu from "../components/AppMainMenu.vue";
 import AppFooter from "../components/AppFooter.vue";
-import AppLogo from "../components/AppLogo.vue";
+import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
 import {
@@ -138,7 +138,7 @@ async function handleLogout(): Promise<void> {
     >
       <!-- Logo Area -->
       <template #logo>
-        <AppLogo :show-app-name="true" />
+        <AuthorizedEafLogo :show-app-name="true" />
       </template>
 
       <!-- Sidebar Content -->
@@ -151,7 +151,7 @@ async function handleLogout(): Promise<void> {
       class="md:hidden"
     >
       <template #header>
-        <AppLogo :show-app-name="true" />
+        <AuthorizedEafLogo :show-app-name="true" />
       </template>
 
       <AppMainMenu @item-click="handleMenuItemClick" />

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
-import AppLogo from "../components/AppLogo.vue";
-import { LogoPlacement } from "../types/eaf-logo";
+import UnauthorizedEafLogo from "../components/UnauthorizedEafLogo.vue";
 import { EafActionValidationMessage } from "@eappflow/ui-shell-components";
 import DarkModeToggle from "../components/ui/DarkModeToggle.vue";
 import LanguageSelect from "../components/ui/LanguageSelect.vue";
@@ -36,11 +35,7 @@ const currentYear = new Date().getFullYear();
               appConfig.classes?.layout?.unauthorized?.header?.title,
             ]"
           >
-            <AppLogo
-              class-image="max-h-12"
-              :show-app-name="false"
-              :placement="LogoPlacement.UNAUTHORIZED_LAYOUT"
-            />
+            <UnauthorizedEafLogo :show-app-name="false" />
           </h1>
           <div class="flex justify-end items-center">
             <DarkModeToggle />

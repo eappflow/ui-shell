@@ -3,8 +3,8 @@ import { I18nOptions } from "vue-i18n";
 export interface Language {
   /** Locale code (e.g., "en", "pl") */
   localeCode: string;
-  /** Display name translation key of the language */
-  displayNameKey: string;
+  /** Display name of the language, shown as-is (e.g., "Polski") */
+  displayName: string;
 }
 
 export interface I18nConfig {
