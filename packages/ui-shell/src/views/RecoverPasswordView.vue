@@ -14,8 +14,7 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { LogoPlacement } from "../types/eaf-logo";
-import AppLogo from "../components/AppLogo.vue";
+import UnauthorizedEafLogo from "../components/UnauthorizedEafLogo.vue";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -114,11 +113,7 @@ function requestNewReset() {
       <div
         class="flex gap-4 justify-center mb-5 pb-3 border-b-1 border-surface-200"
       >
-        <AppLogo
-          class-image="max-h-18"
-          :show-app-name="false"
-          :placement="LogoPlacement.UNAUTHORIZED_LAYOUT_COMPONENTS"
-        />
+        <UnauthorizedEafLogo :show-app-name="false" />
       </div>
       <div class="mb-5">
         <h1 :class="['eaf-recover-password-title', uiCard?.title]">

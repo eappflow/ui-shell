@@ -83,6 +83,8 @@ export type {
   ThemeSettings,
   ThemeColorName,
   AppConfig,
+  EafAreaConfig,
+  EafLogo,
   EafClasses,
   EafModule,
   ModuleRegistrationResult,
