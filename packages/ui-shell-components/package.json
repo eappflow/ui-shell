@@ -2,6 +2,11 @@
   "name": "@eappflow/ui-shell-components",
   "version": "0.1.1",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eappflow/ui-shell.git",
+    "directory": "packages/ui-shell-components"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
