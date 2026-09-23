@@ -54,6 +54,7 @@ import { buildModuleRoutes } from "./router/buildModuleRoutes";
 import { configureModules } from "./plugins";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
+import Tooltip from "primevue/tooltip";
 
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
@@ -177,5 +178,10 @@ export const EAppFlowUIShell = {
 
     // ── 10. Use Confirmation ────────────────────────────────────────────────────
     app.use(ConfirmationService);
+
+    // ── 11. Global directives ─────────────────────────────────────────────
+    // Registered here so every host app (sidebar icon rail, filter panels, …)
+    // can use ``v-tooltip`` without wiring the directive themselves.
+    app.directive("tooltip", Tooltip);
   },
 };

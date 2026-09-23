@@ -11,7 +11,6 @@ import { useEafLayout } from "../composables/useEafLayout";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 import AppMainMenu from "../components/AppMainMenu.vue";
-import AppFooter from "../components/AppFooter.vue";
 import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
@@ -32,8 +31,7 @@ const breakpoints = useBreakpoints({
   md: 768,
 });
 
-// Sidebar state
-const sidebarVisible = ref(true);
+// Sidebar state (collapsed state lives in the layout store so it persists)
 const mobileSidebarVisible = ref(false);
 
 // Refs for overlay panels
@@ -70,7 +68,6 @@ const settingsMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
     command: () => layout.toggleDarkMode(),
   },
-  // The color submenu only makes sense when the host configured its colors
   ...(themeColors.value.length > 0
     ? [
         { separator: true },
@@ -113,7 +110,7 @@ function toggleSidebar(): void {
   if (isMobile.value) {
     mobileSidebarVisible.value = !mobileSidebarVisible.value;
   } else {
-    sidebarVisible.value = !sidebarVisible.value;
+    layout.toggleSidebar();
   }
 }
 
@@ -134,17 +131,16 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar
-      :visible="sidebarVisible"
-      @toggle="toggleSidebar"
-    >
+    <AppSidebar :collapsed="layout.sidebarCollapsed">
       <!-- Logo Area -->
-      <template #logo>
-        <AuthorizedEafLogo :show-app-name="true" />
+      <template #logo="{ collapsed }">
+        <AuthorizedEafLogo :show-app-name="!collapsed" />
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu />
+      <template #default="{ collapsed }">
+        <AppMainMenu :compact="collapsed" />
+      </template>
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
@@ -206,14 +202,6 @@ async function handleLogout(): Promise<void> {
         </main>
 
         <!-- Footer -->
-        <AppFooter>
-          <template #app-name>
-            {{ appConfig.name }}
-          </template>
-          <template #right>
-            <p>Version {{ appConfig.version }}</p>
-          </template>
-        </AppFooter>
       </div>
     </div>
   </div>

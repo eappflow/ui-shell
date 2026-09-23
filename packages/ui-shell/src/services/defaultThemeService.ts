@@ -5,11 +5,8 @@ import { THEME_COLOR_SHADES } from "../types";
 import { STORAGE_KEYS } from "../utils/constants";
 
 /**
- * Points PrimeVue's `primary` palette at one of the preset's own primitive
- * color scales, e.g. `{ 50: "{blue.50}", … }`. The preset (Aura, Lara, Nora,
- * Material or a custom one) resolves the references itself, so light/dark
- * variants and every derived token (`--p-primary-color`, highlight, focus
- * ring, …) stay correct.
+ * Builds `{ 50: "{blue.50}", … }` — token references the host's preset
+ * resolves itself, so every derived token stays consistent.
  */
 function primaryPalette(color: ThemeColorName): Record<string, string> {
   return Object.fromEntries(
@@ -21,9 +18,6 @@ function primaryPalette(color: ThemeColorName): Record<string, string> {
  * Default theme service — persists to localStorage and applies
  * the theme to the DOM / PrimeVue. Host applications can override
  * this to use remote or user-preference-based theme storage.
- *
- * @param config Color list from the host's `AppConfig.theme`. With no colors
- *   configured the preset's own primary palette is left untouched.
  */
 export function createDefaultThemeService(
   config?: EafThemeConfig,
@@ -70,8 +64,7 @@ export function createDefaultThemeService(
         root.classList.remove("dark");
       }
 
-      // No configured color means the host drives `primary` through its own
-      // preset, so leave it alone.
+      // Nothing configured — the preset's own primary stays untouched.
       if (settings.primaryColor) {
         updatePrimaryPalette(primaryPalette(settings.primaryColor));
       }

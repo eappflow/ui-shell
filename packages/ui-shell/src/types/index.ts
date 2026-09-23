@@ -73,9 +73,7 @@ export interface ThemeSettings {
 
 /**
  * Name of a primitive color palette defined by the host's PrimeVue preset,
- * e.g. `"blue"` or a custom `"azure"`. The shell never hardcodes hex values —
- * it only points the `primary` palette at one of the preset's own scales, so
- * the valid names are whatever that preset declares under `primitive`.
+ * e.g. `"blue"` or a custom `"azure"`.
  */
 export type ThemeColorName = string;
 
@@ -83,11 +81,8 @@ export type ThemeColorName = string;
 export interface EafThemeConfig {
   /**
    * Primary colors offered in the theme picker. Every entry must be a
-   * primitive palette of the host's preset, otherwise the swatch renders
-   * blank and `{name.500}` resolves to nothing.
-   *
-   * Empty by default: with no colors configured the shell leaves the preset's
-   * own primary palette alone and hides the picker.
+   * primitive palette of the host's preset. Empty hides the picker and
+   * leaves the preset's own primary alone.
    */
   colors?: readonly ThemeColorName[];
   /** Color applied when nothing is stored yet. Defaults to the first entry. */

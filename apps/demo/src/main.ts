@@ -12,7 +12,6 @@ import { createApp, type App as VueApp } from "vue";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
-import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
 import Aura from "@primeuix/themes/aura";
 
@@ -88,6 +87,5 @@ app.component("InputText", InputText);
 
 app.use(ToastService);
 app.use(ConfirmationService);
-app.directive("tooltip", Tooltip);
 
 app.mount("#app");

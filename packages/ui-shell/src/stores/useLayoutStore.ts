@@ -6,6 +6,14 @@ import {
   type ThemeService,
 } from "../services/interfaces";
 import { createDefaultThemeService } from "../services/defaultThemeService";
+import { STORAGE_KEYS } from "../utils/constants";
+
+function readSidebarCollapsed(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === "true";
+}
 
 export const useLayoutStore = defineStore("layout", () => {
   const themeConfig = inject(APP_CONFIG_KEY, undefined)?.theme;
@@ -13,22 +21,23 @@ export const useLayoutStore = defineStore("layout", () => {
     inject(THEME_SERVICE_KEY, undefined) ??
     createDefaultThemeService(themeConfig);
 
-  // Colors offered in the theme picker — the host declares which primitive
-  // palettes its PrimeVue preset actually defines. Empty unless configured.
   const availableColors = themeConfig?.colors ?? [];
 
   const settings = themeService.getSettings();
 
-  const sidebarCollapsed = ref(false);
+  const sidebarCollapsed = ref(readSidebarCollapsed());
   const darkMode = ref(settings.darkMode);
   const primaryColor = ref(settings.primaryColor);
 
   function toggleSidebar() {
-    sidebarCollapsed.value = !sidebarCollapsed.value;
+    setSidebarCollapsed(!sidebarCollapsed.value);
   }
 
   function setSidebarCollapsed(collapsed: boolean) {
     sidebarCollapsed.value = collapsed;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, String(collapsed));
+    }
   }
 
   function toggleDarkMode() {

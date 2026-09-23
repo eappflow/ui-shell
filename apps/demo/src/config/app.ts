@@ -16,8 +16,6 @@ export const DEMO_CONFIG: AppConfig = {
     logo: DemoLogoFull,
   },
   theme: {
-    // Primitive palettes of the Aura preset the demo is configured with.
-    // A host on a custom preset lists its own scales here instead.
     colors: ["blue", "emerald", "violet", "amber", "rose"],
     defaultColor: "blue",
   },
