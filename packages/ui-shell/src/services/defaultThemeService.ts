@@ -1,38 +1,64 @@
+import { updatePrimaryPalette } from "@primeuix/themes";
 import type { ThemeService } from "./interfaces";
-import type { ThemeSettings, ThemeColorName } from "../types";
-import { THEME_COLORS } from "../types";
+import type { ThemeSettings, ThemeColorName, EafThemeConfig } from "../types";
+import { THEME_COLOR_SHADES } from "../types";
+import { STORAGE_KEYS } from "../utils/constants";
 
-const STORAGE_KEY_DARK_MODE = "theme_dark_mode";
-const STORAGE_KEY_PRIMARY_COLOR = "theme_primary_color";
+/**
+ * Points PrimeVue's `primary` palette at one of the preset's own primitive
+ * color scales, e.g. `{ 50: "{blue.50}", … }`. The preset (Aura, Lara, Nora,
+ * Material or a custom one) resolves the references itself, so light/dark
+ * variants and every derived token (`--p-primary-color`, highlight, focus
+ * ring, …) stay correct.
+ */
+function primaryPalette(color: ThemeColorName): Record<string, string> {
+  return Object.fromEntries(
+    THEME_COLOR_SHADES.map((shade) => [shade, `{${color}.${shade}}`]),
+  );
+}
 
 /**
  * Default theme service — persists to localStorage and applies
- * CSS classes / variables to the DOM. Host applications can
- * override this to use remote or user-preference-based theme storage.
+ * the theme to the DOM / PrimeVue. Host applications can override
+ * this to use remote or user-preference-based theme storage.
+ *
+ * @param config Color list from the host's `AppConfig.theme`. With no colors
+ *   configured the preset's own primary palette is left untouched.
  */
-export function createDefaultThemeService(): ThemeService {
+export function createDefaultThemeService(
+  config?: EafThemeConfig,
+): ThemeService {
+  const colors = config?.colors ?? [];
+  const defaultColor = config?.defaultColor ?? colors[0] ?? "";
+
+  function isKnownColor(value: string | null): value is ThemeColorName {
+    return value !== null && colors.includes(value);
+  }
+
   return {
     getSettings(): ThemeSettings {
-      const storedDarkMode = localStorage.getItem(STORAGE_KEY_DARK_MODE);
+      const storedDarkMode = localStorage.getItem(STORAGE_KEYS.THEME_DARK_MODE);
       const storedPrimaryColor = localStorage.getItem(
-        STORAGE_KEY_PRIMARY_COLOR,
+        STORAGE_KEYS.THEME_PRIMARY_COLOR,
       );
 
       return {
         darkMode: storedDarkMode ? JSON.parse(storedDarkMode) : false,
-        primaryColor:
-          storedPrimaryColor && storedPrimaryColor in THEME_COLORS
-            ? (storedPrimaryColor as ThemeColorName)
-            : "blue",
+        primaryColor: isKnownColor(storedPrimaryColor)
+          ? storedPrimaryColor
+          : defaultColor,
       };
     },
 
     saveSettings(settings: ThemeSettings): void {
       localStorage.setItem(
-        STORAGE_KEY_DARK_MODE,
+        STORAGE_KEYS.THEME_DARK_MODE,
         JSON.stringify(settings.darkMode),
       );
-      localStorage.setItem(STORAGE_KEY_PRIMARY_COLOR, settings.primaryColor);
+      localStorage.setItem(
+        STORAGE_KEYS.THEME_PRIMARY_COLOR,
+        settings.primaryColor,
+      );
     },
 
     applyTheme(settings: ThemeSettings): void {
@@ -44,10 +70,11 @@ export function createDefaultThemeService(): ThemeService {
         root.classList.remove("dark");
       }
 
-      root.style.setProperty(
-        "--primary-color",
-        THEME_COLORS[settings.primaryColor],
-      );
+      // No configured color means the host drives `primary` through its own
+      // preset, so leave it alone.
+      if (settings.primaryColor) {
+        updatePrimaryPalette(primaryPalette(settings.primaryColor));
+      }
     },
   };
 }

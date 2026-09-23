@@ -71,15 +71,33 @@ export interface ThemeSettings {
   primaryColor: ThemeColorName;
 }
 
-export const THEME_COLORS = {
-  blue: "#3B82F6",
-  green: "#10B981",
-  purple: "#8B5CF6",
-  orange: "#F59E0B",
-  red: "#EF4444",
-} as const;
+/**
+ * Name of a primitive color palette defined by the host's PrimeVue preset,
+ * e.g. `"blue"` or a custom `"azure"`. The shell never hardcodes hex values —
+ * it only points the `primary` palette at one of the preset's own scales, so
+ * the valid names are whatever that preset declares under `primitive`.
+ */
+export type ThemeColorName = string;
 
-export type ThemeColorName = keyof typeof THEME_COLORS;
+/** Theme options a host application can configure via {@link AppConfig}. */
+export interface EafThemeConfig {
+  /**
+   * Primary colors offered in the theme picker. Every entry must be a
+   * primitive palette of the host's preset, otherwise the swatch renders
+   * blank and `{name.500}` resolves to nothing.
+   *
+   * Empty by default: with no colors configured the shell leaves the preset's
+   * own primary palette alone and hides the picker.
+   */
+  colors?: readonly ThemeColorName[];
+  /** Color applied when nothing is stored yet. Defaults to the first entry. */
+  defaultColor?: ThemeColorName;
+}
+
+/** Shades every primitive palette in a PrimeVue preset defines. */
+export const THEME_COLOR_SHADES = [
+  50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
+] as const;
 
 // ─── Module System ───────────────────────────────────────────────────────────
 
@@ -213,6 +231,8 @@ export interface AppConfig {
   unauthorized?: EafAreaConfig;
   /** Optional CSS class overrides for shell elements */
   classes?: EafClasses;
+  /** Primary colors selectable in the theme picker */
+  theme?: EafThemeConfig;
 }
 
 export type { EafLogo } from "./eaf-logo";

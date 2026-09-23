@@ -10,7 +10,6 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
-import { THEME_COLORS, type ThemeColorName } from "../types";
 import AppMainMenu from "../components/AppMainMenu.vue";
 import AppFooter from "../components/AppFooter.vue";
 import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
@@ -57,11 +56,11 @@ watch(
 
 // Settings menu items
 const themeColors = computed<PrimeMenuItem[]>(() =>
-  Object.keys(THEME_COLORS).map((color) => ({
+  layout.availableColors.map((color) => ({
     label: color.charAt(0).toUpperCase() + color.slice(1),
     icon: "pi pi-circle-fill",
-    style: { color: THEME_COLORS[color as ThemeColorName] },
-    command: () => layout.setPrimaryColor(color as ThemeColorName),
+    style: { color: `var(--p-${color}-500)` },
+    command: () => layout.setPrimaryColor(color),
   })),
 );
 
@@ -71,14 +70,17 @@ const settingsMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
     command: () => layout.toggleDarkMode(),
   },
-  {
-    separator: true,
-  },
-  {
-    label: "Theme Color",
-    icon: "pi pi-palette",
-    items: themeColors.value,
-  },
+  // The color submenu only makes sense when the host configured its colors
+  ...(themeColors.value.length > 0
+    ? [
+        { separator: true },
+        {
+          label: "Theme Color",
+          icon: "pi pi-palette",
+          items: themeColors.value,
+        },
+      ]
+    : []),
 ]);
 
 const accountMenuItems = computed<PrimeMenuItem[]>(() => [
