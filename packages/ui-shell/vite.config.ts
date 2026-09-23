@@ -23,6 +23,7 @@ export default defineConfig((_) => ({
         "vue-i18n",
         "primevue",
         /^primevue\/.*/, //VERY IPORTANT: This ensures that all PrimeVue components are treated as external dependencies, preventing them from being bundled into the library and allowing users to manage their own versions of PrimeVue components. It is need to app corectly load styles for internal components
+        /^@primeuix\/.*/, //VERY IMPORTANT: @primeuix/styled keeps the live theme state in module-level singletons. Bundling it would give the shell its own copy, so updatePrimaryPalette would silently mutate a different instance than the host's PrimeVue renders from.
         "primeicons",
         "@eappflow/ui-shell-components",
       ],
