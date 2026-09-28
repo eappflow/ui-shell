@@ -21,7 +21,22 @@ export type {
   EafForm,
   EafFormConfig,
   EafFormApiErrorParser,
+  EafApiErrorOptions,
+  EafSubmitOptions,
   ApiParsedErrorResponse,
+  EafField,
+  EafFields,
+  EafFieldChildren,
+  EafFieldPath,
+  EafLeaf,
+  EafRules,
+  EafObjectRules,
+  EafRulesFor,
+  EafFormRuleRequired,
+  EafFormRuleLength,
+  EafFormRulePattern,
+  EafFormRuleRange,
+  RulesForFormData,
 } from "./types";
 
 export default {

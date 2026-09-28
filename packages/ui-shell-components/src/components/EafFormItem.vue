@@ -1,18 +1,19 @@
-<script setup lang="ts" generic="T extends object">
-import { EafForm } from "../types/eaf-form";
+<script setup lang="ts">
+import type { EafField } from "../types/eaf-form";
 import { computed, useSlots, cloneVNode, type VNode } from "vue";
+import { EAF_FIELD_SHOW_ALL_ERRORS } from "../composables/eafFields";
 
-export interface Props<T> {
+export interface Props {
   /**
-   * Field key for validation
-   * Must match the API field name for validation to work (e.g., 'email', 'firstName')
+   * Field handle from `useEafForm`, e.g. `$f.fields.email` or
+   * `$f.fields.address.street`
+   *
+   * Its `$path` is used for the label's `for`, the `name` of the slotted
+   * input and `data-testid` (`"address.street"`, errors under
+   * `"address.street-error"`); `$required` drives the asterisk and
+   * `$error`/`$errors` the error message.
    */
-  for: Extract<keyof T, string>;
-
-  /**
-   * Form validation object from useEafFormValidation
-   */
-  form: EafForm<T>;
+  field: EafField<unknown>;
 
   /**
    * Label text (optional)
@@ -30,24 +31,40 @@ export interface Props<T> {
   labelClass?: string;
 }
 
-const props = withDefaults(defineProps<Props<T>>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: "",
   class: "",
   labelClass: "",
 });
 
-const required = computed(() => props.form.isFieldRequired(props.for));
 const slots = useSlots();
 
-// Computed helpers
-const hasError = computed(() => {
-  return props.form?.hasFieldError
-    ? props.form.hasFieldError(props.for)
-    : false;
+/** Dot path of the field ("email", "address.street") */
+const fieldPath = computed<string>(() => props.field.$path);
+
+const required = computed<boolean>(() => props.field.$required);
+
+const hasError = computed<boolean>(() => props.field.$errors.length > 0);
+
+/**
+ * First error message, or all of them when the form was created with
+ * `showAllErrors` (same contract as `EafForm.getFieldError`)
+ */
+const errorMessage = computed<string | string[] | undefined>(() => {
+  const field = props.field;
+  const showAllErrors =
+    (field as unknown as Record<symbol, unknown>)[EAF_FIELD_SHOW_ALL_ERRORS] ===
+    true;
+  return showAllErrors ? field.$errors : field.$error;
 });
 
-const errorMessage = computed(() => {
-  return props.form?.getFieldError ? props.form.getFieldError(props.for) : "";
+/** Error messages to render, one per line */
+const errorMessages = computed<string[]>(() => {
+  const message = errorMessage.value;
+  if (message === undefined) {
+    return [];
+  }
+  return Array.isArray(message) ? message : [message];
 });
 
 // Function to add p-invalid class to VNodes
@@ -80,7 +97,7 @@ const addInvalidClassAndName = (
 
     return cloneVNode(vnode, {
       class: newClass,
-      name: props.for,
+      name: fieldPath.value,
     });
   });
 };
@@ -90,7 +107,8 @@ const renderSlot = () => {
   const defaultSlot = slots.default?.({
     hasError: hasError.value,
     errorMessage: errorMessage.value,
-    field: props.for,
+    // Field path ("address.street"), not the handle
+    field: fieldPath.value,
   });
 
   const processedNodes = addInvalidClassAndName(defaultSlot);
@@ -101,12 +119,12 @@ const renderSlot = () => {
 <template>
   <div
     :class="['flex flex-col gap-2', props.class, hasError ? 'p-invalid' : '']"
-    :data-testid="props.for"
+    :data-testid="fieldPath"
   >
     <!-- Label -->
     <label
       v-if="label"
-      :for="props.for"
+      :for="fieldPath"
       :class="['font-medium', props.labelClass]"
     >
       {{ label }}
@@ -122,9 +140,18 @@ const renderSlot = () => {
     <small
       v-if="hasError"
       class="text-red-500"
-      :data-testid="`${props.for}-error`"
+      :data-testid="`${fieldPath}-error`"
     >
-      {{ errorMessage }}
+      <template v-if="errorMessages.length <= 1">
+        {{ errorMessages[0] }}
+      </template>
+      <template v-else>
+        <span
+          v-for="(message, index) in errorMessages"
+          :key="index"
+          class="block"
+        >{{ message }}</span>
+      </template>
     </small>
   </div>
 </template>

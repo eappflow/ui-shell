@@ -72,9 +72,8 @@ function goToLogin() {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          for="email"
+          :field="$f.fields.email"
           :label="t('email', 'Email', 'Email')"
-          :form="$f"
           :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">

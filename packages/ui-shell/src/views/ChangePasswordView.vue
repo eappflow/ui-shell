@@ -145,10 +145,8 @@ async function handleChangePassword(): Promise<void> {
           </Message>
 
           <EafFormItem
-            for="currentPassword"
+            :field="$f.fields.currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.currentPassword"
@@ -166,10 +164,8 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            for="newPassword"
+            :field="$f.fields.newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.newPassword"
@@ -194,7 +190,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            for="confirmPassword"
+            :field="$f.fields.confirmPassword"
             :label="
               t(
                 'confirm_new_password',
@@ -202,8 +198,6 @@ async function handleChangePassword(): Promise<void> {
                 'Potwierdź nowe hasło',
               )
             "
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.confirmPassword"
