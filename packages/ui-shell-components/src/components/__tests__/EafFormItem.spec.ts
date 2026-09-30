@@ -47,7 +47,7 @@ function mountForm(
 describe("EafFormItem", () => {
   it("uses the path for testid and label `for`, and gives it to the slot as `id`", () => {
     const { wrapper } = mountForm(`
-      <EafFormItem :for="f.fields.address.street" label="Street" v-slot="{ id }">
+      <EafFormItem :field="f.fields.address.street" label="Street" v-slot="{ id }">
         <input :id="id" />
       </EafFormItem>
     `);
@@ -58,12 +58,12 @@ describe("EafFormItem", () => {
     // Nothing is forced onto the slotted input
     expect(item.get("input").attributes("name")).toBeUndefined();
     // A prop, not a fallthrough attribute
-    expect(item.attributes("for")).toBeUndefined();
+    expect(item.attributes("field")).toBeUndefined();
   });
 
   it("takes a field from form.fields, which needs no :form", async () => {
     const { wrapper, form } = mountForm(`
-      <EafFormItem :for="f.fields.address.street" label="Street">
+      <EafFormItem :field="f.fields.address.street" label="Street">
         <input />
       </EafFormItem>
     `);
@@ -77,10 +77,10 @@ describe("EafFormItem", () => {
 
   it("shows the required asterisk from the rules", () => {
     const { wrapper } = mountForm(`
-      <EafFormItem :for="f.fields.address.street" label="Street">
+      <EafFormItem :field="f.fields.address.street" label="Street">
         <input />
       </EafFormItem>
-      <EafFormItem :for="f.fields.address.city" label="City">
+      <EafFormItem :field="f.fields.address.city" label="City">
         <input />
       </EafFormItem>
     `);
@@ -95,7 +95,7 @@ describe("EafFormItem", () => {
 
   it("reactively shows the field's error after validate()", async () => {
     const { wrapper, form } = mountForm(`
-      <EafFormItem :for="f.fields.address.street">
+      <EafFormItem :field="f.fields.address.street">
         <input />
       </EafFormItem>
     `);
@@ -122,7 +122,7 @@ describe("EafFormItem", () => {
   it("marks PrimeVue inputs invalid at any depth, e.g. inside an IconField", async () => {
     const { wrapper, form } = mountForm(
       `
-      <EafFormItem :for="f.fields.address.street">
+      <EafFormItem :field="f.fields.address.street">
         <IconField>
           <InputText v-model="f.data.address.street" />
         </IconField>
@@ -144,7 +144,7 @@ describe("EafFormItem", () => {
 
   it("shows only the first error by default", async () => {
     const { wrapper, form } = mountForm(`
-      <EafFormItem :for="f.fields.firstName"><input /></EafFormItem>
+      <EafFormItem :field="f.fields.firstName"><input /></EafFormItem>
     `);
 
     form.fields.firstName.$setError(["First", "Second"]);
@@ -155,7 +155,7 @@ describe("EafFormItem", () => {
 });
 
 describe("EafFormItem in a script-setup SFC", () => {
-  it('renders nested paths passed as for="address.street"', async () => {
+  it('renders nested paths passed as :field="$f.fields.address.street"', async () => {
     const wrapper = mount(NestedFormFixture);
     const form = (wrapper.vm as unknown as { form: EafForm<unknown> }).form;
 

@@ -72,7 +72,7 @@ function goToLogin() {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          :for="$f.fields.email"
+          :field="$f.fields.email"
           :label="t('email', 'Email', 'Email')"
           :label-class="uiLabel"
         >

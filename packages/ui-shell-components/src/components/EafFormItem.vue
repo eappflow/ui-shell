@@ -8,7 +8,7 @@ export interface Props {
    * Field from `$f.fields`. Its path is the label's `for`, `data-testid` and
    * the slot's `id` (`v-slot="{ id }"` → `:id="id"`)
    */
-  for: EafField;
+  field: EafField;
 
   /**
    * Label text (optional)
@@ -32,11 +32,11 @@ const props = withDefaults(defineProps<Props>(), {
   labelClass: "",
 });
 
-const path = computed(() => props.for.$path);
+const path = computed(() => props.field.$path);
 
-const required = computed(() => props.for.$required);
+const required = computed(() => props.field.$required);
 
-const errorMessage = computed(() => props.for.$error);
+const errorMessage = computed(() => props.field.$error);
 
 const hasError = computed(() => errorMessage.value !== undefined);
 

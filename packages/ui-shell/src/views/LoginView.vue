@@ -86,7 +86,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          :for="$f.fields.login"
+          :field="$f.fields.login"
           :label="t('login', 'Login', 'Login')"
           :label-class="uiLabel"
         >
@@ -106,7 +106,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         </EafFormItem>
 
         <EafFormItem
-          :for="$f.fields.password"
+          :field="$f.fields.password"
           :label="t('password', 'Password', 'Hasło')"
           :label-class="uiLabel"
         >

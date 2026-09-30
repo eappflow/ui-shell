@@ -114,7 +114,7 @@ async function save(): Promise<void> {
 
           <EafFormItem
             v-slot="{ id }"
-            :for="$f.fields.name"
+            :field="$f.fields.name"
             label="Name"
           >
             <InputText
@@ -129,7 +129,7 @@ async function save(): Promise<void> {
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <EafFormItem
               v-slot="{ id }"
-              :for="$f.fields.company.name"
+              :field="$f.fields.company.name"
               label="Company name"
             >
               <InputText
@@ -139,7 +139,7 @@ async function save(): Promise<void> {
             </EafFormItem>
             <EafFormItem
               v-slot="{ id }"
-              :for="$f.fields.company.taxId"
+              :field="$f.fields.company.taxId"
               label="Tax ID"
             >
               <InputText
@@ -151,7 +151,7 @@ async function save(): Promise<void> {
 
           <!-- The list's own error (item count) shows under it -->
           <EafFormItem
-            :for="$f.fields.addresses"
+            :field="$f.fields.addresses"
             label="Addresses"
             label-class="font-semibold"
           >
@@ -162,7 +162,7 @@ async function save(): Promise<void> {
             >
               <EafFormItem
                 v-slot="{ id }"
-                :for="$f.fields.addresses[index].street"
+                :field="$f.fields.addresses[index].street"
                 label="Street"
               >
                 <InputText
@@ -172,7 +172,7 @@ async function save(): Promise<void> {
               </EafFormItem>
               <EafFormItem
                 v-slot="{ id }"
-                :for="$f.fields.addresses[index].city"
+                :field="$f.fields.addresses[index].city"
                 label="City"
               >
                 <InputText
@@ -182,7 +182,7 @@ async function save(): Promise<void> {
               </EafFormItem>
               <EafFormItem
                 v-slot="{ id }"
-                :for="$f.fields.addresses[index].zipCode"
+                :field="$f.fields.addresses[index].zipCode"
                 label="Zip code"
               >
                 <InputText

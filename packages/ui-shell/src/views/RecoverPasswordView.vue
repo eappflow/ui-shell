@@ -186,7 +186,7 @@ function requestNewReset() {
         </Message>
 
         <EafFormItem
-          :for="$f.fields.newPassword"
+          :field="$f.fields.newPassword"
           :label="t('new_password', 'New Password', 'Nowe hasło')"
           :label-class="uiLabel"
         >
@@ -213,7 +213,7 @@ function requestNewReset() {
         </EafFormItem>
 
         <EafFormItem
-          :for="$f.fields.confirmPassword"
+          :field="$f.fields.confirmPassword"
           :label="t('confirm_password', 'Confirm Password', 'Potwierdź hasło')"
           :label-class="uiLabel"
         >

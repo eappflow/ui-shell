@@ -144,7 +144,7 @@ async function handleChangePassword(): Promise<void> {
           </Message>
 
           <EafFormItem
-            :for="$f.fields.currentPassword"
+            :field="$f.fields.currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
           >
             <Password
@@ -163,7 +163,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            :for="$f.fields.newPassword"
+            :field="$f.fields.newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
           >
             <Password
@@ -189,7 +189,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            :for="$f.fields.confirmPassword"
+            :field="$f.fields.confirmPassword"
             :label="
               t(
                 'confirm_new_password',

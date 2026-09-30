@@ -30,7 +30,7 @@ function mountFormWithBackendError(backendError: ApiParsedErrorResponse) {
     },
     template: `
       <EafFormValidationSummary :form="form" />
-      <EafFormItem :for="form.fields.firstName">
+      <EafFormItem :field="form.fields.firstName">
         <input />
       </EafFormItem>
     `,
