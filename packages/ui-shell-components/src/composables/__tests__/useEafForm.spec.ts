@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { computed, isReactive, isRef, reactive } from "vue";
+import { reactive } from "vue";
 import { mount } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 import { useEafForm, EAF_FORM_KEY } from "../useEafForm";
@@ -7,8 +7,8 @@ import type {
   ApiParsedErrorResponse,
   EafForm,
   EafFormApiErrorParser,
+  EafFormConfig,
   EafRules,
-  RulesForFormData,
 } from "../../types";
 
 interface TestForm {
@@ -17,20 +17,20 @@ interface TestForm {
   email: string;
 }
 
-const rules: RulesForFormData<TestForm> = {
+const rules: EafRules<TestForm> = {
   firstName: {
-    required: { message: "First name is required" },
-    length: {
+    $required: { message: "First name is required" },
+    $length: {
       minLength: 2,
       maxLength: 10,
       message: "First name must be 2-10 characters",
     },
   },
   age: {
-    range: { min: 18, max: 65, message: "Age must be between 18 and 65" },
+    $range: { min: 18, max: 65, message: "Age must be between 18 and 65" },
   },
   email: {
-    pattern: {
+    $pattern: {
       regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
       message: "Enter a valid email address",
     },
@@ -75,39 +75,39 @@ describe("useEafForm - rules validation", () => {
     const $f = createForm({ ...validData, firstName: "" });
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("firstName")).toBe("First name is required");
+    expect($f.fields.firstName.$error).toBe("First name is required");
   });
 
   it("passes validation when every field satisfies its rules", () => {
     const $f = createForm(validData);
 
     expect($f.validate()).toBe(true);
-    expect($f.hasFieldError("firstName")).toBe(false);
-    expect($f.hasFieldError("age")).toBe(false);
-    expect($f.hasFieldError("email")).toBe(false);
+    expect($f.fields.firstName.$error).toBeUndefined();
+    expect($f.fields.age.$error).toBeUndefined();
+    expect($f.fields.email.$error).toBeUndefined();
   });
 
   it("collects violations from multiple fields at once", () => {
     const $f = createForm({ firstName: "", age: 5, email: "bad" });
 
     expect($f.validate()).toBe(false);
-    expect($f.hasFieldError("firstName")).toBe(true);
-    expect($f.hasFieldError("age")).toBe(true);
-    expect($f.hasFieldError("email")).toBe(true);
+    expect($f.fields.firstName.$error).toBeDefined();
+    expect($f.fields.age.$error).toBeDefined();
+    expect($f.fields.email.$error).toBeDefined();
   });
 });
 
-describe("useEafForm - required: true fallback message", () => {
+describe("useEafForm - $required: true fallback message", () => {
   it("falls back to a hardcoded message when no vue-i18n plugin is installed", () => {
     const { result: $f } = withSetup(() =>
       useEafForm<Pick<TestForm, "firstName">>({
         data: reactive({ firstName: "" }),
-        rules: { firstName: { required: true } },
+        rules: { firstName: { $required: true } },
       }),
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("firstName")).toBe("This field is required");
+    expect($f.fields.firstName.$error).toBe("This field is required");
   });
 
   it("uses the app's global vue-i18n translation when the plugin is installed", () => {
@@ -125,7 +125,7 @@ describe("useEafForm - required: true fallback message", () => {
         setup() {
           $f = useEafForm<Pick<TestForm, "firstName">>({
             data: reactive({ firstName: "" }),
-            rules: { firstName: { required: true } },
+            rules: { firstName: { $required: true } },
           });
           return () => null;
         },
@@ -134,7 +134,7 @@ describe("useEafForm - required: true fallback message", () => {
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("firstName")).toBe("To pole jest wymagane");
+    expect($f.fields.firstName.$error).toBe("To pole jest wymagane");
   });
 });
 
@@ -155,11 +155,11 @@ describe("useEafForm - resetForm", () => {
 
   it("clears field errors", () => {
     const $f = createForm(validData);
-    $f.setFieldError("firstName", "Some client-side error");
+    $f.fields.firstName.$setError("Some client-side error");
 
     $f.resetForm();
 
-    expect($f.hasFieldError("firstName")).toBe(false);
+    expect($f.fields.firstName.$error).toBeUndefined();
   });
 
   it("clears summary errors and the general message", () => {
@@ -213,7 +213,7 @@ describe("useEafForm - handleApiError with an injected parser", () => {
     });
 
     expect(handled).toBe(true);
-    expect($f.getFieldError("firstName")).toBe("First name is already taken");
+    expect($f.fields.firstName.$error).toBe("First name is already taken");
   });
 
   it("puts an unregistered field's errors into summaryErrors instead", () => {
@@ -232,7 +232,7 @@ describe("useEafForm - handleApiError with an injected parser", () => {
     expect($f.summaryErrors.value).toEqual([
       "someServerOnlyField: Some business rule was violated",
     ]);
-    expect($f.hasFieldError("someServerOnlyField")).toBe(false);
+    expect($f.fieldErrors.has("someServerOnlyField")).toBe(false);
   });
 
   it("sets generalMessage from the parsed response", () => {
@@ -253,7 +253,7 @@ describe("useEafForm - handleApiError with an injected parser", () => {
     const parser: EafFormApiErrorParser = (error) =>
       error as ApiParsedErrorResponse;
     const $f = createFormWithParser(parser);
-    $f.setFieldError("firstName", "pre-existing error");
+    $f.fields.firstName.$setError("pre-existing error");
 
     const handled = $f.handleApiError({
       status: 500,
@@ -263,7 +263,7 @@ describe("useEafForm - handleApiError with an injected parser", () => {
 
     expect(handled).toBe(false);
     // Existing state must be left untouched when the error isn't handled
-    expect($f.getFieldError("firstName")).toBe("pre-existing error");
+    expect($f.fields.firstName.$error).toBe("pre-existing error");
   });
 
   it("warns and treats the raw error as unhandled when no parser is provided", () => {
@@ -299,18 +299,18 @@ interface NestedForm {
 }
 
 const nestedRules: EafRules<NestedForm> = {
-  name: { required: true },
+  name: { $required: true },
   address: {
-    required: { message: "Address is required" },
+    $required: { message: "Address is required" },
     street: {
-      required: { message: "Street is required" },
-      length: { maxLength: 5, message: "Street is too long" },
+      $required: { message: "Street is required" },
+      $length: { maxLength: 5, message: "Street is too long" },
     },
-    city: { required: true },
+    city: { $required: true },
   },
   dimensions: {
     // `length` is a data field here, not the string length rule
-    length: { range: { min: 1, message: "Length must be positive" } },
+    length: { $range: { min: 1, message: "Length must be positive" } },
   },
 };
 
@@ -327,15 +327,15 @@ function nestedData(overrides: Partial<NestedForm> = {}): NestedForm {
 
 function createNestedForm(
   data: NestedForm = nestedData(),
-  options: { rules?: EafRules<NestedForm>; showAllErrors?: boolean } = {},
+  options: Omit<EafFormConfig<NestedForm>, "data"> = {},
   provideMap: Record<string | symbol, unknown> = {},
 ) {
   const { result } = withSetup(
     () =>
       useEafForm<NestedForm>({
+        ...options,
         data,
         rules: options.rules ?? nestedRules,
-        showAllErrors: options.showAllErrors,
       }),
     provideMap,
   );
@@ -359,9 +359,9 @@ describe("useEafForm - nested rules validation", () => {
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("address.street")).toBe("Street is required");
-    expect($f.getFieldError("address.city")).toBe("This field is required");
-    expect($f.hasFieldError("address")).toBe(false);
+    expect($f.fields.address.street.$error).toBe("Street is required");
+    expect($f.fields.address.city.$error).toBe("This field is required");
+    expect($f.fields.address.$error).toBeUndefined();
   });
 
   it("applies non-required rules (length) to nested fields", () => {
@@ -370,9 +370,7 @@ describe("useEafForm - nested rules validation", () => {
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getAllFieldErrors("address.street")).toEqual([
-      "Street is too long",
-    ]);
+    expect($f.fields.address.street.$errors).toEqual(["Street is too long"]);
   });
 
   it("treats a nested data field named like a rule (`length`) as a field", () => {
@@ -381,12 +379,10 @@ describe("useEafForm - nested rules validation", () => {
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("dimensions.length")).toBe(
-      "Length must be positive",
-    );
+    expect($f.fields.dimensions.length.$error).toBe("Length must be positive");
   });
 
-  it("resolves required: true on nested fields to the translated message", () => {
+  it("resolves $required: true on nested fields to the translated message", () => {
     const i18n = createI18n({
       legacy: false,
       locale: "pl",
@@ -408,7 +404,7 @@ describe("useEafForm - nested rules validation", () => {
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.getFieldError("address.city")).toBe("To pole jest wymagane");
+    expect($f.fields.address.city.$error).toBe("To pole jest wymagane");
   });
 
   describe("missing (null/undefined) sub-object", () => {
@@ -416,9 +412,9 @@ describe("useEafForm - nested rules validation", () => {
       const $f = createNestedForm(nestedData({ address: null }));
 
       expect($f.validate()).toBe(false);
-      expect($f.getFieldError("address")).toBe("Address is required");
-      expect($f.hasFieldError("address.street")).toBe(false);
-      expect($f.hasFieldError("address.city")).toBe(false);
+      expect($f.fields.address.$error).toBe("Address is required");
+      expect($f.fields.address.street.$error).toBeUndefined();
+      expect($f.fields.address.city.$error).toBeUndefined();
       expect($f.fields.address.$error).toBe("Address is required");
     });
 
@@ -426,7 +422,7 @@ describe("useEafForm - nested rules validation", () => {
       const $f = createNestedForm(nestedData({ dimensions: undefined }), {
         rules: {
           dimensions: {
-            length: { range: { min: 1, message: "Length must be positive" } },
+            length: { $range: { min: 1, message: "Length must be positive" } },
           },
         },
       });
@@ -437,7 +433,7 @@ describe("useEafForm - nested rules validation", () => {
 
     it("without `required` on a null object: children with `required` are skipped too", () => {
       const $f = createNestedForm(nestedData({ address: null }), {
-        rules: { address: { street: { required: true } } },
+        rules: { address: { street: { $required: true } } },
       });
 
       expect($f.validate()).toBe(true);
@@ -446,7 +442,7 @@ describe("useEafForm - nested rules validation", () => {
 
   it("validates arrays as single values (leaves)", () => {
     const $f = createNestedForm(nestedData({ tags: [] }), {
-      rules: { tags: { required: true } },
+      rules: { tags: { $required: true } },
     });
 
     // An empty array is not an "empty value" - arrays are only leaves
@@ -456,25 +452,29 @@ describe("useEafForm - nested rules validation", () => {
   it("isFieldRequired accepts nested paths", () => {
     const $f = createNestedForm();
 
-    expect($f.isFieldRequired("name")).toBe(true);
-    expect($f.isFieldRequired("address")).toBe(true);
-    expect($f.isFieldRequired("address.street")).toBe(true);
-    expect($f.isFieldRequired("dimensions")).toBe(false);
-    expect($f.isFieldRequired("dimensions.length")).toBe(false);
-    expect($f.isFieldRequired("tags")).toBe(false);
+    expect($f.fields.name.$required).toBe(true);
+    expect($f.fields.address.$required).toBe(true);
+    expect($f.fields.address.street.$required).toBe(true);
+    expect($f.fields.dimensions.$required).toBe(false);
+    expect($f.fields.dimensions.length.$required).toBe(false);
+    expect($f.fields.tags.$required).toBe(false);
   });
 
-  it("keeps a top-level field literally named `required` working", () => {
+  it("checks fields named like rules (`required`), nested ones too", () => {
     const { result: $f } = withSetup(() =>
-      useEafForm<{ required: string }>({
-        data: { required: "" },
-        rules: { required: { required: true } },
+      useEafForm<{ required: string; opts: { required: string } }>({
+        data: { required: "", opts: { required: "" } },
+        rules: {
+          required: { $required: true },
+          opts: { required: { $required: true } },
+        },
       }),
     );
 
     expect($f.validate()).toBe(false);
-    expect($f.hasFieldError("required")).toBe(true);
-    expect($f.isFieldRequired("required")).toBe(true);
+    expect($f.fields.required.$error).toBeDefined();
+    expect($f.fields.opts.required.$error).toBeDefined();
+    expect($f.fields.opts.required.$required).toBe(true);
   });
 });
 
@@ -494,12 +494,12 @@ describe("useEafForm - handleApiError with nested paths", () => {
       validationErrors: { "address.street": ["Street does not exist"] },
     });
 
-    expect($f.getFieldError("address.street")).toBe("Street does not exist");
+    expect($f.fields.address.street.$error).toBe("Street does not exist");
     expect($f.fields.address.street.$error).toBe("Street does not exist");
     expect($f.summaryErrors.value).toEqual([]);
   });
 
-  it("maps an error on an array item path (items.0.name)", () => {
+  it("maps an error on an array item path (items[0].name, tags[0])", () => {
     const $f = createNestedForm(
       nestedData(),
       {},
@@ -511,10 +511,14 @@ describe("useEafForm - handleApiError with nested paths", () => {
     $f.handleApiError({
       status: 422,
       success: false,
-      validationErrors: { "items.0.name": ["Duplicate name"] },
+      validationErrors: {
+        "items[0].name": ["Duplicate name"],
+        "tags[0]": ["Too short"],
+      },
     });
 
-    expect($f.getFieldError("items.0.name")).toBe("Duplicate name");
+    expect($f.fields.items[0].name.$error).toBe("Duplicate name");
+    expect($f.fields.tags[0].$error).toBe("Too short");
     expect($f.summaryErrors.value).toEqual([]);
   });
 
@@ -546,214 +550,167 @@ describe("useEafForm - handleApiError with nested paths", () => {
   });
 });
 
-describe("useEafForm - mapErrorPath (request shape differs from the form data)", () => {
-  // The form holds `{ name, address, ... }`, the request wraps those fields
-  // as `{ baseInfo: { name, address }, tags }`
-  const unwrapBaseInfo = (path: string) => path.replace(/^baseInfo\./, "");
+describe("useEafForm - rules checked when a value changes", () => {
+  it("checks only the changed field, setting and clearing its error", () => {
+    const $f = createNestedForm(nestedData({ name: "" }));
 
-  function createForm() {
-    return createNestedForm(
-      nestedData(),
-      {},
-      {
-        [EAF_FORM_KEY]: identityParser,
-      },
-    );
-  }
+    $f.data.address!.street = "Too long";
+    expect($f.fields.address.street.$error).toBe("Street is too long");
+    // Untouched fields are left alone until validate()/submit
+    expect($f.fields.name.$error).toBeUndefined();
 
-  it("handleApiError maps a key onto the nested field it belongs to", () => {
-    const $f = createForm();
+    $f.data.address!.street = "";
+    expect($f.fields.address.street.$error).toBe("Street is required");
 
-    const handled = $f.handleApiError(
-      {
-        status: 422,
-        success: false,
-        validationErrors: {
-          "baseInfo.address.street": ["Street does not exist"],
-          "baseInfo.name": ["Name is taken"],
-          tags: ["Too many tags"],
-        },
-      },
-      { mapErrorPath: unwrapBaseInfo },
-    );
-
-    expect(handled).toBe(true);
-    expect($f.fields.address.street.$error).toBe("Street does not exist");
-    expect($f.fields.name.$error).toBe("Name is taken");
-    // Keys the mapper leaves as they are still match directly
-    expect($f.fields.tags.$error).toBe("Too many tags");
-    expect($f.summaryErrors.value).toEqual([]);
+    $f.data.address!.street = "Oak";
+    expect($f.fields.address.street.$error).toBeUndefined();
   });
 
-  it("puts keys that match no field after mapping into the summary, under the mapped path", () => {
-    const $f = createForm();
+  it("replaces an API error of the field once its value changes", () => {
+    const $f = createNestedForm();
+    $f.fields.address.street.$setError("Street does not exist");
 
-    $f.handleApiError(
-      {
-        status: 422,
-        success: false,
-        validationErrors: {
-          "baseInfo.address.zip": ["Zip is invalid"],
-          "data.color": ["Unknown color"],
-        },
-      },
-      { mapErrorPath: unwrapBaseInfo },
-    );
+    $f.data.address!.street = "Oak";
 
-    expect($f.summaryErrors.value).toEqual([
-      "address.zip: Zip is invalid",
-      "data.color: Unknown color",
-    ]);
+    expect($f.fields.address.street.$error).toBeUndefined();
+  });
+
+  it("checks a data field named like a rule (dimensions.length)", () => {
+    const $f = createNestedForm();
+
+    $f.data.dimensions!.length = 0;
+
+    expect($f.fields.dimensions.length.$error).toBe("Length must be positive");
+  });
+
+  it("follows a sub-object set to null and back", () => {
+    const $f = createNestedForm();
+    $f.data.address!.street = "";
+    expect($f.fields.address.street.$error).toBeDefined();
+
+    $f.data.address = null;
+    expect($f.fields.address.$error).toBe("Address is required");
+    expect($f.fields.address.street.$error).toBeUndefined();
+
+    $f.data.address = { street: "Oak", city: "Kraków" };
+    expect($f.fields.address.$error).toBeUndefined();
+  });
+
+  it("is off with validateOnChange: false - rules wait for validate()", () => {
+    const $f = createNestedForm(nestedData(), { validateOnChange: false });
+
+    $f.data.address!.street = "";
+    expect($f.fields.address.street.$error).toBeUndefined();
+
+    $f.validate();
+    expect($f.fields.address.street.$error).toBe("Street is required");
+  });
+
+  it("doesn't validate the data restored by resetForm()", () => {
+    const $f = createNestedForm(nestedData({ name: "" }));
+    $f.data.name = "Changed";
+
+    $f.resetForm();
+
+    expect($f.data.name).toBe("");
     expect($f.fieldErrors.size).toBe(0);
-  });
-
-  it("keeps the messages of every key mapped onto the same field", () => {
-    const $f = createForm();
-
-    $f.handleApiError(
-      {
-        status: 422,
-        success: false,
-        validationErrors: {
-          name: ["Name is required"],
-          "baseInfo.name": ["Name is taken"],
-        },
-      },
-      { mapErrorPath: unwrapBaseInfo },
-    );
-
-    expect($f.fields.name.$errors).toEqual([
-      "Name is required",
-      "Name is taken",
-    ]);
-  });
-
-  it("without the option leaves the keys unmapped (they land in the summary)", () => {
-    const $f = createForm();
-
-    $f.handleApiError({
-      status: 422,
-      success: false,
-      validationErrors: { "baseInfo.name": ["Name is taken"] },
-    });
-
-    expect($f.summaryErrors.value).toEqual(["baseInfo.name: Name is taken"]);
-    expect($f.hasFieldError("name")).toBe(false);
-  });
-
-  it("submit passes the options on to handleApiError", async () => {
-    const $f = createForm();
-    const mapErrorPath = vi.fn(unwrapBaseInfo);
-
-    await $f.submit(
-      async () => {
-        throw {
-          status: 422,
-          success: false,
-          validationErrors: { "baseInfo.address.city": ["Unknown city"] },
-        } satisfies ApiParsedErrorResponse;
-      },
-      { mapErrorPath },
-    );
-
-    expect(mapErrorPath).toHaveBeenCalledWith("baseInfo.address.city");
-    expect($f.fields.address.city.$error).toBe("Unknown city");
-    expect($f.summaryErrors.value).toEqual([]);
-    expect($f.loading.value).toBe(false);
-  });
-
-  it("submit without options keeps the plain behaviour", async () => {
-    const $f = createForm();
-
-    await $f.submit(async () => {
-      throw {
-        status: 422,
-        success: false,
-        validationErrors: { "baseInfo.address.city": ["Unknown city"] },
-      } satisfies ApiParsedErrorResponse;
-    });
-
-    expect($f.summaryErrors.value).toEqual([
-      "baseInfo.address.city: Unknown city",
-    ]);
-    expect($f.hasFieldError("address.city")).toBe(false);
   });
 });
 
-describe("useEafForm - showInSummary (data no field displays)", () => {
-  function createForm() {
-    return createNestedForm(
-      nestedData(),
-      {},
-      {
-        [EAF_FORM_KEY]: identityParser,
-      },
-    );
-  }
+describe("useEafForm - array items ($each)", () => {
+  const withItemRules: EafRules<NestedForm> = {
+    ...nestedRules,
+    items: {
+      $each: { name: { $required: { message: "Item name is required" } } },
+    },
+    tags: { $each: { $length: { maxLength: 3, message: "Tag is too long" } } },
+  };
 
-  it("sends errors on selected existing paths to the summary, the rest to their fields", () => {
-    const $f = createForm();
-
-    $f.handleApiError(
-      {
-        status: 422,
-        success: false,
-        validationErrors: {
-          "items.0.name": ["Name is invalid"],
-          "address.street": ["Street does not exist"],
-          name: ["Name is taken"],
-        },
-      },
-      { showInSummary: (path) => path.startsWith("items.") },
+  it("validate() checks every item, errors keyed like the API's", () => {
+    const $f = createNestedForm(
+      nestedData({
+        items: [{ name: "ok" }, { name: "" }],
+        tags: ["abc", "abcd"],
+      }),
+      { rules: withItemRules },
     );
 
-    expect($f.summaryErrors.value).toEqual(["items.0.name: Name is invalid"]);
-    expect($f.hasFieldError("items.0.name")).toBe(false);
-    expect($f.fields.address.street.$error).toBe("Street does not exist");
-    expect($f.fields.name.$error).toBe("Name is taken");
+    expect($f.validate()).toBe(false);
+    expect($f.fields.items[0].name.$error).toBeUndefined();
+    expect($f.fields.items[1].name.$error).toBe("Item name is required");
+    expect($f.fields.tags[0].$error).toBeUndefined();
+    expect($f.fields.tags[1].$error).toBe("Tag is too long");
   });
 
-  it("is applied to the mapped path", () => {
-    const $f = createForm();
-    const showInSummary = vi.fn((path: string) => path.startsWith("address."));
+  it("gives item fields their `required`", () => {
+    const $f = createNestedForm(nestedData(), { rules: withItemRules });
 
-    $f.handleApiError(
-      {
-        status: 422,
-        success: false,
-        validationErrors: {
-          "baseInfo.address.city": ["Unknown city"],
-          "baseInfo.name": ["Name is taken"],
-        },
-      },
-      {
-        mapErrorPath: (path) => path.replace(/^baseInfo\./, ""),
-        showInSummary,
-      },
-    );
-
-    expect(showInSummary).toHaveBeenCalledWith("address.city");
-    expect(showInSummary).not.toHaveBeenCalledWith("baseInfo.address.city");
-    expect($f.summaryErrors.value).toEqual(["address.city: Unknown city"]);
-    expect($f.fields.name.$error).toBe("Name is taken");
+    expect($f.fields.items[5].name.$required).toBe(true);
+    expect($f.fields.tags[0].$required).toBe(false);
   });
 
-  it("submit passes it on to handleApiError", async () => {
-    const $f = createForm();
+  it("checks an added item's field when it changes, not before", () => {
+    const $f = createNestedForm(nestedData({ items: [] }), {
+      rules: withItemRules,
+    });
 
-    await $f.submit(
-      async () => {
-        throw {
-          status: 422,
-          success: false,
-          validationErrors: { tags: ["Too many tags"] },
-        } satisfies ApiParsedErrorResponse;
-      },
-      { showInSummary: (path) => path === "tags" },
+    $f.data.items.push({ name: "" });
+    expect($f.fields.items[0].name.$error).toBeUndefined();
+
+    $f.data.items[0].name = "x";
+    $f.data.items[0].name = "";
+    expect($f.fields.items[0].name.$error).toBe("Item name is required");
+  });
+
+  it("clears the errors of a removed item", () => {
+    const $f = createNestedForm(
+      nestedData({ items: [{ name: "ok" }, { name: "x" }] }),
+      { rules: withItemRules },
     );
+    $f.data.items[1].name = "";
+    expect($f.fields.items[1].name.$error).toBe("Item name is required");
 
-    expect($f.summaryErrors.value).toEqual(["tags: Too many tags"]);
-    expect($f.fieldErrors.size).toBe(0);
+    $f.data.items.pop();
+
+    expect($f.fieldErrors.has("items[1].name")).toBe(false);
+  });
+
+  it("checks fields of a sub-object that was null when the form was created", () => {
+    const $f = createNestedForm(nestedData({ address: null }));
+
+    $f.data.address = { street: "Main", city: "Kraków" };
+    $f.data.address.street = "";
+
+    expect($f.fields.address.street.$error).toBe("Street is required");
+  });
+
+  it("checks the item count with `$length`, also when items are added/removed", () => {
+    const $f = createNestedForm(nestedData({ items: [{ name: "a" }] }), {
+      rules: {
+        ...nestedRules,
+        items: { $length: { minLength: 1, message: "Add an item" } },
+      },
+    });
+
+    $f.data.items.pop();
+    expect($f.fields.items.$error).toBe("Add an item");
+
+    $f.data.items.push({ name: "b" });
+    expect($f.fields.items.$error).toBeUndefined();
+
+    $f.data.items.splice(0, 1);
+    expect($f.validate()).toBe(false);
+    expect($f.fields.items.$error).toBe("Add an item");
+  });
+
+  it("types `$each` from the item", () => {
+    const rules: EafRules<NestedForm> = {
+      // @ts-expect-error - no such field on an item
+      items: { $each: { nme: { $required: true } } },
+      // @ts-expect-error - `range` rule is only for numbers
+      tags: { $each: { $range: { min: 1, message: "x" } } },
+    };
+    void rules;
   });
 });
 
@@ -821,17 +778,8 @@ describe("useEafForm - resetForm with nested data", () => {
   });
 });
 
-describe("useEafForm - field handles ($f.fields)", () => {
-  it("exposes the dot path of every field, including through null sub-objects", () => {
-    const $f = createNestedForm(nestedData({ address: null }));
-
-    expect($f.fields.name.$path).toBe("name");
-    expect($f.fields.address.$path).toBe("address");
-    expect($f.fields.address.street.$path).toBe("address.street");
-    expect($f.fields.dimensions.length.$path).toBe("dimensions.length");
-  });
-
-  it("exposes $required from the rules tree", () => {
+describe("useEafForm - field paths", () => {
+  it("isFieldRequired reads the nested rules tree", () => {
     const $f = createNestedForm();
 
     expect($f.fields.name.$required).toBe(true);
@@ -839,105 +787,27 @@ describe("useEafForm - field handles ($f.fields)", () => {
     expect($f.fields.address.street.$required).toBe(true);
     expect($f.fields.tags.$required).toBe(false);
     expect($f.fields.dimensions.width.$required).toBe(false);
-  });
-
-  it("returns the same handle object for the same path (stable identity)", () => {
-    const $f = createNestedForm();
-
-    expect($f.fields.address).toBe($f.fields.address);
-    expect($f.fields.address.street).toBe($f.fields.address.street);
-    expect($f.fields.name).not.toBe($f.fields.address);
-  });
-
-  it("exposes $errors/$error that are reactive inside computed", () => {
-    const $f = createNestedForm();
-    const street = computed(() => $f.fields.address.street.$error);
-    const allStreet = computed(() => $f.fields.address.street.$errors);
-
-    expect(street.value).toBeUndefined();
-    expect(allStreet.value).toEqual([]);
-
-    $f.setFieldError("address.street", ["First", "Second"]);
-    expect(street.value).toBe("First");
-    expect(allStreet.value).toEqual(["First", "Second"]);
-
-    $f.clearErrors();
-    expect(street.value).toBeUndefined();
-    expect(allStreet.value).toEqual([]);
-  });
-
-  it("keeps $error the first message even with showAllErrors", () => {
-    const $f = createNestedForm(nestedData(), { showAllErrors: true });
-
-    $f.setFieldError("name", ["First", "Second"]);
-
-    expect($f.fields.name.$error).toBe("First");
-    expect($f.fields.name.$errors).toEqual(["First", "Second"]);
-  });
-
-  it("is not mistaken for a ref, reactive proxy or thenable", async () => {
-    const $f = createNestedForm();
-    const handle = $f.fields.address as unknown as Record<string, unknown>;
-
-    expect(handle.__v_isRef).toBeUndefined();
-    expect(handle.__v_isReactive).toBeUndefined();
-    expect(handle.__v_raw).toBeUndefined();
-    expect(handle.then).toBeUndefined();
-    expect(handle.toJSON).toBeUndefined();
-    expect(isRef(handle)).toBe(false);
-    expect(isReactive(handle)).toBe(false);
-    expect(await Promise.resolve(handle)).toBe(handle);
-  });
-
-  it("is markRaw, so reactive() never wraps it", () => {
-    const $f = createNestedForm();
-    const state = reactive({ field: $f.fields.address.street });
-
-    expect(state.field).toBe($f.fields.address.street);
-    expect(isReactive(state.field)).toBe(false);
-  });
-
-  it("returns undefined for symbol keys and keeps Object.prototype members", () => {
-    const $f = createNestedForm();
-    const handle = $f.fields.name as unknown as Record<PropertyKey, unknown>;
-
-    expect(handle[Symbol("anything")]).toBeUndefined();
-    expect(handle.constructor).toBe(Object);
-    expect(() => String(handle)).not.toThrow();
-  });
-
-  it("serializes its metadata with JSON.stringify", () => {
-    const $f = createNestedForm();
-    $f.setFieldError("address.city", "City is required");
-
-    expect(JSON.parse(JSON.stringify($f.fields.address.city))).toEqual({
-      $path: "address.city",
-      $required: true,
-      $errors: ["City is required"],
-      $error: "City is required",
-    });
+    // Array items have typed paths, but no per-item rules
+    expect($f.fields.items[0].name.$required).toBe(false);
   });
 
   it("rejects unknown fields and rules at the type level", () => {
     const $f = createNestedForm();
 
-    // @ts-expect-error - no such field
-    void $f.fields.address.stret;
-    // @ts-expect-error - arrays are leaves, no per-item handles
-    void $f.fields.tags.length.$path;
+    expect($f.fields.items[0].name.$path).toBe("items[0].name");
+    // @ts-expect-error - no such field on an array item
+    void $f.fields.items[0].nme;
+    // @ts-expect-error - strings have no fields
+    void $f.fields.name.length;
 
     const rules: EafRules<NestedForm> = {
       address: {
         // @ts-expect-error - no such field
-        stret: { required: true },
+        stret: { $required: true },
       },
       // @ts-expect-error - `length` rule is only for strings
-      dimensions: { width: { length: { maxLength: 1, message: "x" } } },
+      dimensions: { width: { $length: { maxLength: 1, message: "x" } } },
     };
     void rules;
-
-    // Legacy name is an alias of the new type
-    const legacyRules: RulesForFormData<NestedForm> = nestedRules;
-    void legacyRules;
   });
 });

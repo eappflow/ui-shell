@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { defineComponent, nextTick } from "vue";
+import { defineComponent, nextTick, type Component } from "vue";
 import { mount } from "@vue/test-utils";
+import PrimeVue from "primevue/config";
+import IconField from "primevue/iconfield";
+import InputText from "primevue/inputtext";
 import EafFormItem from "../EafFormItem.vue";
 import NestedFormFixture from "./NestedFormFixture.vue";
 import { useEafForm } from "../../composables/useEafForm";
@@ -12,24 +15,23 @@ interface TestForm {
 }
 
 const rules: EafRules<TestForm> = {
-  firstName: { required: true },
+  firstName: { $required: true },
   address: {
-    street: { required: { message: "Street is required" } },
+    street: { $required: { message: "Street is required" } },
   },
 };
 
 function mountForm(
   template: string,
-  options: { showAllErrors?: boolean } = {},
+  options: { components?: Record<string, Component> } = {},
 ) {
   let form!: EafForm<TestForm>;
   const Host = defineComponent({
-    components: { EafFormItem },
+    components: { EafFormItem, ...options.components },
     setup() {
       form = useEafForm<TestForm>({
         data: { firstName: "", address: { street: "", city: "" } },
         rules,
-        showAllErrors: options.showAllErrors,
       });
       // Not `$f`: runtime-compiled templates don't expose `$`-prefixed
       // setup bindings (script-setup SFCs do)
@@ -38,43 +40,47 @@ function mountForm(
     template,
   });
 
-  const wrapper = mount(Host);
+  const wrapper = mount(Host, { global: { plugins: [PrimeVue] } });
   return { wrapper, form };
 }
 
-describe("EafFormItem with a field handle (:field)", () => {
-  it("derives testid, label `for` and input `name` from a flat field's path", () => {
+describe("EafFormItem", () => {
+  it("uses the path for testid and label `for`, and gives it to the slot as `id`", () => {
     const { wrapper } = mountForm(`
-      <EafFormItem :field="f.fields.firstName" label="First name">
-        <input />
-      </EafFormItem>
-    `);
-
-    const item = wrapper.get('[data-testid="firstName"]');
-    expect(item.get("label").attributes("for")).toBe("firstName");
-    expect(item.get("input").attributes("name")).toBe("firstName");
-    // The handle is a prop, not a fallthrough attribute
-    expect(item.attributes("field")).toBeUndefined();
-  });
-
-  it("uses the dot path for nested fields", () => {
-    const { wrapper } = mountForm(`
-      <EafFormItem :field="f.fields.address.street" label="Street">
-        <input />
+      <EafFormItem :for="f.fields.address.street" label="Street" v-slot="{ id }">
+        <input :id="id" />
       </EafFormItem>
     `);
 
     const item = wrapper.get('[data-testid="address.street"]');
     expect(item.get("label").attributes("for")).toBe("address.street");
-    expect(item.get("input").attributes("name")).toBe("address.street");
+    expect(item.get("input").attributes("id")).toBe("address.street");
+    // Nothing is forced onto the slotted input
+    expect(item.get("input").attributes("name")).toBeUndefined();
+    // A prop, not a fallthrough attribute
+    expect(item.attributes("for")).toBeUndefined();
+  });
+
+  it("takes a field from form.fields, which needs no :form", async () => {
+    const { wrapper, form } = mountForm(`
+      <EafFormItem :for="f.fields.address.street" label="Street">
+        <input />
+      </EafFormItem>
+    `);
+
+    form.validate();
+    await nextTick();
+    expect(wrapper.get('[data-testid="address.street-error"]').text()).toBe(
+      "Street is required",
+    );
   });
 
   it("shows the required asterisk from the rules", () => {
     const { wrapper } = mountForm(`
-      <EafFormItem :field="f.fields.address.street" label="Street">
+      <EafFormItem :for="f.fields.address.street" label="Street">
         <input />
       </EafFormItem>
-      <EafFormItem :field="f.fields.address.city" label="City">
+      <EafFormItem :for="f.fields.address.city" label="City">
         <input />
       </EafFormItem>
     `);
@@ -89,7 +95,7 @@ describe("EafFormItem with a field handle (:field)", () => {
 
   it("reactively shows the field's error after validate()", async () => {
     const { wrapper, form } = mountForm(`
-      <EafFormItem :field="f.fields.address.street">
+      <EafFormItem :for="f.fields.address.street">
         <input />
       </EafFormItem>
     `);
@@ -103,7 +109,6 @@ describe("EafFormItem with a field handle (:field)", () => {
     expect(wrapper.get('[data-testid="address.street-error"]').text()).toBe(
       "Street is required",
     );
-    expect(wrapper.get("input").classes()).toContain("p-invalid");
 
     form.data.address.street = "Main";
     form.validate();
@@ -114,35 +119,43 @@ describe("EafFormItem with a field handle (:field)", () => {
     );
   });
 
+  it("marks PrimeVue inputs invalid at any depth, e.g. inside an IconField", async () => {
+    const { wrapper, form } = mountForm(
+      `
+      <EafFormItem :for="f.fields.address.street">
+        <IconField>
+          <InputText v-model="f.data.address.street" />
+        </IconField>
+      </EafFormItem>
+    `,
+      { components: { IconField, InputText } },
+    );
+    const input = () => wrapper.get("input");
+    expect(input().classes()).not.toContain("p-invalid");
+
+    form.validate();
+    await nextTick();
+    expect(input().classes()).toContain("p-invalid");
+    expect(input().attributes("aria-invalid")).toBe("true");
+
+    await input().setValue("Main");
+    expect(input().classes()).not.toContain("p-invalid");
+  });
+
   it("shows only the first error by default", async () => {
     const { wrapper, form } = mountForm(`
-      <EafFormItem :field="f.fields.firstName"><input /></EafFormItem>
+      <EafFormItem :for="f.fields.firstName"><input /></EafFormItem>
     `);
 
-    form.setFieldError("firstName", ["First", "Second"]);
+    form.fields.firstName.$setError(["First", "Second"]);
     await nextTick();
 
     expect(wrapper.get('[data-testid="firstName-error"]').text()).toBe("First");
   });
-
-  it("shows every error, one per line, when the form uses showAllErrors", async () => {
-    const { wrapper, form } = mountForm(
-      `<EafFormItem :field="f.fields.firstName"><input /></EafFormItem>`,
-      { showAllErrors: true },
-    );
-
-    form.setFieldError("firstName", ["First", "Second"]);
-    await nextTick();
-
-    const lines = wrapper
-      .findAll('[data-testid="firstName-error"] span')
-      .map((line) => line.text());
-    expect(lines).toEqual(["First", "Second"]);
-  });
 });
 
 describe("EafFormItem in a script-setup SFC", () => {
-  it('renders nested handles passed as :field="$f.fields..."', async () => {
+  it('renders nested paths passed as for="address.street"', async () => {
     const wrapper = mount(NestedFormFixture);
     const form = (wrapper.vm as unknown as { form: EafForm<unknown> }).form;
 
@@ -159,8 +172,5 @@ describe("EafFormItem in a script-setup SFC", () => {
     expect(wrapper.get('[data-testid="address.street-error"]').text()).toBe(
       "This field is required",
     );
-    expect(
-      wrapper.get('[data-testid="address.street"] input').attributes("name"),
-    ).toBe("address.street");
   });
 });

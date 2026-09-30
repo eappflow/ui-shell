@@ -15,8 +15,8 @@ interface UnitForm {
 const $f = useEafForm<UnitForm>({
   data: { name: "", address: { street: "", city: "" } },
   rules: {
-    name: { required: true },
-    address: { required: true, street: { required: true } },
+    name: { $required: true },
+    address: { $required: true, street: { $required: true } },
   },
 });
 
@@ -25,13 +25,13 @@ defineExpose({ form: $f });
 
 <template>
   <EafFormItem
-    :field="$f.fields.name"
+    :for="$f.fields.name"
     label="Name"
   >
     <input v-model="$f.data.name">
   </EafFormItem>
   <EafFormItem
-    :field="$f.fields.address.street"
+    :for="$f.fields.address.street"
     label="Street"
   >
     <input
@@ -42,11 +42,9 @@ defineExpose({ form: $f });
 
   <!-- Type-level checks only, never rendered -->
   <template v-if="false">
-    <!-- @vue-expect-error unknown nested field -->
-    <EafFormItem :field="$f.fields.address.stret" />
-    <!-- @vue-expect-error `field` is required -->
+    <!-- @vue-expect-error unknown field in $f.fields -->
+    <EafFormItem :for="$f.fields.address.stret" />
+    <!-- @vue-expect-error `for` is required -->
     <EafFormItem label="Name" />
-    <!-- @vue-expect-error a path string is not a field handle -->
-    <EafFormItem field="name" />
   </template>
 </template>
