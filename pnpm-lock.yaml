@@ -177,9 +177,6 @@ importers:
       '@azure/msal-browser':
         specifier: ^5.16.0
         version: 5.17.0
-      '@primeuix/themes':
-        specifier: ^2.0.3
-        version: 2.0.3
       '@vueuse/core':
         specifier: ^14.3.0
         version: 14.3.0(vue@3.5.38(typescript@6.0.3))
@@ -199,6 +196,9 @@ importers:
       '@eappflow/ui-shell-components':
         specifier: workspace:*
         version: link:../ui-shell-components
+      '@primeuix/themes':
+        specifier: ^2.0.3
+        version: 2.0.3
       '@tailwindcss/vite':
         specifier: ^4.3.1
         version: 4.3.2(vite@8.0.16(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))
