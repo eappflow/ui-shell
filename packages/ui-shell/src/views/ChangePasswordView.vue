@@ -29,17 +29,17 @@ const $f = useEafForm<ChangePasswordForm>({
   },
   rules: {
     currentPassword: {
-      required: true,
+      $required: true,
     },
     newPassword: {
-      required: true,
-      length: {
+      $required: true,
+      $length: {
         minLength: 6,
         message: "Password must be at least 6 characters",
       },
     },
     confirmPassword: {
-      required: true,
+      $required: true,
     },
   },
 });
@@ -56,12 +56,11 @@ async function handleChangePassword(): Promise<void> {
   // Cross-field checks the declarative `rules` engine can't express
   const { currentPassword, newPassword, confirmPassword } = $f.data;
   if (newPassword !== confirmPassword) {
-    $f.setFieldError("confirmPassword", "Passwords do not match");
+    $f.fields.confirmPassword.$setError("Passwords do not match");
     return;
   }
   if (currentPassword === newPassword) {
-    $f.setFieldError(
-      "newPassword",
+    $f.fields.newPassword.$setError(
       "New password must be different from current password",
     );
     return;
@@ -145,7 +144,7 @@ async function handleChangePassword(): Promise<void> {
           </Message>
 
           <EafFormItem
-            :field="$f.fields.currentPassword"
+            :for="$f.fields.currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
           >
             <Password
@@ -164,7 +163,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            :field="$f.fields.newPassword"
+            :for="$f.fields.newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
           >
             <Password
@@ -190,7 +189,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            :field="$f.fields.confirmPassword"
+            :for="$f.fields.confirmPassword"
             :label="
               t(
                 'confirm_new_password',

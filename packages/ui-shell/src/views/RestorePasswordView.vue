@@ -27,8 +27,8 @@ const $f = useEafForm({
   },
   rules: {
     email: {
-      required: true,
-      pattern: {
+      $required: true,
+      $pattern: {
         regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         message: "Enter a valid email address.",
       },
@@ -72,7 +72,7 @@ function goToLogin() {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          :field="$f.fields.email"
+          :for="$f.fields.email"
           :label="t('email', 'Email', 'Email')"
           :label-class="uiLabel"
         >

@@ -26,14 +26,13 @@ const $f = useEafForm({
   data: {
     login: "",
     password: "",
-    age: 0,
   },
   rules: {
     login: {
-      required: true,
+      $required: true,
     },
     password: {
-      required: true,
+      $required: true,
     },
   },
 });
@@ -87,7 +86,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          :field="$f.fields.login"
+          :for="$f.fields.login"
           :label="t('login', 'Login', 'Login')"
           :label-class="uiLabel"
         >
@@ -107,7 +106,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         </EafFormItem>
 
         <EafFormItem
-          :field="$f.fields.password"
+          :for="$f.fields.password"
           :label="t('password', 'Password', 'Hasło')"
           :label-class="uiLabel"
         >
