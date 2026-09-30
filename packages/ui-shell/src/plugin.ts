@@ -179,9 +179,7 @@ export const EAppFlowUIShell = {
     // ── 10. Use Confirmation ────────────────────────────────────────────────────
     app.use(ConfirmationService);
 
-    // ── 11. Global directives ─────────────────────────────────────────────
-    // Registered here so every host app (sidebar icon rail, filter panels, …)
-    // can use ``v-tooltip`` without wiring the directive themselves.
+    // ── 11. v-tooltip for host apps ──────────────────────────────────────────
     app.directive("tooltip", Tooltip);
   },
 };
