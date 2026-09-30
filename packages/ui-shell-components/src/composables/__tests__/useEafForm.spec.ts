@@ -615,6 +615,22 @@ describe("useEafForm - rules checked when a value changes", () => {
     expect($f.data.name).toBe("");
     expect($f.fieldErrors.size).toBe(0);
   });
+
+  it("resetForm(data) puts the given data in, unvalidated and not shared", () => {
+    const $f = createNestedForm();
+    const loaded = nestedData({
+      name: "",
+      address: { street: "", city: "Gdańsk" },
+    });
+
+    $f.resetForm(loaded);
+
+    expect($f.data.address).toEqual({ street: "", city: "Gdańsk" });
+    expect($f.fieldErrors.size).toBe(0);
+
+    $f.data.address!.city = "Changed";
+    expect(loaded.address!.city).toBe("Gdańsk");
+  });
 });
 
 describe("useEafForm - array items ($each)", () => {

@@ -72,7 +72,8 @@ export interface EafForm<T> {
   validate: () => boolean;
   /** Validates, runs `handleSubmit`, passes its error to `handleApiError` */
   submit: (handleSubmit: (data: T) => Promise<void>) => Promise<void>;
-  resetForm: () => void;
+  /** Puts `data` (default: the initial data) into the form and clears its errors, without validating */
+  resetForm: (data?: T) => void;
   /** Puts API errors on their fields, the rest in the summary */
   handleApiError: (error: unknown) => boolean;
   clearErrors: () => void;

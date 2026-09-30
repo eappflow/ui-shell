@@ -11,7 +11,7 @@
 - **Nested rules** (`EafRules<T>`) mirror the data: `address: { $required: true, street: { $required: true } }`. Array items get rules through `$each`: `addresses: { $each: { street: { $required: true } } }` (errors under `addresses[0].street`, like the API's), `tags: { $each: { $length: {...} } }`. On an array `$length` counts its items: `addresses: { $length: { minLength: 1, message } }`. `$pattern` skips an empty value - requiring one is `$required`'s job. A `null`/`undefined` sub-object only checks its own `$required`; its children are skipped.
 - **Errors keyed by field path** (`address.street`, `items[0].name` - the API's format), from `validate()` and from API errors. Errors on paths not in the data go to the summary.
 - **Rules are checked when a value changes**, field by field: changing a field sets or clears its errors (an API error on it too); untouched fields wait for `validate()`/`submit()`. Watchers follow the data, so added array items and sub-objects set later are covered; a removed item's errors are cleared. Data restored by `resetForm()` isn't validated. Turn it off with `useEafForm({ ..., validateOnChange: false })`.
-- **`resetForm()` restores nested data** from a deep copy taken at creation.
+- **`resetForm()` restores nested data** from a deep copy taken at creation; `resetForm(data)` puts the given data in instead (e.g. a loaded record), clearing errors without validating it.
 - New types: `EafField`, `EafFields`, `EafRules`.
 
 The `primevue` peer range is now `^4.2.0` (still below 5): the error `Message` uses `size`/`variant`, added in 4.2.0.

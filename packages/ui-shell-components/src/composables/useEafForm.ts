@@ -254,8 +254,9 @@ export function useEafForm<T extends object>(
     fieldErrors.delete(fieldName);
   }
 
-  function resetForm(): void {
-    Object.assign(data, cloneDeep(initialData));
+  /** Puts `newData` (default: the initial data) into the form, unvalidated */
+  function resetForm(newData: T = initialData): void {
+    Object.assign(data, cloneDeep(newData));
     // After the assign, so it also drops what the change check found
     clearErrors();
   }
