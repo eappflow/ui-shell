@@ -90,4 +90,3 @@ export type {
   EafModule,
   ModuleRegistrationResult,
 } from "./types";
-export { THEME_COLOR_SHADES } from "./types";

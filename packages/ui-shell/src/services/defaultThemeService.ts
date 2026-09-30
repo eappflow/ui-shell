@@ -1,7 +1,6 @@
 import { updatePrimaryPalette } from "@primeuix/themes";
 import type { ThemeService } from "./interfaces";
 import type { ThemeSettings, ThemeColorName, EafThemeConfig } from "../types";
-import { THEME_COLOR_SHADES } from "../types";
 import { STORAGE_KEYS } from "../utils/constants";
 
 /**
@@ -10,7 +9,10 @@ import { STORAGE_KEYS } from "../utils/constants";
  */
 function primaryPalette(color: ThemeColorName): Record<string, string> {
   return Object.fromEntries(
-    THEME_COLOR_SHADES.map((shade) => [shade, `{${color}.${shade}}`]),
+    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => [
+      shade,
+      `{${color}.${shade}}`,
+    ]),
   );
 }
 
@@ -23,11 +25,6 @@ export function createDefaultThemeService(
   config?: EafThemeConfig,
 ): ThemeService {
   const colors = config?.colors ?? [];
-  const defaultColor = config?.defaultColor ?? colors[0] ?? "";
-
-  function isKnownColor(value: string | null): value is ThemeColorName {
-    return value !== null && colors.includes(value);
-  }
 
   return {
     getSettings(): ThemeSettings {
@@ -38,9 +35,10 @@ export function createDefaultThemeService(
 
       return {
         darkMode: storedDarkMode ? JSON.parse(storedDarkMode) : false,
-        primaryColor: isKnownColor(storedPrimaryColor)
-          ? storedPrimaryColor
-          : defaultColor,
+        primaryColor:
+          storedPrimaryColor && colors.includes(storedPrimaryColor)
+            ? storedPrimaryColor
+            : (colors[0] ?? ""),
       };
     },
 

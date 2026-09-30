@@ -80,19 +80,12 @@ export type ThemeColorName = string;
 /** Theme options a host application can configure via {@link AppConfig}. */
 export interface EafThemeConfig {
   /**
-   * Primary colors offered in the theme picker. Every entry must be a
-   * primitive palette of the host's preset. Empty hides the picker and
-   * leaves the preset's own primary alone.
+   * Primary colors offered in the theme picker, the first one is the default.
+   * Every entry must be a primitive palette of the host's preset. Empty hides
+   * the picker and leaves the preset's own primary alone.
    */
   colors?: readonly ThemeColorName[];
-  /** Color applied when nothing is stored yet. Defaults to the first entry. */
-  defaultColor?: ThemeColorName;
 }
-
-/** Shades every primitive palette in a PrimeVue preset defines. */
-export const THEME_COLOR_SHADES = [
-  50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
-] as const;
 
 // ─── Module System ───────────────────────────────────────────────────────────
 

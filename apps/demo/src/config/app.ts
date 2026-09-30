@@ -17,6 +17,5 @@ export const DEMO_CONFIG: AppConfig = {
   },
   theme: {
     colors: ["blue", "emerald", "violet", "amber", "rose"],
-    defaultColor: "blue",
   },
 } as const;
