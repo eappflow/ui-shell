@@ -1,11 +1,4 @@
-/**
- * Values treated as a single form field (a leaf) rather than an object whose
- * keys are fields of their own.
- *
- * Arrays, `Date`, `File` and `Blob` are leaves too, otherwise the mapped types
- * would walk into `keyof string[]` (`length`, `push`...) or `keyof Date`.
- * Per-item handles/rules for arrays (`items.0.name`) are not supported yet.
- */
+/** Values that are a single field, not an object of fields */
 export type EafLeaf =
   | string
   | number
@@ -16,69 +9,31 @@ export type EafLeaf =
   | Blob
   | readonly unknown[];
 
-/**
- * Handle of a single form field, e.g. `$f.fields.address.street`.
- *
- * Metadata is `$`-prefixed so it never collides with the keys of the form data
- * (`$f.fields.address` is both the `address` field and the container of
- * `$f.fields.address.street`). All metadata is read lazily, so reading
- * `$errors`/`$error` inside a `computed` or a template is reactive.
- *
- * @typeParam V Type of the field's value. Not used by the interface yet, it
- *   documents the handle and leaves room for value-aware members later.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface EafField<V = unknown> {
-  /**
-   * Dot-separated path of the field in the form data, e.g. `"address.street"`.
-   * Used as the key in `fieldErrors`, for `name`/`data-testid` in
-   * `EafFormItem` and to map API validation errors onto the field.
-   */
+/** A field from `$f.fields`, e.g. `$f.fields.items[0].name` */
+export interface EafField {
+  /** e.g. `"items[0].name"`, the API's error key */
   readonly $path: string;
-
-  /**
-   * Whether the field has a `required` rule (for an object node: the
-   * `required` flag of the node itself).
-   */
-  readonly $required: boolean;
-
-  /**
-   * All current error messages of the field (empty array if none).
-   */
+  /** All errors */
   readonly $errors: string[];
-
-  /**
-   * First current error message of the field, or `undefined` if none.
-   */
+  /** First error */
   readonly $error: string | undefined;
+  /** Has a `required` rule */
+  readonly $required: boolean;
+  /** Sets the errors, e.g. from a custom check */
+  readonly $setError: (messages: string | string[]) => void;
+  /** Removes the errors */
+  readonly $clearError: () => void;
 }
 
-/**
- * Children of a field handle: nested handles for an object value, nothing for
- * a leaf value.
- */
-export type EafFieldChildren<V> =
-  NonNullable<V> extends EafLeaf ? unknown : EafFields<NonNullable<V>>;
+/** Field of `V` plus the fields inside it */
+type EafFieldOf<V> = EafField &
+  (V extends readonly (infer E)[]
+    ? { readonly [index: number]: EafFieldOf<NonNullable<E>> }
+    : V extends EafLeaf
+      ? unknown
+      : EafFields<V>);
 
-/**
- * Tree of field handles mirroring the form data `T` (`useEafForm(...).fields`).
- *
- * Every key of `T` (optional or not) has a handle, including keys whose value
- * is currently `null`/`undefined` - handles are built from the path, not from
- * the data.
- */
+/** Fields mirroring the data `T`: `$f.fields.items[0].name` */
 export type EafFields<T> = {
-  readonly [K in keyof T & string]-?: EafField<T[K]> & EafFieldChildren<T[K]>;
+  readonly [K in keyof T & string]-?: EafFieldOf<NonNullable<T[K]>>;
 };
-
-/**
- * Path of a field accepted by the string-based APIs (`isFieldRequired`).
- *
- * Top-level keys of `T` are checked, deeper segments are not
- * (`"address.street"`) - prefer field handles (`$f.fields.address.street`)
- * for full type safety. Kept deliberately cheap: no recursive template-literal
- * union of all paths.
- */
-export type EafFieldPath<T> =
-  | Extract<keyof T, string>
-  | `${Extract<keyof T, string>}.${string}`;

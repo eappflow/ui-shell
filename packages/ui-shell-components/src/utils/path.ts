@@ -1,28 +1,15 @@
-/**
- * Internal helpers for dot-separated field paths (`"address.street"`,
- * `"items.0.name"`). Not exported from the package entry point.
- * @internal
- */
+/** Field path helpers (`"address.street"`, `"items[0].name"`) */
 
 const hasOwn = (value: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(value, key);
 
-/**
- * Splits a dot-separated path into its segments
- *
- * @returns The segments, or `null` for an empty path or one with empty
- *   segments (`""`, `"a..b"`, `".a"`)
- */
+/** `"items[0].name"` → `items`, `0`, `name`; `null` for empty segments */
 function splitPath(path: string): string[] | null {
-  const segments = path.split(".");
+  const segments = path.replace(/\[(\d+)\]/g, ".$1").split(".");
   return segments.every((segment) => segment !== "") ? segments : null;
 }
 
-/**
- * Whether `value` is a plain object (`{}`/`Object.create(null)`, or a Vue
- * reactive proxy of one) - as opposed to arrays, `Date`, `File`, class
- * instances etc., which forms treat as single values.
- */
+/** `{}` or a reactive proxy of one - not an array, `Date`, `File`... */
 export function isPlainObject(
   value: unknown,
 ): value is Record<string, unknown> {
@@ -35,11 +22,7 @@ export function isPlainObject(
 
 const NOT_FOUND = Symbol("not-found");
 
-/**
- * Walks `path` through own properties of `source`
- *
- * @returns The value at the path, or `NOT_FOUND` if any segment is missing
- */
+/** Value at `path` through own properties, or `NOT_FOUND` */
 function resolvePath(source: unknown, path: string): unknown {
   const segments = splitPath(path);
   if (!segments) {
@@ -60,23 +43,61 @@ function resolvePath(source: unknown, path: string): unknown {
   return current;
 }
 
-/**
- * Reads the value at a dot-separated path. Array indexes are plain segments
- * (`"items.0.name"`). Only own properties are followed, so `"toString"` does
- * not resolve to `Object.prototype.toString`.
- *
- * @returns The value, or `undefined` if any segment is missing
- */
+/** Value at `path` (own properties only), or `undefined` */
 export function getByPath(source: unknown, path: string): unknown {
   const value = resolvePath(source, path);
   return value === NOT_FOUND ? undefined : value;
 }
 
-/**
- * Whether a dot-separated path exists in `source` (every segment is an own
- * property, even if its value is `null`/`undefined`). Array indexes are plain
- * segments (`"items.0.name"`).
- */
+/** Whether `path` exists (even holding `null`/`undefined`) */
 export function hasPath(source: unknown, path: string): boolean {
   return resolvePath(source, path) !== NOT_FOUND;
+}
+
+/** `$f.fields`: property access builds the path, `$` members use `source` */
+// ponytail: new Proxy per access, cache per path if re-renders get costly
+export function createFields(
+  source: {
+    errors: (path: string) => string[];
+    isRequired: (path: string) => boolean;
+    setErrors: (path: string, messages: string | string[]) => void;
+    clearErrors: (path: string) => void;
+  },
+  path = "",
+): unknown {
+  return new Proxy(
+    {},
+    {
+      get(target, key) {
+        switch (key) {
+          case "$path":
+            return path;
+          case "$errors":
+            return source.errors(path);
+          case "$error":
+            return source.errors(path)[0];
+          case "$required":
+            return source.isRequired(path);
+          case "$setError":
+            return (messages: string | string[]) =>
+              source.setErrors(path, messages);
+          case "$clearError":
+            return () => source.clearErrors(path);
+        }
+        // Not fields: symbols, Vue probes, `then`, Object.prototype members
+        if (
+          typeof key === "symbol" ||
+          key.startsWith("__v_") ||
+          key === "then" ||
+          key in Object.prototype
+        ) {
+          return Reflect.get(target, key);
+        }
+        if (/^\d+$/.test(key)) {
+          return createFields(source, `${path}[${key}]`);
+        }
+        return createFields(source, path ? `${path}.${key}` : key);
+      },
+    },
+  );
 }

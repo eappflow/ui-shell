@@ -1,19 +1,17 @@
-import { ref, reactive, InjectionKey, inject } from "vue";
+import { ref, reactive, watch, InjectionKey, inject } from "vue";
 import { useI18n, type Composer } from "vue-i18n";
 import type {
-  EafApiErrorOptions,
+  EafFields,
   EafForm,
   EafFormApiErrorParser,
   EafFormConfig,
-  EafSubmitOptions,
 } from "../types";
 import {
   getFieldViolations,
   type FieldRule,
 } from "../validators/fieldValidators";
 import { cloneDeep } from "../utils/cloneDeep";
-import { getByPath, hasPath, isPlainObject } from "../utils/path";
-import { createEafFields } from "./eafFields";
+import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
@@ -42,7 +40,6 @@ export function useEafForm<T extends object>(
     /* no-op */
   }
 
-  const showAllErrors = config.showAllErrors || false;
   const data = reactive(config.data);
   const initialData: T = cloneDeep(config.data);
 
@@ -60,10 +57,7 @@ export function useEafForm<T extends object>(
    * @param error The error object from the API call (typically from axios)
    * @returns true if error was handled as validation error, false otherwise
    */
-  function handleApiError(
-    rawError: unknown,
-    options?: EafApiErrorOptions,
-  ): boolean {
+  function handleApiError(rawError: unknown): boolean {
     if (errorParser === null) {
       console.warn(
         "[useEafForm] No error parser provided. Please provide an error parser using EAF_FORM_KEY injection.",
@@ -98,21 +92,13 @@ export function useEafForm<T extends object>(
     if (response?.validationErrors) {
       const unmatchedErrors: string[] = [];
 
-      const mapErrorPath = options?.mapErrorPath;
-      const showInSummary = options?.showInSummary;
-
       Object.entries(response.validationErrors).forEach(
-        ([errorPath, messages]) => {
-          const fieldName = mapErrorPath ? mapErrorPath(errorPath) : errorPath;
-
-          // Check if this field is registered in the form
-          const isRegistered =
-            hasPath(data, fieldName) && !showInSummary?.(fieldName);
+        ([fieldName, messages]) => {
+          const isRegistered = hasPath(data, fieldName);
 
           if (isRegistered && messages.length > 0) {
             // Map to form field
-            const existing = fieldErrors.get(fieldName) ?? [];
-            fieldErrors.set(fieldName, [...existing, ...messages]);
+            fieldErrors.set(fieldName, messages);
           } else {
             // Field not registered, add to summary
             messages.forEach((msg) => {
@@ -147,7 +133,7 @@ export function useEafForm<T extends object>(
     parentPath: string,
   ): void {
     for (const key of Object.keys(rules)) {
-      if (parentPath !== "" && key === "required") {
+      if (key.startsWith("$")) {
         continue;
       }
 
@@ -162,30 +148,45 @@ export function useEafForm<T extends object>(
           ? (values as Record<string, unknown>)[key]
           : undefined;
 
-      if (isPlainObject(value)) {
-        validateRules(value, fieldRules, path);
-        continue;
-      }
+      validateNode(value, fieldRules, path);
+    }
+  }
 
-      const messages = getFieldViolations(
-        value,
-        withTranslatedRequiredMessage(fieldRules as FieldRule),
+  /** Checks a value: an object's children, or the value (+ array items) */
+  function validateNode(
+    value: unknown,
+    nodeRules: Record<string, unknown>,
+    path: string,
+  ): void {
+    if (isPlainObject(value)) {
+      validateRules(value, nodeRules, path);
+      return;
+    }
+
+    const messages = getFieldViolations(
+      value,
+      withTranslatedRequiredMessage(nodeRules as FieldRule),
+    );
+    if (messages.length > 0) {
+      setFieldError(path, messages);
+    }
+
+    const each = nodeRules.$each;
+    if (Array.isArray(value) && isPlainObject(each)) {
+      value.forEach((item, index) =>
+        validateNode(item, each, `${path}[${index}]`),
       );
-      if (messages.length > 0) {
-        setFieldError(path, messages);
-      }
     }
   }
 
   function withTranslatedRequiredMessage(fieldRules: FieldRule): FieldRule {
-    return fieldRules.required === true && t
-      ? { ...fieldRules, required: { message: t(REQUIRED_MESSAGE_KEY) } }
+    return fieldRules.$required === true && t
+      ? { ...fieldRules, $required: { message: t(REQUIRED_MESSAGE_KEY) } }
       : fieldRules;
   }
 
   async function submit(
     handleSubmit: (data: T) => Promise<void>,
-    options?: EafSubmitOptions,
   ): Promise<void> {
     if (!validate()) {
       return;
@@ -195,7 +196,7 @@ export function useEafForm<T extends object>(
     try {
       await handleSubmit(data as T);
     } catch (error) {
-      handleApiError(error, options);
+      handleApiError(error);
     } finally {
       loading.value = false;
     }
@@ -213,22 +214,6 @@ export function useEafForm<T extends object>(
   }
 
   /**
-   * Gets the error message(s) for a specific field
-   *
-   * @param fieldName The field name (camelCase)
-   * @returns First error message by default, or all messages if showAllErrors is true
-   */
-  function getFieldError(fieldName: string): string | string[] | undefined {
-    const errors = fieldErrors.get(fieldName);
-
-    if (!errors || errors.length === 0) {
-      return undefined;
-    }
-
-    return showAllErrors ? errors : errors[0];
-  }
-
-  /**
    * Gets all error messages for a specific field (regardless of config)
    *
    * @param fieldName The field name (camelCase)
@@ -238,20 +223,17 @@ export function useEafForm<T extends object>(
     return fieldErrors.get(fieldName) || [];
   }
 
-  /**
-   * Checks if a field has any validation errors
-   *
-   * @param fieldName The field name (camelCase)
-   * @returns true if the field has errors, false otherwise
-   */
-  function hasFieldError(fieldName: string): boolean {
-    const errors = fieldErrors.get(fieldName);
-    return errors !== undefined && errors.length > 0;
+  /** `items[0].name` → rules at `items.$each.name` */
+  function rulesAt(path: string): unknown {
+    return getByPath(
+      config.rules,
+      path.replace(/\[\d+\]/g, () => ".$each"),
+    );
   }
 
   function isFieldRequired(path: string): boolean {
-    const fieldRules = getByPath(config.rules, path);
-    return isPlainObject(fieldRules) && Boolean(fieldRules.required);
+    const fieldRules = rulesAt(path);
+    return isPlainObject(fieldRules) && Boolean(fieldRules.$required);
   }
 
   /**
@@ -273,8 +255,94 @@ export function useEafForm<T extends object>(
   }
 
   function resetForm(): void {
-    clearErrors();
     Object.assign(data, cloneDeep(initialData));
+    // After the assign, so it also drops what the change check found
+    clearErrors();
+  }
+
+  /** Sets or clears the errors of one field, as validate() would */
+  function validateField(path: string): void {
+    const fieldRules = rulesAt(path);
+    const value = getByPath(data, path);
+    const messages =
+      hasPath(data, path) && isPlainObject(fieldRules) && !isPlainObject(value)
+        ? getFieldViolations(
+            value,
+            withTranslatedRequiredMessage(fieldRules as FieldRule),
+          )
+        : [];
+    if (messages.length > 0) {
+      setFieldError(path, messages);
+    } else {
+      clearFieldError(path);
+    }
+  }
+
+  /** Data paths that have rules, walked like validate() */
+  function ruledPaths(
+    value: unknown,
+    nodeRules: Record<string, unknown>,
+    parentPath: string,
+  ): string[] {
+    if (Array.isArray(value)) {
+      const each = nodeRules.$each;
+      return isPlainObject(each)
+        ? value.flatMap((item, index) => {
+            const path = `${parentPath}[${index}]`;
+            return [path, ...ruledPaths(item, each, path)];
+          })
+        : [];
+    }
+    if (!isPlainObject(value)) {
+      return [];
+    }
+    return Object.entries(nodeRules).flatMap(([key, childRules]) => {
+      if (
+        key.startsWith("$") ||
+        !isPlainObject(childRules) ||
+        !(key in value)
+      ) {
+        return [];
+      }
+      const path = parentPath === "" ? key : `${parentPath}.${key}`;
+      return [path, ...ruledPaths(value[key], childRules, path)];
+    });
+  }
+
+  // Checks each field whose value changed; fields that are gone lose their
+  // errors. `sync`, so resetForm() can clear what it triggers.
+  if (config.validateOnChange !== false && config.rules) {
+    const rules = config.rules as Record<string, unknown>;
+    // Arrays by length: push/splice keep the reference, and an array's own
+    // rules (`$required`, `$length`) only look at the length
+    const snapshot = () =>
+      new Map(
+        ruledPaths(data, rules, "").map((path) => {
+          const value = getByPath(data, path);
+          return [path, Array.isArray(value) ? value.length : value];
+        }),
+      );
+    let last = snapshot();
+    watch(
+      data,
+      () => {
+        const current = snapshot();
+
+        for (const [path, value] of current) {
+          if (last.has(path) && !Object.is(last.get(path), value)) {
+            validateField(path);
+          }
+        }
+
+        for (const path of last.keys()) {
+          if (!current.has(path)) {
+            clearFieldError(path);
+          }
+        }
+        last = current;
+      },
+      { flush: "sync" },
+    );
   }
 
   /**
@@ -290,16 +358,15 @@ export function useEafForm<T extends object>(
     );
   }
 
-  const fields = createEafFields<T>({
-    getErrors: getAllFieldErrors,
-    isRequired: isFieldRequired,
-    showAllErrors,
-  });
-
   return {
     // Reactive state
     data,
-    fields,
+    fields: createFields({
+      errors: getAllFieldErrors,
+      isRequired: isFieldRequired,
+      setErrors: setFieldError,
+      clearErrors: clearFieldError,
+    }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
@@ -309,14 +376,8 @@ export function useEafForm<T extends object>(
     submit,
     validate,
     resetForm,
-    isFieldRequired,
     handleApiError,
-    setFieldError,
-    getFieldError,
-    getAllFieldErrors,
-    hasFieldError,
     clearErrors,
-    clearFieldError,
     hasErrors,
   };
 }

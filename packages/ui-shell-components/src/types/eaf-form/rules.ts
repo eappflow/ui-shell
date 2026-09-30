@@ -9,48 +9,38 @@ export type EafRulesFor<V> = IfExtends<
   IfExtends<V, number, EafFormRuleRange> &
   EafFormRuleRequired;
 
-/**
- * Rules of a nested object field: its own `required` flag plus the rules of
- * its children, e.g. `address: { required: true, street: { required: true } }`.
- *
- * `required` is the only reserved key - a data field literally named
- * `required` inside a nested object can't have rules of its own.
- */
+/** Object rules: its own `$required` plus its children's rules */
 export type EafObjectRules<T> = EafFormRuleRequired & EafRules<T>;
 
 /**
- * Validation rules mirroring the form data `T`.
- *
- * - leaf fields (see {@link EafLeaf}) get {@link EafRulesFor} -
- *   `required`, `length`, `pattern`, `range` depending on the value type;
- * - object fields get {@link EafObjectRules} - `required` plus the rules of
- *   their children.
- *
- * At runtime a rule node is treated as an object node only when the current
- * value in the data is a plain object. When that value is `null`/`undefined`,
- * only the node's `required` flag is checked (error under the object's path)
- * and its children are skipped.
+ * Array rules: `$required`, `$length` (item count) and `$each`, the rules of
+ * every item
  */
-export type EafRules<T> = {
-  [K in keyof T]?: NonNullable<T[K]> extends EafLeaf
-    ? EafRulesFor<NonNullable<T[K]>>
-    : EafObjectRules<NonNullable<T[K]>>;
-};
+export type EafArrayRules<E> = EafFormRuleRequired &
+  EafFormRuleLength & {
+    $each?: EafRulesOf<NonNullable<E>>;
+  };
 
-/**
- * @deprecated Use {@link EafRules} - it's the same type, now supporting
- * nested objects.
- */
-export type RulesForFormData<T> = EafRules<T>;
+/** Rules of a value `V` */
+export type EafRulesOf<V> = V extends readonly (infer E)[]
+  ? EafArrayRules<E>
+  : V extends EafLeaf
+    ? EafRulesFor<V>
+    : EafObjectRules<V>;
+
+/** Rules mirroring the data `T`; a `null` object only checks its `$required` */
+export type EafRules<T> = {
+  [K in keyof T]?: EafRulesOf<NonNullable<T[K]>>;
+};
 
 // --- Default rules ---
 export interface EafFormRuleRequired {
-  required?: boolean | { message: string };
+  $required?: boolean | { message: string };
 }
 
 // --- Rules for numbers ---
 export interface EafFormRuleRange {
-  range?: {
+  $range?: {
     min?: number;
     max?: number;
     message: string;
@@ -59,14 +49,14 @@ export interface EafFormRuleRange {
 
 // --- Rules for strings ---
 export interface EafFormRulePattern {
-  pattern?: {
+  $pattern?: {
     regex: RegExp;
     message: string;
   };
 }
 
 export interface EafFormRuleLength {
-  length?: {
+  $length?: {
     minLength?: number;
     maxLength?: number;
     message: string;

@@ -2,13 +2,8 @@ import { toRaw } from "vue";
 import { isPlainObject } from "./path";
 
 /**
- * Deep-clones form data: plain objects, arrays and `Date`s are copied,
- * anything else (primitives, `File`, `Blob`, class instances...) is kept by
- * reference.
- *
- * Unlike `structuredClone`, it accepts Vue reactive proxies (unwrapped with
- * `toRaw` at every level) and never throws on non-cloneable values.
- * @internal
+ * Copies plain objects, arrays and `Date`s, keeps the rest by reference.
+ * Unlike `structuredClone`, takes reactive proxies and never throws.
  */
 export function cloneDeep<V>(value: V): V {
   const raw: unknown = toRaw(value);
