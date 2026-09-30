@@ -133,14 +133,12 @@ async function handleLogout(): Promise<void> {
     <!-- Desktop Sidebar -->
     <AppSidebar :collapsed="layout.sidebarCollapsed">
       <!-- Logo Area -->
-      <template #logo="{ collapsed }">
-        <AuthorizedEafLogo :show-app-name="!collapsed" />
+      <template #logo>
+        <AuthorizedEafLogo :show-app-name="!layout.sidebarCollapsed" />
       </template>
 
       <!-- Sidebar Content -->
-      <template #default="{ collapsed }">
-        <AppMainMenu :compact="collapsed" />
-      </template>
+      <AppMainMenu :compact="layout.sidebarCollapsed" />
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
@@ -200,8 +198,6 @@ async function handleLogout(): Promise<void> {
           </div>
           <router-view class="flex gap-2 flex-col" />
         </main>
-
-        <!-- Footer -->
       </div>
     </div>
   </div>

@@ -28,10 +28,7 @@ defineProps<{
       ]"
     >
       <span class="text-lg font-bold tracking-wide text-eaf-ink">
-        <slot
-          name="logo"
-          :collapsed="collapsed"
-        />
+        <slot name="logo" />
       </span>
     </div>
     <div
@@ -40,7 +37,7 @@ defineProps<{
         appConfig.classes?.layout?.authorized?.sidebar?.body,
       ]"
     >
-      <slot :collapsed="collapsed" />
+      <slot />
     </div>
   </aside>
 </template>

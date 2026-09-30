@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, inject } from "vue";
+import { useLocalStorage } from "@vueuse/core";
 import {
   APP_CONFIG_KEY,
   THEME_SERVICE_KEY,
@@ -7,13 +8,6 @@ import {
 } from "../services/interfaces";
 import { createDefaultThemeService } from "../services/defaultThemeService";
 import { STORAGE_KEYS } from "../utils/constants";
-
-function readSidebarCollapsed(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-  return localStorage.getItem(STORAGE_KEYS.SIDEBAR_COLLAPSED) === "true";
-}
 
 export const useLayoutStore = defineStore("layout", () => {
   const themeConfig = inject(APP_CONFIG_KEY, undefined)?.theme;
@@ -25,19 +19,19 @@ export const useLayoutStore = defineStore("layout", () => {
 
   const settings = themeService.getSettings();
 
-  const sidebarCollapsed = ref(readSidebarCollapsed());
+  const sidebarCollapsed = useLocalStorage(
+    STORAGE_KEYS.SIDEBAR_COLLAPSED,
+    false,
+  );
   const darkMode = ref(settings.darkMode);
   const primaryColor = ref(settings.primaryColor);
 
   function toggleSidebar() {
-    setSidebarCollapsed(!sidebarCollapsed.value);
+    sidebarCollapsed.value = !sidebarCollapsed.value;
   }
 
   function setSidebarCollapsed(collapsed: boolean) {
     sidebarCollapsed.value = collapsed;
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEYS.SIDEBAR_COLLAPSED, String(collapsed));
-    }
   }
 
   function toggleDarkMode() {
