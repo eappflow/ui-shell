@@ -66,10 +66,7 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <div
-    class="space-y-6"
-    data-testid="dashboard-page"
-  >
+  <div class="space-y-6" data-testid="dashboard-page">
     <!-- Welcome -->
     <div>
       <h1
@@ -85,10 +82,7 @@ async function save(): Promise<void> {
 
     <!-- Stats cards -->
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card
-        v-for="stat in stats"
-        :key="stat.label"
-      >
+      <Card v-for="stat in stats" :key="stat.label">
         <template #title>
           {{ stat.label }}
         </template>
@@ -102,50 +96,30 @@ async function save(): Promise<void> {
 
     <!-- Nested form example -->
     <Card data-testid="nested-form">
-      <template #title>
-        Nested form
-      </template>
+      <template #title> Nested form </template>
       <template #content>
-        <form
-          class="flex flex-col gap-4"
-          @submit.prevent="save"
-        >
+        <form class="flex flex-col gap-4" @submit.prevent="save">
           <EafFormValidationSummary :form="$f" />
 
-          <EafFormItem
-            v-slot="{ id }"
-            :field="$f.fields.name"
-            label="Name"
-          >
-            <InputText
-              :id="id"
-              v-model="$f.data.name"
-            />
+          <EafFormItem v-slot="{ id }" :field="$f.fields.name" label="Name">
+            <InputText :id="id" v-model="$f.data.name" />
           </EafFormItem>
 
-          <h3 class="font-semibold">
-            Company
-          </h3>
+          <h3 class="font-semibold">Company</h3>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <EafFormItem
               v-slot="{ id }"
               :field="$f.fields.company.name"
               label="Company name"
             >
-              <InputText
-                :id="id"
-                v-model="$f.data.company.name"
-              />
+              <InputText :id="id" v-model="$f.data.company.name" />
             </EafFormItem>
             <EafFormItem
               v-slot="{ id }"
               :field="$f.fields.company.taxId"
               label="Tax ID"
             >
-              <InputText
-                :id="id"
-                v-model="$f.data.company.taxId"
-              />
+              <InputText :id="id" v-model="$f.data.company.taxId" />
             </EafFormItem>
           </div>
 
@@ -165,30 +139,21 @@ async function save(): Promise<void> {
                 :field="$f.fields.addresses[index].street"
                 label="Street"
               >
-                <InputText
-                  :id="id"
-                  v-model="address.street"
-                />
+                <InputText :id="id" v-model="address.street" />
               </EafFormItem>
               <EafFormItem
                 v-slot="{ id }"
                 :field="$f.fields.addresses[index].city"
                 label="City"
               >
-                <InputText
-                  :id="id"
-                  v-model="address.city"
-                />
+                <InputText :id="id" v-model="address.city" />
               </EafFormItem>
               <EafFormItem
                 v-slot="{ id }"
                 :field="$f.fields.addresses[index].zipCode"
                 label="Zip code"
               >
-                <InputText
-                  :id="id"
-                  v-model="address.zipCode"
-                />
+                <InputText :id="id" v-model="address.zipCode" />
               </EafFormItem>
               <Button
                 icon="pi pi-trash"
@@ -199,21 +164,18 @@ async function save(): Promise<void> {
                 @click="$f.data.addresses.splice(index, 1)"
               />
             </div>
-            <Button
-              label="Add address"
-              icon="pi pi-plus"
-              severity="secondary"
-              class="self-start"
-              @click="$f.data.addresses.push({ street: '', city: '', zipCode: '' })"
-            />
           </EafFormItem>
-
+          <Button
+            label="Add address"
+            icon="pi pi-plus"
+            severity="secondary"
+            class="self-start"
+            @click="
+              $f.data.addresses.push({ street: '', city: '', zipCode: '' })
+            "
+          />
           <div class="flex gap-2">
-            <Button
-              type="submit"
-              label="Save"
-              :loading="$f.loading.value"
-            />
+            <Button type="submit" label="Save" :loading="$f.loading.value" />
             <Button
               label="Reset"
               severity="secondary"

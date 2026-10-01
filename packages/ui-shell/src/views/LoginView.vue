@@ -86,6 +86,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
+          v-slot="{ id }"
           :field="$f.fields.login"
           :label="t('login', 'Login', 'Login')"
           :label-class="uiLabel"
@@ -93,6 +94,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-user" />
             <InputText
+              :id="id"
               v-model="$f.data.login"
               data-testid="login-input"
               :placeholder="
@@ -106,6 +108,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         </EafFormItem>
 
         <EafFormItem
+          v-slot="{ id }"
           :field="$f.fields.password"
           :label="t('password', 'Password', 'Hasło')"
           :label-class="uiLabel"
@@ -114,6 +117,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="$f.data.password"
+              :input-id="id"
               :placeholder="
                 t(
                   'enter_password',
