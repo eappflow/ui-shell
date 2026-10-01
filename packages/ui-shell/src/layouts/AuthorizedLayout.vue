@@ -10,9 +10,7 @@ import { useEafAuth } from "../composables/useEafAuth";
 import { useEafLayout } from "../composables/useEafLayout";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
-import { THEME_COLORS, type ThemeColorName } from "../types";
 import AppMainMenu from "../components/AppMainMenu.vue";
-import AppFooter from "../components/AppFooter.vue";
 import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
@@ -33,8 +31,7 @@ const breakpoints = useBreakpoints({
   md: 768,
 });
 
-// Sidebar state
-const sidebarVisible = ref(true);
+// Sidebar state (collapsed state lives in the layout store so it persists)
 const mobileSidebarVisible = ref(false);
 
 // Refs for overlay panels
@@ -57,11 +54,11 @@ watch(
 
 // Settings menu items
 const themeColors = computed<PrimeMenuItem[]>(() =>
-  Object.keys(THEME_COLORS).map((color) => ({
+  layout.availableColors.map((color) => ({
     label: color.charAt(0).toUpperCase() + color.slice(1),
     icon: "pi pi-circle-fill",
-    style: { color: THEME_COLORS[color as ThemeColorName] },
-    command: () => layout.setPrimaryColor(color as ThemeColorName),
+    style: { color: `var(--p-${color}-500)` },
+    command: () => layout.setPrimaryColor(color),
   })),
 );
 
@@ -71,14 +68,16 @@ const settingsMenuItems = computed<PrimeMenuItem[]>(() => [
     icon: layout.darkMode ? "pi pi-moon" : "pi pi-sun",
     command: () => layout.toggleDarkMode(),
   },
-  {
-    separator: true,
-  },
-  {
-    label: "Theme Color",
-    icon: "pi pi-palette",
-    items: themeColors.value,
-  },
+  ...(themeColors.value.length > 0
+    ? [
+        { separator: true },
+        {
+          label: "Theme Color",
+          icon: "pi pi-palette",
+          items: themeColors.value,
+        },
+      ]
+    : []),
 ]);
 
 const accountMenuItems = computed<PrimeMenuItem[]>(() => [
@@ -111,7 +110,7 @@ function toggleSidebar(): void {
   if (isMobile.value) {
     mobileSidebarVisible.value = !mobileSidebarVisible.value;
   } else {
-    sidebarVisible.value = !sidebarVisible.value;
+    layout.toggleSidebar();
   }
 }
 
@@ -132,17 +131,14 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar
-      :visible="sidebarVisible"
-      @toggle="toggleSidebar"
-    >
+    <AppSidebar :collapsed="layout.sidebarCollapsed">
       <!-- Logo Area -->
       <template #logo>
-        <AuthorizedEafLogo :show-app-name="true" />
+        <AuthorizedEafLogo :show-app-name="!layout.sidebarCollapsed" />
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu />
+      <AppMainMenu :compact="layout.sidebarCollapsed" />
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
@@ -202,16 +198,6 @@ async function handleLogout(): Promise<void> {
           </div>
           <router-view class="flex gap-2 flex-col" />
         </main>
-
-        <!-- Footer -->
-        <AppFooter>
-          <template #app-name>
-            {{ appConfig.name }}
-          </template>
-          <template #right>
-            <p>Version {{ appConfig.version }}</p>
-          </template>
-        </AppFooter>
       </div>
     </div>
   </div>

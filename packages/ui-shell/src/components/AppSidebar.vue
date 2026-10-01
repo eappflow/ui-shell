@@ -5,22 +5,25 @@ import { APP_CONFIG_KEY } from "../services/interfaces";
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
 defineProps<{
-  visible: boolean;
+  /** When true the sidebar shrinks to an icon-only rail instead of hiding. */
+  collapsed?: boolean;
 }>();
 </script>
 
 <template>
   <aside
-    v-if="visible"
     data-testid="app-sidebar"
+    :data-collapsed="collapsed ? 'true' : 'false'"
     :class="[
-      'hidden md:flex md:flex-col transition-all duration-300 bg-transparent w-64 border-r border-eaf-card-border',
+      'hidden md:flex md:flex-col shrink-0 h-screen bg-transparent border-r border-eaf-card-border',
+      collapsed ? 'w-24' : 'w-64',
       appConfig.classes?.layout?.authorized?.sidebar?.root,
     ]"
   >
     <div
       :class="[
-        'flex items-center justify-between px-4 shrink-0 h-14 border-b border-eaf-card-border',
+        'flex items-center shrink-0 h-14',
+        collapsed ? 'justify-center px-0' : 'justify-between px-4',
         appConfig.classes?.layout?.authorized?.sidebar?.header,
       ]"
     >

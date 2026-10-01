@@ -29,17 +29,17 @@ const $f = useEafForm<ChangePasswordForm>({
   },
   rules: {
     currentPassword: {
-      required: true,
+      $required: true,
     },
     newPassword: {
-      required: true,
-      length: {
+      $required: true,
+      $length: {
         minLength: 6,
         message: "Password must be at least 6 characters",
       },
     },
     confirmPassword: {
-      required: true,
+      $required: true,
     },
   },
 });
@@ -56,12 +56,11 @@ async function handleChangePassword(): Promise<void> {
   // Cross-field checks the declarative `rules` engine can't express
   const { currentPassword, newPassword, confirmPassword } = $f.data;
   if (newPassword !== confirmPassword) {
-    $f.setFieldError("confirmPassword", "Passwords do not match");
+    $f.fields.confirmPassword.$setError("Passwords do not match");
     return;
   }
   if (currentPassword === newPassword) {
-    $f.setFieldError(
-      "newPassword",
+    $f.fields.newPassword.$setError(
       "New password must be different from current password",
     );
     return;
@@ -145,10 +144,8 @@ async function handleChangePassword(): Promise<void> {
           </Message>
 
           <EafFormItem
-            for="currentPassword"
+            :field="$f.fields.currentPassword"
             :label="t('current_password', 'Current Password', 'Aktualne hasło')"
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.currentPassword"
@@ -166,10 +163,8 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            for="newPassword"
+            :field="$f.fields.newPassword"
             :label="t('new_password', 'New Password', 'Nowe hasło')"
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.newPassword"
@@ -194,7 +189,7 @@ async function handleChangePassword(): Promise<void> {
           </EafFormItem>
 
           <EafFormItem
-            for="confirmPassword"
+            :field="$f.fields.confirmPassword"
             :label="
               t(
                 'confirm_new_password',
@@ -202,8 +197,6 @@ async function handleChangePassword(): Promise<void> {
                 'Potwierdź nowe hasło',
               )
             "
-            :form="$f"
-            :required="true"
           >
             <Password
               v-model="$f.data.confirmPassword"

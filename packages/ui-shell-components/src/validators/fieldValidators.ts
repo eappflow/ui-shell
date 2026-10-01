@@ -22,7 +22,7 @@ function validateRequired(
   value: unknown,
   rules: EafFormRuleRequired,
 ): string[] {
-  const rule = rules.required;
+  const rule = rules.$required;
   if (!rule || !isEmptyValue(value)) {
     return [];
   }
@@ -32,8 +32,9 @@ function validateRequired(
 }
 
 function validateLength(value: unknown, rules: EafFormRuleLength): string[] {
-  const rule = rules.length;
-  if (typeof value !== "string" || !rule) {
+  const rule = rules.$length;
+  // Characters of a string, items of an array
+  if ((typeof value !== "string" && !Array.isArray(value)) || !rule) {
     return [];
   }
 
@@ -48,15 +49,16 @@ function validateLength(value: unknown, rules: EafFormRuleLength): string[] {
 }
 
 function validatePattern(value: unknown, rules: EafFormRulePattern): string[] {
-  const rule = rules.pattern;
-  if (typeof value !== "string" || !rule) {
+  const rule = rules.$pattern;
+  // An empty field is `$required`'s business, not the pattern's
+  if (typeof value !== "string" || value === "" || !rule) {
     return [];
   }
   return rule.regex.test(value) ? [] : [rule.message];
 }
 
 function validateRange(value: unknown, rules: EafFormRuleRange): string[] {
-  const rule = rules.range;
+  const rule = rules.$range;
   if (typeof value !== "number" || !rule) {
     return [];
   }

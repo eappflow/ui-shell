@@ -15,4 +15,7 @@ export const DEMO_CONFIG: AppConfig = {
   unauthorized: {
     logo: DemoLogoFull,
   },
+  theme: {
+    colors: ["blue", "emerald", "violet", "amber", "rose"],
+  },
 } as const;
