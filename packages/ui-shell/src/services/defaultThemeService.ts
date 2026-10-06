@@ -1,38 +1,56 @@
+import { updatePrimaryPalette } from "@primeuix/themes";
 import type { ThemeService } from "./interfaces";
-import type { ThemeSettings, ThemeColorName } from "../types";
-import { THEME_COLORS } from "../types";
+import type { ThemeSettings, ThemeColorName, EafThemeConfig } from "../types";
+import { STORAGE_KEYS } from "../utils/constants";
 
-const STORAGE_KEY_DARK_MODE = "theme_dark_mode";
-const STORAGE_KEY_PRIMARY_COLOR = "theme_primary_color";
+/**
+ * Builds `{ 50: "{blue.50}", … }` — token references the host's preset
+ * resolves itself, so every derived token stays consistent.
+ */
+function primaryPalette(color: ThemeColorName): Record<string, string> {
+  return Object.fromEntries(
+    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => [
+      shade,
+      `{${color}.${shade}}`,
+    ]),
+  );
+}
 
 /**
  * Default theme service — persists to localStorage and applies
- * CSS classes / variables to the DOM. Host applications can
- * override this to use remote or user-preference-based theme storage.
+ * the theme to the DOM / PrimeVue. Host applications can override
+ * this to use remote or user-preference-based theme storage.
  */
-export function createDefaultThemeService(): ThemeService {
+export function createDefaultThemeService(
+  config?: EafThemeConfig,
+): ThemeService {
+  const colors = config?.colors ?? [];
+
   return {
     getSettings(): ThemeSettings {
-      const storedDarkMode = localStorage.getItem(STORAGE_KEY_DARK_MODE);
+      const storedDarkMode = localStorage.getItem(STORAGE_KEYS.THEME_DARK_MODE);
       const storedPrimaryColor = localStorage.getItem(
-        STORAGE_KEY_PRIMARY_COLOR,
+        STORAGE_KEYS.THEME_PRIMARY_COLOR,
       );
 
       return {
         darkMode: storedDarkMode ? JSON.parse(storedDarkMode) : false,
         primaryColor:
-          storedPrimaryColor && storedPrimaryColor in THEME_COLORS
-            ? (storedPrimaryColor as ThemeColorName)
-            : "blue",
+          storedPrimaryColor && colors.includes(storedPrimaryColor)
+            ? storedPrimaryColor
+            : (colors[0] ?? ""),
       };
     },
 
     saveSettings(settings: ThemeSettings): void {
       localStorage.setItem(
-        STORAGE_KEY_DARK_MODE,
+        STORAGE_KEYS.THEME_DARK_MODE,
         JSON.stringify(settings.darkMode),
       );
-      localStorage.setItem(STORAGE_KEY_PRIMARY_COLOR, settings.primaryColor);
+      localStorage.setItem(
+        STORAGE_KEYS.THEME_PRIMARY_COLOR,
+        settings.primaryColor,
+      );
     },
 
     applyTheme(settings: ThemeSettings): void {
@@ -44,10 +62,10 @@ export function createDefaultThemeService(): ThemeService {
         root.classList.remove("dark");
       }
 
-      root.style.setProperty(
-        "--primary-color",
-        THEME_COLORS[settings.primaryColor],
-      );
+      // Nothing configured — the preset's own primary stays untouched.
+      if (settings.primaryColor) {
+        updatePrimaryPalette(primaryPalette(settings.primaryColor));
+      }
     },
   };
 }

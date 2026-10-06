@@ -36,10 +36,10 @@ const $f = useEafForm<RecoverPasswordForm>({
   data: formData,
   rules: {
     newPassword: {
-      required: true,
+      $required: true,
     },
     confirmPassword: {
-      required: true,
+      $required: true,
     },
   },
 });
@@ -67,18 +67,18 @@ function validateForm(): boolean {
   let isValid = true;
 
   if (!newPassword.value) {
-    $f.setFieldError("newPassword", "Password is required");
+    $f.fields.newPassword.$setError("Password is required");
     isValid = false;
   } else if (newPassword.value.length < 6) {
-    $f.setFieldError("newPassword", "Password must be at least 6 characters");
+    $f.fields.newPassword.$setError("Password must be at least 6 characters");
     isValid = false;
   }
 
   if (!confirmPassword.value) {
-    $f.setFieldError("confirmPassword", "Please confirm your password");
+    $f.fields.confirmPassword.$setError("Please confirm your password");
     isValid = false;
   } else if (newPassword.value !== confirmPassword.value) {
-    $f.setFieldError("confirmPassword", "Passwords do not match");
+    $f.fields.confirmPassword.$setError("Passwords do not match");
     isValid = false;
   }
 
@@ -186,10 +186,8 @@ function requestNewReset() {
         </Message>
 
         <EafFormItem
-          for="newPassword"
+          :field="$f.fields.newPassword"
           :label="t('new_password', 'New Password', 'Nowe hasło')"
-          :form="$f"
-          :required="true"
           :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
@@ -215,10 +213,8 @@ function requestNewReset() {
         </EafFormItem>
 
         <EafFormItem
-          for="confirmPassword"
+          :field="$f.fields.confirmPassword"
           :label="t('confirm_password', 'Confirm Password', 'Potwierdź hasło')"
-          :form="$f"
-          :required="true"
           :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
