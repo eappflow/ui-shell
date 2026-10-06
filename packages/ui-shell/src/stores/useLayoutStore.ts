@@ -1,15 +1,28 @@
 import { defineStore } from "pinia";
 import { ref, inject } from "vue";
-import { THEME_SERVICE_KEY, type ThemeService } from "../services/interfaces";
+import { useLocalStorage } from "@vueuse/core";
+import {
+  APP_CONFIG_KEY,
+  THEME_SERVICE_KEY,
+  type ThemeService,
+} from "../services/interfaces";
 import { createDefaultThemeService } from "../services/defaultThemeService";
+import { STORAGE_KEYS } from "../utils/constants";
 
 export const useLayoutStore = defineStore("layout", () => {
+  const themeConfig = inject(APP_CONFIG_KEY, undefined)?.theme;
   const themeService: ThemeService =
-    inject(THEME_SERVICE_KEY, undefined) ?? createDefaultThemeService();
+    inject(THEME_SERVICE_KEY, undefined) ??
+    createDefaultThemeService(themeConfig);
+
+  const availableColors = themeConfig?.colors ?? [];
 
   const settings = themeService.getSettings();
 
-  const sidebarCollapsed = ref(false);
+  const sidebarCollapsed = useLocalStorage(
+    STORAGE_KEYS.SIDEBAR_COLLAPSED,
+    false,
+  );
   const darkMode = ref(settings.darkMode);
   const primaryColor = ref(settings.primaryColor);
 
@@ -66,6 +79,7 @@ export const useLayoutStore = defineStore("layout", () => {
     sidebarCollapsed,
     darkMode,
     primaryColor,
+    availableColors,
     toggleSidebar,
     setSidebarCollapsed,
     toggleDarkMode,

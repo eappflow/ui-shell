@@ -1,18 +1,14 @@
-<script setup lang="ts" generic="T extends object">
-import { EafForm } from "../types/eaf-form";
-import { computed, useSlots, cloneVNode, type VNode } from "vue";
+<script setup lang="ts">
+import type { EafField } from "../types/eaf-form";
+import { computed, provide, reactive } from "vue";
+import Message from "primevue/message";
 
-export interface Props<T> {
+export interface Props {
   /**
-   * Field key for validation
-   * Must match the API field name for validation to work (e.g., 'email', 'firstName')
+   * Field from `$f.fields`. Its path is the label's `for`, `data-testid` and
+   * the slot's `id` (`v-slot="{ id }"` → `:id="id"`)
    */
-  for: Extract<keyof T, string>;
-
-  /**
-   * Form validation object from useEafFormValidation
-   */
-  form: EafForm<T>;
+  field: EafField;
 
   /**
    * Label text (optional)
@@ -30,83 +26,34 @@ export interface Props<T> {
   labelClass?: string;
 }
 
-const props = withDefaults(defineProps<Props<T>>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: "",
   class: "",
   labelClass: "",
 });
 
-const required = computed(() => props.form.isFieldRequired(props.for));
-const slots = useSlots();
+const path = computed(() => props.field.$path);
 
-// Computed helpers
-const hasError = computed(() => {
-  return props.form?.hasFieldError
-    ? props.form.hasFieldError(props.for)
-    : false;
-});
+const required = computed(() => props.field.$required);
 
-const errorMessage = computed(() => {
-  return props.form?.getFieldError ? props.form.getFieldError(props.for) : "";
-});
+const errorMessage = computed(() => props.field.$error);
 
-// Function to add p-invalid class to VNodes
-const addInvalidClassAndName = (
-  vnodes: VNode[] | undefined,
-): VNode[] | undefined => {
-  if (!vnodes) return vnodes;
+const hasError = computed(() => errorMessage.value !== undefined);
 
-  return vnodes.map((vnode) => {
-    // Skip text nodes and comments
-    if (
-      typeof vnode.type === "symbol" &&
-      vnode.type.toString().includes("Text")
-    ) {
-      return vnode;
-    }
-    if (
-      typeof vnode.type === "symbol" &&
-      vnode.type.toString().includes("Comment")
-    ) {
-      return vnode;
-    }
-
-    // Clone the vnode and add p-invalid class
-    const existingClass = vnode.props?.class || "";
-    let newClass = existingClass;
-    if (hasError.value) {
-      newClass = existingClass ? `${existingClass} p-invalid` : "p-invalid";
-    }
-
-    return cloneVNode(vnode, {
-      class: newClass,
-      name: props.for,
-    });
-  });
-};
-
-// Render function for slot content with p-invalid class
-const renderSlot = () => {
-  const defaultSlot = slots.default?.({
-    hasError: hasError.value,
-    errorMessage: errorMessage.value,
-    field: props.for,
-  });
-
-  const processedNodes = addInvalidClassAndName(defaultSlot);
-  return processedNodes || [];
-};
+// PrimeVue inputs at any depth read `invalid` from `$pcFormField` (as under
+// PrimeVue Forms' FormField)
+provide("$pcFormField", reactive({ $field: { invalid: hasError } }));
 </script>
 
 <template>
   <div
-    :class="['flex flex-col gap-2', props.class, hasError ? 'p-invalid' : '']"
-    :data-testid="props.for"
+    :class="['flex flex-col gap-2', props.class]"
+    :data-testid="path"
   >
     <!-- Label -->
     <label
       v-if="label"
-      :for="props.for"
+      :for="path"
       :class="['font-medium', props.labelClass]"
     >
       {{ label }}
@@ -116,19 +63,20 @@ const renderSlot = () => {
       >*</span>
     </label>
 
-    <!-- Slot with p-invalid class on children when hasError -->
-    <component :is="renderSlot" />
+    <slot
+      :id="path"
+      :has-error="hasError"
+      :error-message="errorMessage"
+    />
     <!-- Error message -->
-    <small
+    <Message
       v-if="hasError"
-      class="text-red-500"
-      :data-testid="`${props.for}-error`"
+      severity="error"
+      size="small"
+      variant="simple"
+      :data-testid="`${path}-error`"
     >
       {{ errorMessage }}
-    </small>
+    </Message>
   </div>
 </template>
-
-<style scoped>
-/* Additional styles if needed */
-</style>

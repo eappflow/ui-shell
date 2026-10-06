@@ -9,7 +9,6 @@ import { filterVisibleMenuModules } from "../utils/permissions";
 import type { EafMenuItem } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 import { APP_CONFIG_KEY } from "../services/interfaces";
-import type { EafFilteredMenuModule } from "../types";
 
 const router = useRouter();
 const route = useRoute();
@@ -19,7 +18,7 @@ const { t, te } = useI18n({ useScope: "global" });
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
-defineProps<{
+const props = defineProps<{
   compact?: boolean;
 }>();
 
@@ -31,62 +30,47 @@ const visibleMenuModules = computed(() =>
   filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
 );
 
-// PrimeVue's Menu model natively supports one level of grouping via
-// { label, items: [...] } - module.name becomes the group label,
-// module.items (real EafMenuItem[]) is passed through completely
-// untouched, no reshaping/renaming of your fields.
+// Compact (collapsed sidebar) flattens the groups — the icon rail has no
+// room for group labels.
 const menuModel = computed(() =>
-  visibleMenuModules.value.map((module) => ({
-    label: moduleLabel(module),
-    items: module.items,
-  })),
+  props.compact
+    ? visibleMenuModules.value.flatMap((module) => module.items)
+    : visibleMenuModules.value.map((module) => ({
+        label: label(module),
+        items: module.items,
+      })),
 );
 
-// Unchanged from your original - same router.push, same emit.
 function navigateToPage(item: EafMenuItem): void {
   router.push(item.path);
   emit("item-click", item);
 }
 
-// Unchanged from your original.
-function isActive(itemPath: string): boolean {
-  return route.path === itemPath;
+function isActive(item: MenuItem): boolean {
+  return route.path === asEafMenuItem(item).path;
 }
 
-// Resolves the item's translated label via nameKey, falling back to the
-// plain `name` when no key is set or no translation exists for it.
-function menuItemLabel(item: EafMenuItem): string {
-  if (item.nameKey && te(item.nameKey)) {
-    return t(item.nameKey);
-  }
-  return item.name;
+// Falls back to `name` when no key is set or no translation exists for it.
+function label(entry: { name: string; nameKey?: string }): string {
+  return entry.nameKey && te(entry.nameKey) ? t(entry.nameKey) : entry.name;
 }
 
-// Same resolution as menuItemLabel, but for the group label (module.name).
-function moduleLabel(module: EafFilteredMenuModule): string {
-  if (module.nameKey && te(module.nameKey)) {
-    return t(module.nameKey);
-  }
-  return module.name;
-}
-
-// Menu isn't a generic component, so its #item slot always types `item`
-// as PrimeVue's own MenuItem, even though menuModel only ever contains
-// real EafMenuItem objects (we put them there ourselves, untouched, a
-// few lines up). This is the one, explicit place that bridges the two -
-// not a workaround for a bug, just the expected way to cross a slot
-// boundary PrimeVue can't type-check for us.
+// Menu isn't generic, so its #item slot types `item` as PrimeVue's MenuItem,
+// even though menuModel only ever holds EafMenuItem objects.
 function asEafMenuItem(item: MenuItem): EafMenuItem {
   return item as EafMenuItem;
 }
 </script>
 
 <template>
-  <nav aria-label="Main">
+  <nav
+    aria-label="Main"
+    :data-compact="compact ? 'true' : 'false'"
+  >
     <Menu
       :model="menuModel"
       :class="[
-        'w-full border-none! bg-transparent!',
+        'w-full min-w-0! border-none! bg-transparent!',
         appConfig.classes?.layout?.authorized?.menu?.root,
       ]"
     >
@@ -105,26 +89,47 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         <a
           v-bind="itemProps.action"
           :class="[
-            'flex items-center w-full text-[0.8125rem] font-medium',
+            'flex w-full min-w-0! text-[0.8125rem] font-medium',
+            compact
+              ? // px-0! drops menu.item.padding, which .p-menu-item-link adds
+                // via props.action and which leaves the caption too little room.
+                'flex-col items-center justify-center gap-0.5 py-1 px-0!'
+              : 'items-center',
             appConfig.classes?.layout?.authorized?.menu?.item,
-            isActive(asEafMenuItem(item).path) &&
-              'font-semibold bg-eaf-highlight',
-            isActive(asEafMenuItem(item).path) &&
+            isActive(item) && 'font-semibold bg-eaf-highlight',
+            isActive(item) &&
               appConfig.classes?.layout?.authorized?.menu?.['item-active'],
           ]"
           @click="navigateToPage(asEafMenuItem(item))"
         >
-          <i
+          <span
             v-if="item.icon"
             :class="[
-              item.icon,
-              isActive(asEafMenuItem(item).path) && 'text-primary',
+              'flex shrink-0 items-center justify-center',
+              compact ? 'h-8 w-8' : 'w-5',
             ]"
-            class="w-5 shrink-0 text-[18px] opacity-90"
-          />
-          <span class="truncate">{{ menuItemLabel(asEafMenuItem(item)) }}</span>
+          >
+            <i
+              :class="[item.icon, isActive(item) && 'text-primary']"
+              class="text-[18px] opacity-90"
+            />
+          </span>
+          <span
+            :class="
+              compact
+                ? 'w-full text-center text-[9px] leading-tight break-normal hyphens-none opacity-80'
+                : 'truncate'
+            "
+          >{{ label(asEafMenuItem(item)) }}</span>
         </a>
       </template>
     </Menu>
   </nav>
 </template>
+
+<style scoped>
+/* Collapsed rail: a touch more air than PrimeVue's 2px list gap. */
+nav[data-compact="true"] :deep(.p-menu-list) {
+  gap: 0.25rem;
+}
+</style>

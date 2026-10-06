@@ -1,5 +1,7 @@
 import type { Ref, Reactive } from "vue";
-import type { RulesForFormData } from "./rules";
+import type { EafFields } from "./fields";
+import type { EafRules } from "./rules";
+export * from "./fields";
 export * from "./rules";
 
 /**
@@ -50,8 +52,10 @@ export interface EafFormApiErrorParser {
  */
 export interface EafFormConfig<T> {
   data: T;
-  rules?: RulesForFormData<T>;
-  showAllErrors?: boolean;
+  /** Rules mirroring `data`, see {@link EafRules} */
+  rules?: EafRules<T>;
+  /** Check a field's rules when its value changes (default `true`) */
+  validateOnChange?: boolean;
 }
 
 /*
@@ -59,20 +63,19 @@ export interface EafFormConfig<T> {
  */
 export interface EafForm<T> {
   data: Reactive<T>;
+  /** Fields mirroring `data`, with their errors (see `EafField`) */
+  fields: EafFields<T>;
   loading: Ref<boolean>;
   fieldErrors: Reactive<Map<string, string[]>>;
   summaryErrors: Ref<string[]>;
   generalMessage: Ref<string>;
   validate: () => boolean;
+  /** Validates, runs `handleSubmit`, passes its error to `handleApiError` */
   submit: (handleSubmit: (data: T) => Promise<void>) => Promise<void>;
-  resetForm: () => void;
-  isFieldRequired: (fieldName: Extract<keyof T, string>) => boolean;
+  /** Puts `data` (default: the initial data) into the form and clears its errors, without validating */
+  resetForm: (data?: T) => void;
+  /** Puts API errors on their fields, the rest in the summary */
   handleApiError: (error: unknown) => boolean;
-  setFieldError: (fieldName: string, messages: string | string[]) => void;
-  getFieldError: (fieldName: string) => string | string[] | undefined;
-  getAllFieldErrors: (fieldName: string) => string[];
-  hasFieldError: (fieldName: string) => boolean;
   clearErrors: () => void;
-  clearFieldError: (fieldName: string) => void;
   hasErrors: () => boolean;
 }

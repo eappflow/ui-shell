@@ -22,6 +22,9 @@ export type {
   EafFormConfig,
   EafFormApiErrorParser,
   ApiParsedErrorResponse,
+  EafField,
+  EafFields,
+  EafRules,
 } from "./types";
 
 export default {

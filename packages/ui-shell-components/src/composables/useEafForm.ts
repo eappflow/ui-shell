@@ -1,10 +1,17 @@
-import { ref, reactive, InjectionKey, inject } from "vue";
+import { ref, reactive, watch, InjectionKey, inject } from "vue";
 import { useI18n, type Composer } from "vue-i18n";
-import type { EafForm, EafFormApiErrorParser, EafFormConfig } from "../types";
+import type {
+  EafFields,
+  EafForm,
+  EafFormApiErrorParser,
+  EafFormConfig,
+} from "../types";
 import {
   getFieldViolations,
   type FieldRule,
 } from "../validators/fieldValidators";
+import { cloneDeep } from "../utils/cloneDeep";
+import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
@@ -33,9 +40,8 @@ export function useEafForm<T extends object>(
     /* no-op */
   }
 
-  const showAllErrors = config.showAllErrors || false;
   const data = reactive(config.data);
-  const initialData: T = { ...config.data } as T;
+  const initialData: T = cloneDeep(config.data);
 
   // Reactive validation state
   const fieldErrors = reactive(new Map<string, string[]>());
@@ -75,7 +81,7 @@ export function useEafForm<T extends object>(
 
     // Log traceId for debugging
     if (response?.traceId) {
-      console.warn("[Validatio1n Error]", {
+      console.warn("[Validation Error]", {
         code: response.code,
         message: response.message,
         traceId: response.traceId,
@@ -88,8 +94,7 @@ export function useEafForm<T extends object>(
 
       Object.entries(response.validationErrors).forEach(
         ([fieldName, messages]) => {
-          // Check if this field is registered in the form
-          const isRegistered = fieldName in data;
+          const isRegistered = hasPath(data, fieldName);
 
           if (isRegistered && messages.length > 0) {
             // Map to form field
@@ -117,28 +122,67 @@ export function useEafForm<T extends object>(
       return true;
     }
 
-    for (const fieldName of Object.keys(rules) as Array<
-      Extract<keyof T, string>
-    >) {
-      const fieldRules = rules[fieldName] as FieldRule | undefined;
-      if (!fieldRules) {
+    validateRules(data, rules as Record<string, unknown>, "");
+
+    return !hasErrors();
+  }
+
+  function validateRules(
+    values: unknown,
+    rules: Record<string, unknown>,
+    parentPath: string,
+  ): void {
+    for (const key of Object.keys(rules)) {
+      if (key.startsWith("$")) {
         continue;
       }
 
-      const resolvedRules: FieldRule =
-        fieldRules.required === true && t
-          ? { ...fieldRules, required: { message: t(REQUIRED_MESSAGE_KEY) } }
-          : fieldRules;
-
-      const value = (data as T)[fieldName];
-      const messages = getFieldViolations(value, resolvedRules);
-
-      if (messages.length > 0) {
-        setFieldError(fieldName, messages);
+      const fieldRules = rules[key];
+      if (!isPlainObject(fieldRules)) {
+        continue;
       }
+
+      const path = parentPath === "" ? key : `${parentPath}.${key}`;
+      const value =
+        values !== null && typeof values === "object"
+          ? (values as Record<string, unknown>)[key]
+          : undefined;
+
+      validateNode(value, fieldRules, path);
+    }
+  }
+
+  /** Checks a value: an object's children, or the value (+ array items) */
+  function validateNode(
+    value: unknown,
+    nodeRules: Record<string, unknown>,
+    path: string,
+  ): void {
+    if (isPlainObject(value)) {
+      validateRules(value, nodeRules, path);
+      return;
     }
 
-    return !hasErrors();
+    const messages = getFieldViolations(
+      value,
+      withTranslatedRequiredMessage(nodeRules as FieldRule),
+    );
+    if (messages.length > 0) {
+      setFieldError(path, messages);
+    }
+
+    const each = nodeRules.$each;
+    if (Array.isArray(value) && isPlainObject(each)) {
+      value.forEach((item, index) =>
+        validateNode(item, each, `${path}[${index}]`),
+      );
+    }
+  }
+
+  function withTranslatedRequiredMessage(fieldRules: FieldRule): FieldRule {
+    return fieldRules.$required === true && t
+      ? { ...fieldRules, $required: { message: t(REQUIRED_MESSAGE_KEY) } }
+      : fieldRules;
   }
 
   async function submit(
@@ -170,45 +214,26 @@ export function useEafForm<T extends object>(
   }
 
   /**
-   * Gets the error message(s) for a specific field
-   *
-   * @param fieldName The field name (camelCase)
-   * @returns First error message by default, or all messages if showAllErrors is true
-   */
-  function getFieldError(fieldName: string): string | string[] | undefined {
-    const errors = fieldErrors.get(fieldName);
-
-    if (!errors || errors.length === 0) {
-      return undefined;
-    }
-
-    return showAllErrors ? errors : errors[0];
-  }
-
-  /**
    * Gets all error messages for a specific field (regardless of config)
    *
    * @param fieldName The field name (camelCase)
-   * @returns Array of all error messages or empty array if none
+   * @returns Array of all error messages for the field, or empty array if none
    */
   function getAllFieldErrors(fieldName: string): string[] {
     return fieldErrors.get(fieldName) || [];
   }
 
-  /**
-   * Checks if a field has any validation errors
-   *
-   * @param fieldName The field name (camelCase)
-   * @returns true if field has errors, false otherwise
-   */
-  function hasFieldError(fieldName: string): boolean {
-    const errors = fieldErrors.get(fieldName);
-    return errors !== undefined && errors.length > 0;
+  /** `items[0].name` → rules at `items.$each.name` */
+  function rulesAt(path: string): unknown {
+    return getByPath(
+      config.rules,
+      path.replace(/\[\d+\]/g, () => ".$each"),
+    );
   }
 
-  function isFieldRequired(fieldName: Extract<keyof T, string>): boolean {
-    const rules = config.rules?.[fieldName] as FieldRule | undefined;
-    return Boolean(rules?.required);
+  function isFieldRequired(path: string): boolean {
+    const fieldRules = rulesAt(path);
+    return isPlainObject(fieldRules) && Boolean(fieldRules.$required);
   }
 
   /**
@@ -229,9 +254,96 @@ export function useEafForm<T extends object>(
     fieldErrors.delete(fieldName);
   }
 
-  function resetForm(): void {
+  /** Puts `newData` (default: the initial data) into the form, unvalidated */
+  function resetForm(newData: T = initialData): void {
+    Object.assign(data, cloneDeep(newData));
+    // After the assign, so it also drops what the change check found
     clearErrors();
-    Object.assign(data, initialData);
+  }
+
+  /** Sets or clears the errors of one field, as validate() would */
+  function validateField(path: string): void {
+    const fieldRules = rulesAt(path);
+    const value = getByPath(data, path);
+    const messages =
+      hasPath(data, path) && isPlainObject(fieldRules) && !isPlainObject(value)
+        ? getFieldViolations(
+            value,
+            withTranslatedRequiredMessage(fieldRules as FieldRule),
+          )
+        : [];
+    if (messages.length > 0) {
+      setFieldError(path, messages);
+    } else {
+      clearFieldError(path);
+    }
+  }
+
+  /** Data paths that have rules, walked like validate() */
+  function ruledPaths(
+    value: unknown,
+    nodeRules: Record<string, unknown>,
+    parentPath: string,
+  ): string[] {
+    if (Array.isArray(value)) {
+      const each = nodeRules.$each;
+      return isPlainObject(each)
+        ? value.flatMap((item, index) => {
+            const path = `${parentPath}[${index}]`;
+            return [path, ...ruledPaths(item, each, path)];
+          })
+        : [];
+    }
+    if (!isPlainObject(value)) {
+      return [];
+    }
+    return Object.entries(nodeRules).flatMap(([key, childRules]) => {
+      if (
+        key.startsWith("$") ||
+        !isPlainObject(childRules) ||
+        !(key in value)
+      ) {
+        return [];
+      }
+      const path = parentPath === "" ? key : `${parentPath}.${key}`;
+      return [path, ...ruledPaths(value[key], childRules, path)];
+    });
+  }
+
+  // Checks each field whose value changed; fields that are gone lose their
+  // errors. `sync`, so resetForm() can clear what it triggers.
+  if (config.validateOnChange !== false && config.rules) {
+    const rules = config.rules as Record<string, unknown>;
+    // Arrays by length: push/splice keep the reference, and an array's own
+    // rules (`$required`, `$length`) only look at the length
+    const snapshot = () =>
+      new Map(
+        ruledPaths(data, rules, "").map((path) => {
+          const value = getByPath(data, path);
+          return [path, Array.isArray(value) ? value.length : value];
+        }),
+      );
+    let last = snapshot();
+    watch(
+      data,
+      () => {
+        const current = snapshot();
+
+        for (const [path, value] of current) {
+          if (last.has(path) && !Object.is(last.get(path), value)) {
+            validateField(path);
+          }
+        }
+
+        for (const path of last.keys()) {
+          if (!current.has(path)) {
+            clearFieldError(path);
+          }
+        }
+        last = current;
+      },
+      { flush: "sync" },
+    );
   }
 
   /**
@@ -250,6 +362,12 @@ export function useEafForm<T extends object>(
   return {
     // Reactive state
     data,
+    fields: createFields({
+      errors: getAllFieldErrors,
+      isRequired: isFieldRequired,
+      setErrors: setFieldError,
+      clearErrors: clearFieldError,
+    }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
@@ -259,14 +377,8 @@ export function useEafForm<T extends object>(
     submit,
     validate,
     resetForm,
-    isFieldRequired,
     handleApiError,
-    setFieldError,
-    getFieldError,
-    getAllFieldErrors,
-    hasFieldError,
     clearErrors,
-    clearFieldError,
     hasErrors,
   };
 }

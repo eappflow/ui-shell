@@ -82,6 +82,7 @@ export type {
   ChangePasswordRequest,
   ThemeSettings,
   ThemeColorName,
+  EafThemeConfig,
   AppConfig,
   EafAreaConfig,
   EafLogo,
@@ -89,4 +90,3 @@ export type {
   EafModule,
   ModuleRegistrationResult,
 } from "./types";
-export { THEME_COLORS } from "./types";

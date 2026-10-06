@@ -26,26 +26,13 @@ const $f = useEafForm({
   data: {
     login: "",
     password: "",
-    age: 0,
   },
   rules: {
     login: {
-      required: {
-        message: t(
-          "login_required",
-          "Login is required",
-          "Login jest wymagany",
-        ),
-      },
+      $required: true,
     },
     password: {
-      required: {
-        message: t(
-          "password_required",
-          "Password is required",
-          "Hasło jest wymagane",
-        ),
-      },
+      $required: true,
     },
   },
 });
@@ -99,15 +86,15 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem
-          for="login"
+          v-slot="{ id }"
+          :field="$f.fields.login"
           :label="t('login', 'Login', 'Login')"
-          :form="$f"
-          :required="true"
           :label-class="uiLabel"
         >
           <IconField :class="[uiInput]">
             <InputIcon class="pi pi-user" />
             <InputText
+              :id="id"
               v-model="$f.data.login"
               data-testid="login-input"
               :placeholder="
@@ -121,16 +108,16 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
         </EafFormItem>
 
         <EafFormItem
-          for="password"
+          v-slot="{ id }"
+          :field="$f.fields.password"
           :label="t('password', 'Password', 'Hasło')"
-          :form="$f"
-          :required="true"
           :label-class="uiLabel"
         >
           <IconField>
             <InputIcon class="pi pi-lock" />
             <Password
               v-model="$f.data.password"
+              :input-id="id"
               :placeholder="
                 t(
                   'enter_password',

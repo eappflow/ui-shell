@@ -6,6 +6,8 @@ export interface LayoutContext {
   sidebarCollapsed: boolean;
   darkMode: boolean;
   primaryColor: ThemeColorName;
+  /** Primary colors offered in the theme picker (from `AppConfig.theme`) */
+  availableColors: readonly ThemeColorName[];
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleDarkMode: () => void;
@@ -32,6 +34,9 @@ export function useEafLayout(): LayoutContext {
     },
     get primaryColor() {
       return store.primaryColor;
+    },
+    get availableColors() {
+      return store.availableColors;
     },
     toggleSidebar: store.toggleSidebar,
     setSidebarCollapsed: store.setSidebarCollapsed,
