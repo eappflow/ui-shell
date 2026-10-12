@@ -141,8 +141,7 @@ describe("EafFormItem", () => {
     expect(input().classes()).not.toContain("p-invalid");
   });
 
-  // A press on the eye is checked in the browser (e2e/change-password.spec.ts) - jsdom has no `:active`
-  it("checks the field when focus leaves it", async () => {
+  it("checks the field when focus leaves it, not during a press inside it", async () => {
     const { wrapper } = mountForm(
       `
       <EafFormItem :field="f.fields.address.street">
@@ -151,10 +150,16 @@ describe("EafFormItem", () => {
     `,
       { components: { Password } },
     );
+    const input = wrapper.get("input");
     const error = () => wrapper.find('[data-testid="address.street-error"]');
+
+    // The eye takes no focus: the press moves it out of the field
+    await wrapper.get(".p-password-toggle-mask-icon").trigger("pointerdown");
+    await input.trigger("focusout", { relatedTarget: null });
     expect(error().exists()).toBe(false);
 
-    await wrapper.get("input").trigger("focusout", { relatedTarget: null });
+    window.dispatchEvent(new Event("pointerup"));
+    await input.trigger("focusout", { relatedTarget: null });
     expect(error().text()).toBe("Street is required");
   });
 
