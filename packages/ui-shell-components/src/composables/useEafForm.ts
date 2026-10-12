@@ -9,6 +9,7 @@ import type {
 import { cloneDeep } from "../utils/cloneDeep";
 import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
 import { blankToUndefined, issuePath, schemaAt } from "../utils/schema";
+import { exposeFormToAi } from "../ai-tools/formTools";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
@@ -40,6 +41,7 @@ export function useEafForm<T extends object>({
   schema,
   onSubmit,
   validateOn = "blur",
+  exposeToAi = true,
 }: EafFormConfig<T>): EafForm<T> {
   const errorParser = inject(EAF_FORM_KEY, null);
 
@@ -248,6 +250,17 @@ export function useEafForm<T extends object>({
       },
       { flush: "sync" },
     );
+  }
+
+  if (exposeToAi !== false) {
+    exposeFormToAi({
+      data,
+      errors: fieldErrors,
+      isRequired: isFieldRequired,
+      validate: (path) => validateField(path),
+      schema,
+      descriptions: exposeToAi,
+    });
   }
 
   function hasErrors(): boolean {

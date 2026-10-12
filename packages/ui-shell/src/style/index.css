@@ -38,3 +38,17 @@
     color: var(--p-text-color);
   }
 }
+
+/* The open right aside (AppAside, --eaf-aside-width), e.g. the AI chat, docks on the right from md up: modal dialogs
+   keep to the room beside it, maximized ones too - their forms are often the ones the chat fills.
+   PrimeVue puts them in <body>, out of the layout's reach, hence :has(). Unlayered and !important,
+   as the mask's size is inline. */
+@media (min-width: 768px) {
+  html:has(.eaf-aside[data-side="right"][data-open="true"]) .p-dialog-mask {
+    width: calc(100% - var(--eaf-aside-width)) !important;
+  }
+
+  html:has(.eaf-aside[data-side="right"][data-open="true"]) .p-dialog {
+    max-width: 100%;
+  }
+}

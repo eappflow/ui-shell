@@ -15,6 +15,13 @@ export { useEafMessageStore } from "./stores/useEafMessageStore";
 // ─── Composables ────────────────────────────────────────────────────────────
 export { useEafForm, EAF_FORM_KEY } from "./composables/useEafForm.js";
 export { useActionValidation } from "./composables/useActionValidation.js";
+export { useEafAiTool, eafScreenTools } from "./composables/useEafAiTool.js";
+export { defineEafAiTool } from "./ai-tools/defineEafAiTool";
+export {
+  useEafChat,
+  AI_CHAT_SERVICE_KEY,
+  AI_CHAT_TOOLS_KEY,
+} from "./composables/useEafChat.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
@@ -24,6 +31,16 @@ export type {
   ApiParsedErrorResponse,
   EafField,
   EafFields,
+  EafAiDescriptions,
+  EafAiTool,
+  AiChatService,
+  AiConversation,
+  AiModel,
+  AiChatMessage,
+  AiClientTool,
+  AiToolCall,
+  AiToolResult,
+  AiChatReply,
 } from "./types";
 
 export default {

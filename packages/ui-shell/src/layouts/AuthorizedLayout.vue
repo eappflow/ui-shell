@@ -14,6 +14,10 @@ import AppMainMenu from "../components/AppMainMenu.vue";
 import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
+import AppAside from "../components/AppAside.vue";
+import AiChatPanel from "../components/chat/AiChatPanel.vue";
+import { AI_CHAT_SERVICE_KEY } from "../services/interfaces";
+import { useLayoutStore } from "../stores/useLayoutStore";
 import {
   useEafMessageStore,
   EafActionValidationMessage,
@@ -24,6 +28,13 @@ const router = useRouter();
 const auth = useEafAuth();
 const layout = useEafLayout();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const aiChatService = inject(AI_CHAT_SERVICE_KEY, null);
+const layoutStore = useLayoutStore();
+// Not next to the full-page chat, which is the same chat
+const showAiChat = computed(
+  () => aiChatService !== null && !layoutStore.chatPageOpen,
+);
+const aiChatOpen = ref(false);
 const messageStore = useEafMessageStore();
 const toast = useToast();
 
@@ -148,11 +159,20 @@ async function handleLogout(): Promise<void> {
     </Drawer>
 
     <!-- Main Content Area -->
+    <!-- Makes room for the open aside (as wide as --eaf-aside-width), header included, rather than hiding the page under it -->
     <div
-      class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950"
+      :class="[
+        'flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950 transition-[margin] duration-300 motion-reduce:transition-none [.eaf-aside-resizing_&]:transition-none',
+        { 'md:mr-[var(--eaf-aside-width)]': showAiChat && aiChatOpen },
+      ]"
     >
       <!-- Header -->
-      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
+      <AppHeader
+        :ai-chat="showAiChat"
+        @toggle-sidebar="toggleSidebar"
+        @logout="handleLogout"
+        @toggle-ai-chat="aiChatOpen = !aiChatOpen"
+      >
         <template #app-name>
           {{ appConfig.name }}
         </template>
@@ -185,6 +205,10 @@ async function handleLogout(): Promise<void> {
         </main>
       </div>
     </div>
+
+    <AppAside v-if="showAiChat" v-model:open="aiChatOpen">
+      <AiChatPanel :open="aiChatOpen" @close="aiChatOpen = false" />
+    </AppAside>
   </div>
 </template>
 

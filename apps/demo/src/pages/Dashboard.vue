@@ -3,8 +3,10 @@ import { createScopedI18n, useAuthStore } from "@eappflow/ui-shell";
 import {
   EafFormItem,
   EafFormValidationSummary,
+  useEafAiTool,
   useEafForm,
 } from "@eappflow/ui-shell-components";
+import { ref } from "vue";
 import { z } from "zod";
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -16,11 +18,33 @@ const auth = useAuthStore();
 const { t } = createScopedI18n({})();
 const toast = useToast();
 
-const stats = [
+const stats = ref([
   { label: "Users", value: "1,234" },
   { label: "Revenue", value: "$45,678" },
   { label: "Orders", value: "567" },
-];
+]);
+
+// Let the AI chat read and change what this page shows - offered while it is open
+useEafAiTool({
+  name: "get_dashboard_stats",
+  description:
+    "The stats on the user's dashboard, each with its label and value.",
+  run: () => stats.value,
+});
+
+useEafAiTool({
+  name: "randomize_dashboard_stats",
+  description:
+    "Gives the stats on the user's dashboard new random values and returns them.",
+  run: () => {
+    for (const stat of stats.value) {
+      // A new number, keeping a $ in front
+      const random = Math.floor(Math.random() * 10_000).toLocaleString("en-US");
+      stat.value = stat.value.replace(/[\d,]+/, random);
+    }
+    return stats.value;
+  },
+});
 
 // Nested form example: an object (`company`) and a list of objects
 // (`addresses`, each item checked by the array's `z.object`)
@@ -29,6 +53,16 @@ const $f = useEafForm({
     name: "",
     company: { name: "", taxId: "" },
     addresses: [{ street: "", city: "", zipCode: "" }],
+  },
+  // What the AI chat is told besides the fields, nested like the data
+  exposeToAi: {
+    $description: "A contact person and their company.",
+    company: { taxId: "10 digits, no dashes." },
+    addresses: {
+      $description:
+        "Where to deliver, at least two - the first is the main one.",
+      $each: { zipCode: "Like 00-000." },
+    },
   },
   schema: z.object({
     name: z.string(),

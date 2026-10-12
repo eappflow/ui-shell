@@ -27,6 +27,7 @@ import {
 } from "vue-router";
 import type {
   EafModule,
+  EafAiToolConfig,
   AppConfig,
   NavigationGuardOptions,
   I18nConfig,
@@ -45,9 +46,13 @@ import {
 } from "./services/interfaces";
 import { defaultParseApiError } from "./services/defaultParseApiError";
 import {
+  AI_CHAT_TOOLS_KEY,
   EAF_FORM_KEY,
+  eafScreenTools,
   type EafFormApiErrorParser,
 } from "@eappflow/ui-shell-components";
+import { filterPermitted, filterVisibleMenuModules } from "./utils/permissions";
+import { navigateTool } from "./ai-tools/navigateTool";
 import { createNavigationGuards } from "./router/navigationGuards";
 import { createPublicRoutes } from "./router/publicRoutes";
 import { buildModuleRoutes } from "./router/buildModuleRoutes";
@@ -59,6 +64,8 @@ import Tooltip from "primevue/tooltip";
 // ─── Layout component (imported directly to avoid circular deps) ────────────
 import AuthorizedLayout from "./layouts/AuthorizedLayout.vue";
 import { useAuthStore } from "./stores/useAuthStore";
+import { useEafNavigationStore } from "./stores/useEafNavigationStore";
+import { useLayoutStore } from "./stores/useLayoutStore";
 import { createEafI18n } from "./composables/createEafI18n";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
@@ -80,6 +87,9 @@ export interface EAppFlowUIShellPluginOptions {
     themeService?: ThemeService;
     parseApiError?: EafFormApiErrorParser;
   };
+
+  /** The app's own AI chat tools, next to the modules' (`EafModule.aiTools`) */
+  aiTools?: EafAiToolConfig[];
 
   /** Router configuration */
   router?: {
@@ -160,13 +170,33 @@ export const EAppFlowUIShell = {
     // ── 5. Navigation guards ─────────────────────────────────────────────
     createNavigationGuards(router, routerOptions?.guards);
 
-    // ── 6. Register modules ──────────────────────────────────────────────
+    // ── 6. AI chat tools ─────────────────────────────────────────────────
+    const aiTools = [
+      ...modules.flatMap((mod) => mod.aiTools ?? []),
+      ...(options.aiTools ?? []),
+    ];
+    app.provide(AI_CHAT_TOOLS_KEY, () => {
+      const permissions = useAuthStore(pinia).userPermissions;
+      const menu = filterVisibleMenuModules(
+        useEafNavigationStore(pinia).menuModules,
+        permissions,
+      );
+      return [
+        ...eafScreenTools(),
+        ...(useLayoutStore(pinia).chatPageOpen
+          ? []
+          : [navigateTool(router, menu)]),
+        ...filterPermitted(aiTools, permissions),
+      ];
+    });
+
+    // ── 7. Register modules ──────────────────────────────────────────────
     configureModules(modules, app);
 
-    // ── 7. Use router ────────────────────────────────────────────────────
+    // ── 8. Use router ────────────────────────────────────────────────────
     app.use(router);
 
-    // ── 8. Microsoft SSO ─────────────────────────────────────────────────
+    // ── 9. Microsoft SSO ─────────────────────────────────────────────────
     const authStore = useAuthStore();
     if (
       services?.microsoftSSOService &&
@@ -180,13 +210,13 @@ export const EAppFlowUIShell = {
       authStore.initializeMsalInstance(router);
     }
 
-    // ── 9. Use Toast ────────────────────────────────────────────────────
+    // ── 10. Use Toast ────────────────────────────────────────────────────
     app.use(ToastService);
 
-    // ── 10. Use Confirmation ────────────────────────────────────────────────────
+    // ── 11. Use Confirmation ────────────────────────────────────────────────────
     app.use(ConfirmationService);
 
-    // ── 11. v-tooltip for host apps ──────────────────────────────────────────
+    // ── 12. v-tooltip for host apps ──────────────────────────────────────────
     app.directive("tooltip", Tooltip);
   },
 };

@@ -1,7 +1,9 @@
 import type { Ref, Reactive } from "vue";
 import type { z } from "zod";
 import type { EafFields } from "./fields";
+import type { EafAiDescriptions } from "./descriptions";
 export * from "./fields";
+export * from "./descriptions";
 
 /**
  * API Error Response structure for 422 validation errors
@@ -67,6 +69,12 @@ export interface EafFormConfig<T> {
    * error. `"change"`: whenever it changes. `"submit"`: only by `validate()`.
    */
   validateOn?: "blur" | "change" | "submit";
+  /**
+   * Let the AI chat read and fill the form (default `true`), see
+   * `eafScreenTools` - descriptions, nested like the values, tell it what the form
+   * and its fields are for when that isn't plain, see {@link EafAiDescriptions}
+   */
+  exposeToAi?: boolean | EafAiDescriptions<T>;
 }
 
 /*
