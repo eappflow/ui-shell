@@ -52,8 +52,12 @@ const panel = useTemplateRef<InstanceType<typeof Popover>>("panel");
 
       <button
         type="button"
+        data-testid="change-password-menu-item"
         class="flex items-center gap-2 px-3 py-2 text-sm text-left rounded cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800"
-        @click="router.push('/change-password')"
+        @click="
+          panel?.hide();
+          router.push('/change-password');
+        "
       >
         <span class="pi pi-key" />
         <span>{{

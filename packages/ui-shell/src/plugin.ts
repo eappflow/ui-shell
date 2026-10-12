@@ -138,7 +138,14 @@ export const EAppFlowUIShell = {
 
     // ── 4. Build router ──────────────────────────────────────────────────
     const layout = routerOptions?.layout ?? AuthorizedLayout;
-    const extraRoutes = routerOptions?.extraRoutes ?? [];
+    const extraRoutes = [
+      ...(routerOptions?.extraRoutes ?? []),
+      // The account menu's - last and unnamed, so an app's own one wins
+      {
+        path: "change-password",
+        component: () => import("./views/ChangePasswordView.vue"),
+      },
+    ];
 
     const router = createRouter({
       history: createWebHistory(),
