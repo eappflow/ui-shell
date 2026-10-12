@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { reactive, isReactive, isRef } from "vue";
-import { createFields, getByPath, hasPath, isPlainObject } from "../path";
+import {
+  createFields,
+  getByPath,
+  hasPath,
+  isPlainObject,
+  setByPath,
+} from "../path";
 import type { EafFields } from "../../types";
 
 const data = {
@@ -101,11 +107,13 @@ describe("isPlainObject", () => {
 
 describe("createFields", () => {
   const errors = new Map<string, string[]>();
+  const touched: string[] = [];
   const fields = createFields({
     errors: (path) => errors.get(path) ?? [],
     isRequired: (path) => path === "name",
     setErrors: (path, messages) => errors.set(path, [messages].flat()),
     clearErrors: (path) => errors.delete(path),
+    touch: (path) => touched.push(path),
   }) as EafFields<typeof data>;
 
   it("builds the path from property access, array indexes in brackets", () => {
@@ -117,6 +125,8 @@ describe("createFields", () => {
   it("reads and changes the state of the field at its path", () => {
     fields.items[1].name.$setError("Taken");
     expect(errors.get("items[1].name")).toEqual(["Taken"]);
+    fields.items[1].name.$touch();
+    expect(touched).toEqual(["items[1].name"]);
     expect(fields.items[1].name.$error).toBe("Taken");
     expect(fields.items[1].name.$errors).toEqual(["Taken"]);
     expect(fields.name.$required).toBe(true);
@@ -132,5 +142,30 @@ describe("createFields", () => {
     expect(isReactive(field)).toBe(false);
     expect(await Promise.resolve(field)).toBe(field);
     expect(String(field)).toBe("[object Object]");
+  });
+});
+
+describe("setByPath", () => {
+  it("sets existing top-level, nested and array paths", () => {
+    const target = { name: "", address: { city: "" }, items: [{ sku: "" }] };
+
+    expect(setByPath(target, "name", "Anna")).toBe(true);
+    expect(setByPath(target, "address.city", "Kraków")).toBe(true);
+    expect(setByPath(target, "items[0].sku", "A-1")).toBe(true);
+
+    expect(target).toEqual({
+      name: "Anna",
+      address: { city: "Kraków" },
+      items: [{ sku: "A-1" }],
+    });
+  });
+
+  it("leaves paths that do not exist alone", () => {
+    const target = { address: null as { city: string } | null };
+
+    expect(setByPath(target, "nickname", "Ann")).toBe(false);
+    expect(setByPath(target, "address.city", "Kraków")).toBe(false);
+    expect(setByPath(target, "", 1)).toBe(false);
+    expect(target).toEqual({ address: null });
   });
 });

@@ -24,7 +24,6 @@ export type {
   ApiParsedErrorResponse,
   EafField,
   EafFields,
-  EafRules,
 } from "./types";
 
 export default {

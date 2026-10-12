@@ -40,6 +40,18 @@ const errorMessage = computed(() => props.field.$error);
 
 const hasError = computed(() => errorMessage.value !== undefined);
 
+// Leaving the field checks it - not focus moving inside it, nor a press inside
+// it (`:active`), e.g. on PrimeVue Password's eye, which takes no focus
+function onFocusOut(event: FocusEvent) {
+  const item = event.currentTarget as HTMLElement;
+  if (
+    !item.contains(event.relatedTarget as Node | null) &&
+    !item.matches(":active")
+  ) {
+    props.field.$touch();
+  }
+}
+
 // PrimeVue inputs at any depth read `invalid` from `$pcFormField` (as under
 // PrimeVue Forms' FormField)
 provide("$pcFormField", reactive({ $field: { invalid: hasError } }));
@@ -49,25 +61,15 @@ provide("$pcFormField", reactive({ $field: { invalid: hasError } }));
   <div
     :class="['flex flex-col gap-2', props.class]"
     :data-testid="path"
+    @focusout="onFocusOut"
   >
     <!-- Label -->
-    <label
-      v-if="label"
-      :for="path"
-      :class="['font-medium', props.labelClass]"
-    >
+    <label v-if="label" :for="path" :class="['font-medium', props.labelClass]">
       {{ label }}
-      <span
-        v-if="required"
-        class="text-red-500"
-      >*</span>
+      <span v-if="required" class="text-red-500">*</span>
     </label>
 
-    <slot
-      :id="path"
-      :has-error="hasError"
-      :error-message="errorMessage"
-    />
+    <slot :id="path" :has-error="hasError" :error-message="errorMessage" />
     <!-- Error message -->
     <Message
       v-if="hasError"

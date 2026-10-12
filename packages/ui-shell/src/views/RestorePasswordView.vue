@@ -14,6 +14,7 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import { z } from "zod";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -22,17 +23,22 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
 const $f = useEafForm({
-  data: {
+  defaultValues: {
     email: "",
   },
-  rules: {
-    email: {
-      $required: true,
-      $pattern: {
-        regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        message: "Enter a valid email address.",
-      },
-    },
+  schema: z.object({
+    email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
+      error: () =>
+        t(
+          "invalid_email",
+          "Enter a valid email address.",
+          "Podaj poprawny adres e-mail.",
+        ),
+    }),
+  }),
+  async onSubmit({ email }) {
+    await authStore.restorePassword(email);
+    success.value = true;
   },
 });
 
@@ -42,13 +48,6 @@ const uiCard = computed(() => appConfig.classes?.ui?.card);
 const uiButton = computed(() => appConfig.classes?.ui?.button);
 const uiInput = computed(() => appConfig.classes?.ui?.input);
 const uiLabel = computed(() => appConfig.classes?.ui?.label);
-
-async function handleRestorePassword(): Promise<void> {
-  $f.submit(async ({ email }) => {
-    await authStore.restorePassword(email);
-    success.value = true;
-  });
-}
 
 function goToLogin() {
   router.push("/login");
@@ -67,7 +66,7 @@ function goToLogin() {
       <form
         v-if="!success"
         class="flex flex-col gap-5 mt-5"
-        @submit.prevent="handleRestorePassword"
+        @submit.prevent="$f.submit()"
       >
         <EafFormValidationSummary :form="$f" />
 
@@ -111,14 +110,8 @@ function goToLogin() {
         </div>
       </form>
 
-      <div
-        v-else
-        class="flex flex-col gap-5"
-      >
-        <Message
-          severity="success"
-          :closable="false"
-        >
+      <div v-else class="flex flex-col gap-5">
+        <Message severity="success" :closable="false">
           {{
             t(
               "reset_instructions_sent",

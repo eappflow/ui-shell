@@ -26,6 +26,7 @@ export default defineConfig((_) => ({
         /^@primeuix\/.*/, // theme state is a module singleton - must be the host's copy
         "primeicons",
         "@eappflow/ui-shell-components",
+        "zod",
       ],
     },
   },

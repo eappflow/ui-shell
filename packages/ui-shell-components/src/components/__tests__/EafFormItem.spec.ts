@@ -1,25 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { defineComponent, nextTick, type Component } from "vue";
 import { mount } from "@vue/test-utils";
+import { z } from "zod";
 import PrimeVue from "primevue/config";
 import IconField from "primevue/iconfield";
 import InputText from "primevue/inputtext";
+import Password from "primevue/password";
 import EafFormItem from "../EafFormItem.vue";
 import NestedFormFixture from "./NestedFormFixture.vue";
 import { useEafForm } from "../../composables/useEafForm";
-import type { EafForm, EafRules } from "../../types";
+import type { EafForm } from "../../types";
 
-interface TestForm {
-  firstName: string;
-  address: { street: string; city: string };
-}
-
-const rules: EafRules<TestForm> = {
-  firstName: { $required: true },
-  address: {
-    street: { $required: { message: "Street is required" } },
-  },
-};
+const schema = z.object({
+  firstName: z.string(),
+  address: z.object({
+    street: z.string("Street is required"),
+    city: z.string().optional(),
+  }),
+});
+type TestForm = z.input<typeof schema>;
 
 function mountForm(
   template: string,
@@ -29,9 +28,9 @@ function mountForm(
   const Host = defineComponent({
     components: { EafFormItem, ...options.components },
     setup() {
-      form = useEafForm<TestForm>({
-        data: { firstName: "", address: { street: "", city: "" } },
-        rules,
+      form = useEafForm({
+        defaultValues: { firstName: "", address: { street: "", city: "" } },
+        schema,
       });
       // Not `$f`: runtime-compiled templates don't expose `$`-prefixed
       // setup bindings (script-setup SFCs do)
@@ -75,7 +74,7 @@ describe("EafFormItem", () => {
     );
   });
 
-  it("shows the required asterisk from the rules", () => {
+  it("shows the required asterisk from the schema", () => {
     const { wrapper } = mountForm(`
       <EafFormItem :field="f.fields.address.street" label="Street">
         <input />
@@ -140,6 +139,23 @@ describe("EafFormItem", () => {
 
     await input().setValue("Main");
     expect(input().classes()).not.toContain("p-invalid");
+  });
+
+  // A press on the eye is checked in the browser (e2e/change-password.spec.ts) - jsdom has no `:active`
+  it("checks the field when focus leaves it", async () => {
+    const { wrapper } = mountForm(
+      `
+      <EafFormItem :field="f.fields.address.street">
+        <Password v-model="f.data.address.street" toggle-mask :feedback="false" />
+      </EafFormItem>
+    `,
+      { components: { Password } },
+    );
+    const error = () => wrapper.find('[data-testid="address.street-error"]');
+    expect(error().exists()).toBe(false);
+
+    await wrapper.get("input").trigger("focusout", { relatedTarget: null });
+    expect(error().text()).toBe("Street is required");
   });
 
   it("shows only the first error by default", async () => {

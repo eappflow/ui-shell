@@ -1,8 +1,7 @@
 import type { Ref, Reactive } from "vue";
+import type { z } from "zod";
 import type { EafFields } from "./fields";
-import type { EafRules } from "./rules";
 export * from "./fields";
-export * from "./rules";
 
 /**
  * API Error Response structure for 422 validation errors
@@ -47,15 +46,27 @@ export interface EafFormApiErrorParser {
   (error: unknown): ApiParsedErrorResponse;
 }
 
-/**
- * Configuration options for useEafFormValidation composable
- */
+/** A form's config, by its values `T` - typed by `schema` when there is one */
 export interface EafFormConfig<T> {
-  data: T;
-  /** Rules mirroring `data`, see {@link EafRules} */
-  rules?: EafRules<T>;
-  /** Check a field's rules when its value changes (default `true`) */
-  validateOnChange?: boolean;
+  /** The form's values to start with - and what `resetForm()` puts back */
+  defaultValues: T;
+  /**
+   * What valid values are. Its errors go on the fields at their paths. `""`
+   * and `null` count as missing: a field is required unless it is
+   * `.optional()` - an empty value that isn't a string needs `.nullable()`,
+   * which keeps it required. Messages go on the checks (`.min(1, "...")`) -
+   * one on the type itself (`z.string("...")`) also replaces the required message.
+   */
+  schema?: z.ZodType<unknown, T>;
+  /** What `submit()` does with the values once they are valid; its error goes to `handleApiError` */
+  onSubmit?: (values: T) => Promise<void> | void;
+  /**
+   * When a field is checked before `validate()`/`submit()`, default `"blur"`:
+   * once focus leaves its `EafFormItem` (or on `$touch()`), and from then on
+   * when it changes - as it does once `validate()` ran or while it has an
+   * error. `"change"`: whenever it changes. `"submit"`: only by `validate()`.
+   */
+  validateOn?: "blur" | "change" | "submit";
 }
 
 /*
@@ -70,9 +81,9 @@ export interface EafForm<T> {
   summaryErrors: Ref<string[]>;
   generalMessage: Ref<string>;
   validate: () => boolean;
-  /** Validates, runs `handleSubmit`, passes its error to `handleApiError` */
-  submit: (handleSubmit: (data: T) => Promise<void>) => Promise<void>;
-  /** Puts `data` (default: the initial data) into the form and clears its errors, without validating */
+  /** Validates, runs `onSubmit`, passes its error to `handleApiError` */
+  submit: () => Promise<void>;
+  /** Puts `data` (default: `defaultValues`) into the form and clears its errors, without validating */
   resetForm: (data?: T) => void;
   /** Puts API errors on their fields, the rest in the summary */
   handleApiError: (error: unknown) => boolean;

@@ -13,7 +13,15 @@ export default defineConfig((env) => ({
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
     },
     rolldownOptions: {
-      external: ["vue", "vue-i18n", "primevue", "pinia", /^primevue\/.*/],
+      external: [
+        "vue",
+        "vue-i18n",
+        "primevue",
+        "pinia",
+        /^primevue\/.*/,
+        // Schemas come from the host's copy
+        "zod",
+      ],
     },
   },
 }));

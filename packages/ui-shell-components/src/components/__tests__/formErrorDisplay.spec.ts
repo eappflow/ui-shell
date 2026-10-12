@@ -23,7 +23,7 @@ function mountFormWithBackendError(backendError: ApiParsedErrorResponse) {
     components: { EafFormValidationSummary, EafFormItem },
     setup() {
       const form = useEafForm<TestForm>({
-        data: reactive({ firstName: "" }),
+        defaultValues: reactive({ firstName: "" }),
       });
       form.handleApiError(backendError);
       return { form };

@@ -4,40 +4,30 @@
  * (`$f` binding in a compiled SFC template) and the template types (checked
  * by vue-tsc) are covered.
  */
+import { z } from "zod";
 import EafFormItem from "../EafFormItem.vue";
 import { useEafForm } from "../../composables/useEafForm";
 
-interface UnitForm {
-  name: string;
-  address: { street: string; city: string } | null;
-}
-
-const $f = useEafForm<UnitForm>({
-  data: { name: "", address: { street: "", city: "" } },
-  rules: {
-    name: { $required: true },
-    address: { $required: true, street: { $required: true } },
-  },
+const $f = useEafForm({
+  defaultValues: { name: "", address: { street: "", city: "" } },
+  schema: z.object({
+    name: z.string(),
+    // Required all the same - a null one is a missing one
+    address: z
+      .object({ street: z.string(), city: z.string().optional() })
+      .nullable(),
+  }),
 });
 
 defineExpose({ form: $f });
 </script>
 
 <template>
-  <EafFormItem
-    :field="$f.fields.name"
-    label="Name"
-  >
-    <input v-model="$f.data.name">
+  <EafFormItem :field="$f.fields.name" label="Name">
+    <input v-model="$f.data.name" />
   </EafFormItem>
-  <EafFormItem
-    :field="$f.fields.address.street"
-    label="Street"
-  >
-    <input
-      v-if="$f.data.address"
-      v-model="$f.data.address.street"
-    >
+  <EafFormItem :field="$f.fields.address.street" label="Street">
+    <input v-if="$f.data.address" v-model="$f.data.address.street" />
   </EafFormItem>
 
   <!-- Type-level checks only, never rendered -->

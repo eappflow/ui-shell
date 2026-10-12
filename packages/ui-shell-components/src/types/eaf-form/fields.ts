@@ -17,12 +17,14 @@ export interface EafField {
   readonly $errors: string[];
   /** First error */
   readonly $error: string | undefined;
-  /** Has a `required` rule */
+  /** The schema takes no empty value there */
   readonly $required: boolean;
   /** Sets the errors, e.g. from a custom check */
   readonly $setError: (messages: string | string[]) => void;
   /** Removes the errors */
   readonly $clearError: () => void;
+  /** Checks the field as leaving it does, see `validateOn` - `EafFormItem` calls it on focus out */
+  readonly $touch: () => void;
 }
 
 /** Field of `V` plus the fields inside it */

@@ -10,63 +10,51 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import { z } from "zod";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
 const { t } = useScopedI18n();
 
-interface ChangePasswordForm {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-const $f = useEafForm<ChangePasswordForm>({
-  data: {
+const $f = useEafForm({
+  defaultValues: {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   },
-  rules: {
-    currentPassword: {
-      $required: true,
-    },
-    newPassword: {
-      $required: true,
-      $length: {
-        minLength: 6,
-        message: "Password must be at least 6 characters",
-      },
-    },
-    confirmPassword: {
-      $required: true,
-    },
-  },
-});
-const success = ref(false);
-
-function resetForm() {
-  $f.resetForm();
-  success.value = false;
-}
-
-async function handleChangePassword(): Promise<void> {
-  if (!$f.validate()) return;
-
-  // Cross-field checks the declarative `rules` engine can't express
-  const { currentPassword, newPassword, confirmPassword } = $f.data;
-  if (newPassword !== confirmPassword) {
-    $f.fields.confirmPassword.$setError("Passwords do not match");
-    return;
-  }
-  if (currentPassword === newPassword) {
-    $f.fields.newPassword.$setError(
-      "New password must be different from current password",
-    );
-    return;
-  }
-
-  await $f.submit(async () => {
+  schema: z
+    .object({
+      currentPassword: z.string(),
+      // Functions, so the messages follow a language change
+      newPassword: z.string().min(6, {
+        error: () =>
+          t(
+            "password_too_short",
+            "Password must be at least 6 characters",
+            "Hasło musi mieć co najmniej 6 znaków",
+          ),
+      }),
+      confirmPassword: z.string(),
+    })
+    .refine((form) => form.newPassword === form.confirmPassword, {
+      error: () =>
+        t(
+          "passwords_mismatch",
+          "Passwords do not match",
+          "Hasła nie są takie same",
+        ),
+      path: ["confirmPassword"],
+    })
+    .refine((form) => form.currentPassword !== form.newPassword, {
+      error: () =>
+        t(
+          "password_unchanged",
+          "New password must be different from current password",
+          "Nowe hasło musi się różnić od obecnego",
+        ),
+      path: ["newPassword"],
+    }),
+  async onSubmit() {
     // In real scenario: this would call authService via store
     // await authService.changePassword({ currentPassword, newPassword })
     success.value = true;
@@ -77,7 +65,13 @@ async function handleChangePassword(): Promise<void> {
       detail: "Your password has been changed successfully",
       life: 5000,
     });
-  });
+  },
+});
+const success = ref(false);
+
+function resetForm() {
+  $f.resetForm();
+  success.value = false;
 }
 </script>
 
@@ -94,10 +88,7 @@ async function handleChangePassword(): Promise<void> {
 
     <Card>
       <template #content>
-        <form
-          class="space-y-6"
-          @submit.prevent="handleChangePassword"
-        >
+        <form class="space-y-6" @submit.prevent="$f.submit()">
           <Message
             v-if="success"
             severity="success"
@@ -115,10 +106,7 @@ async function handleChangePassword(): Promise<void> {
 
           <EafFormValidationSummary :form="$f" />
 
-          <Message
-            severity="info"
-            :closable="false"
-          >
+          <Message severity="info" :closable="false">
             {{
               t(
                 "password_change_info",
@@ -130,10 +118,7 @@ async function handleChangePassword(): Promise<void> {
 
           <EafFormValidationSummary :form="$f" />
 
-          <Message
-            severity="info"
-            :closable="false"
-          >
+          <Message severity="info" :closable="false">
             {{
               t(
                 "password_change_info",
