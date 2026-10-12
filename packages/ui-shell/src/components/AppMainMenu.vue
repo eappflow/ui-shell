@@ -18,7 +18,7 @@ const { t, te } = useI18n({ useScope: "global" });
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 
-const props = defineProps<{
+defineProps<{
   compact?: boolean;
 }>();
 
@@ -30,15 +30,11 @@ const visibleMenuModules = computed(() =>
   filterVisibleMenuModules(navigation.menuModules, auth.userPermissions),
 );
 
-// Compact (collapsed sidebar) flattens the groups — the icon rail has no
-// room for group labels.
 const menuModel = computed(() =>
-  props.compact
-    ? visibleMenuModules.value.flatMap((module) => module.items)
-    : visibleMenuModules.value.map((module) => ({
-        label: label(module),
-        items: module.items,
-      })),
+  visibleMenuModules.value.map((module) => ({
+    label: label(module),
+    items: module.items,
+  })),
 );
 
 function navigateToPage(item: EafMenuItem): void {
@@ -63,10 +59,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
 </script>
 
 <template>
-  <nav
-    aria-label="Main"
-    :data-compact="compact ? 'true' : 'false'"
-  >
+  <nav aria-label="Main" :data-compact="compact ? 'true' : 'false'">
     <Menu
       :model="menuModel"
       :class="[
@@ -74,14 +67,16 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         appConfig.classes?.layout?.authorized?.menu?.root,
       ]"
     >
+      <!-- Compact: the group name gives way to a divider of the same height, so nothing shifts on expand -->
       <template #submenulabel="{ item }">
         <span
           :class="[
-            'text-[0.65625rem] uppercase tracking-[0.7px]',
+            'flex h-4 items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap',
             appConfig.classes?.layout?.authorized?.menu?.['group-label'],
           ]"
         >
-          {{ item.label }}
+          <span v-if="compact" class="h-px w-full bg-eaf-card-border" />
+          <span :class="compact && 'sr-only'">{{ item.label }}</span>
         </span>
       </template>
 
@@ -89,12 +84,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         <a
           v-bind="itemProps.action"
           :class="[
-            'flex w-full min-w-0! text-[0.8125rem] font-medium',
-            compact
-              ? // px-0! drops menu.item.padding, which .p-menu-item-link adds
-                // via props.action and which leaves the caption too little room.
-                'flex-col items-center justify-center gap-0.5 py-1 px-0!'
-              : 'items-center',
+            'flex items-center w-full min-w-0! text-[0.8125rem] font-medium',
             appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(item) && 'font-semibold bg-eaf-highlight',
             isActive(item) &&
@@ -104,32 +94,19 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         >
           <span
             v-if="item.icon"
-            :class="[
-              'flex shrink-0 items-center justify-center',
-              compact ? 'h-8 w-8' : 'w-5',
-            ]"
+            class="flex shrink-0 items-center justify-center w-5"
           >
             <i
               :class="[item.icon, isActive(item) && 'text-primary']"
               class="text-[18px] opacity-90"
             />
           </span>
-          <span
-            :class="
-              compact
-                ? 'w-full text-center text-[9px] leading-tight break-normal hyphens-none opacity-80'
-                : 'truncate'
-            "
-          >{{ label(asEafMenuItem(item)) }}</span>
+          <!-- Compact keeps the label for screen readers, the icon stays put -->
+          <span :class="compact ? 'sr-only' : 'truncate'">{{
+            label(asEafMenuItem(item))
+          }}</span>
         </a>
       </template>
     </Menu>
   </nav>
 </template>
-
-<style scoped>
-/* Collapsed rail: a touch more air than PrimeVue's 2px list gap. */
-nav[data-compact="true"] :deep(.p-menu-list) {
-  gap: 0.25rem;
-}
-</style>

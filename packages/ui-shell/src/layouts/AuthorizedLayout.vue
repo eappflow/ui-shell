@@ -19,7 +19,6 @@ import {
   EafActionValidationMessage,
 } from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
-import { useBreakpoints } from "@vueuse/core";
 
 const router = useRouter();
 const auth = useEafAuth();
@@ -27,9 +26,6 @@ const layout = useEafLayout();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const messageStore = useEafMessageStore();
 const toast = useToast();
-const breakpoints = useBreakpoints({
-  md: 768,
-});
 
 // Sidebar state (collapsed state lives in the layout store so it persists)
 const mobileSidebarVisible = ref(false);
@@ -106,12 +102,8 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
 
 // Methods
 function toggleSidebar(): void {
-  const isMobile = breakpoints.smaller("md");
-  if (isMobile.value) {
-    mobileSidebarVisible.value = !mobileSidebarVisible.value;
-  } else {
-    layout.toggleSidebar();
-  }
+  // The header's button is mobile-only, the desktop sidebar has its own
+  mobileSidebarVisible.value = !mobileSidebarVisible.value;
 }
 
 function handleMenuItemClick(): void {
@@ -131,21 +123,23 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar :collapsed="layout.sidebarCollapsed">
+    <AppSidebar
+      :collapsed="layout.sidebarCollapsed"
+      @toggle="layout.toggleSidebar()"
+    >
       <!-- Logo Area -->
-      <template #logo>
-        <AuthorizedEafLogo :show-app-name="!layout.sidebarCollapsed" />
+      <template #logo="{ compact }">
+        <AuthorizedEafLogo :show-app-name="!compact" />
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu :compact="layout.sidebarCollapsed" />
+      <template #default="{ compact }">
+        <AppMainMenu :compact="compact" />
+      </template>
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
-    <Drawer
-      v-model:visible="mobileSidebarVisible"
-      class="md:hidden"
-    >
+    <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
         <AuthorizedEafLogo :show-app-name="true" />
       </template>
@@ -158,10 +152,7 @@ async function handleLogout(): Promise<void> {
       class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950"
     >
       <!-- Header -->
-      <AppHeader
-        @toggle-sidebar="toggleSidebar"
-        @logout="handleLogout"
-      >
+      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
         <template #app-name>
           {{ appConfig.name }}
         </template>
@@ -169,18 +160,12 @@ async function handleLogout(): Promise<void> {
 
       <!-- Settings Overlay -->
       <Popover ref="settingsPanel">
-        <Menu
-          :model="settingsMenuItems"
-          class="border-none"
-        />
+        <Menu :model="settingsMenuItems" class="border-none" />
       </Popover>
 
       <!-- Account Overlay -->
       <Popover ref="accountPanel">
-        <Menu
-          :model="accountMenuItems"
-          class="border-none"
-        />
+        <Menu :model="accountMenuItems" class="border-none" />
       </Popover>
 
       <div class="flex-1 overflow-y-auto flex flex-col">
