@@ -6,7 +6,7 @@ import { eafFormTools } from "../formTools";
 import type { EafForm, EafFormConfig } from "../../types";
 
 const orderSchema = z.object({
-  name: z.string("Name is required"),
+  name: z.string().min(1, "Name is required"),
   quantity: z.number().min(1, "At least 1").optional(),
   deliverOn: z.date().nullable().optional(),
   address: z.object({ city: z.string().optional() }),
@@ -156,7 +156,7 @@ describe("eafFormTools", () => {
   it("checks the new array items too, and drops the errors of removed ones", () => {
     const { wrapper } = mountForm({
       schema: orderSchema.extend({
-        items: z.array(z.object({ sku: z.string("No SKU") })),
+        items: z.array(z.object({ sku: z.string().min(1, "No SKU") })),
       }),
     });
     const [{ form: number }] = tool("get_forms").run({}) as Described[];

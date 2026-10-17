@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { EafAiTool } from "../types";
 import { defineEafAiTool } from "./defineEafAiTool";
 import { getByPath, hasPath, isPlainObject, setByPath } from "../utils/path";
-import { blankToUndefined, issuePath, schemaAt } from "../utils/schema";
+import { isBlank, issuePath, schemaAt } from "../utils/schema";
 
 /** What the AI tools need of a `useEafForm` */
 interface AiForm {
@@ -80,13 +80,15 @@ function describeForm(number: number, form: AiForm) {
 
 // Breaking a check (too short, wrong format...) is fine: the value goes in and
 // the form shows the error. A wrong type or an unknown option would break the
-// form's inputs - an empty value is a missing one, see `blankToUndefined`.
+// form's inputs - an empty value is a missing one, see `isBlank`.
 const isWrongType = (issue: z.core.$ZodIssue) =>
-  issue.code === "invalid_type"
-    ? issue.input !== undefined
-    : ["invalid_value", "invalid_union", "unrecognized_keys"].includes(
-        issue.code,
-      );
+  !isBlank(issue.input) &&
+  [
+    "invalid_type",
+    "invalid_value",
+    "invalid_union",
+    "unrecognized_keys",
+  ].includes(issue.code);
 
 /** Why `value` can't go in the field at `path`, by the form's schema; `undefined` when it can */
 function wrongType(
@@ -96,7 +98,7 @@ function wrongType(
 ): string | undefined {
   const issues =
     schemaAt(form.schema, path)
-      ?.safeParse(blankToUndefined(value), { reportInput: true })
+      ?.safeParse(value, { reportInput: true })
       .error?.issues.filter(isWrongType) ?? [];
   if (issues.length === 0) {
     return undefined;

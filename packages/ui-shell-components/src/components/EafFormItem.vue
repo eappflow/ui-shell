@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EafField } from "../types/eaf-form";
-import { computed, provide, reactive } from "vue";
+import { computed, provide, reactive, watchEffect } from "vue";
 import Message from "primevue/message";
 
 export interface Props {
@@ -33,6 +33,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const path = computed(() => props.field.$path);
+
+// Its errors show here, not in the form's summary
+watchEffect((onCleanup) => onCleanup(props.field.$display()));
 
 const required = computed(() => props.field.$required);
 

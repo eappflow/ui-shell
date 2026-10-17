@@ -49,9 +49,8 @@ useEafAiTool({
 // Nested form example: an object (`company`) and a list of objects
 // (`addresses`, each item checked by the array's `z.object`)
 const $f = useEafForm({
+  // The schema starts the list empty - one address to fill instead
   defaultValues: {
-    name: "",
-    company: { name: "", taxId: "" },
     addresses: [{ street: "", city: "", zipCode: "" }],
   },
   // What the AI chat is told besides the fields, nested like the data
@@ -65,30 +64,24 @@ const $f = useEafForm({
     },
   },
   schema: z.object({
-    name: z.string(),
+    name: z.string().min(1),
     company: z.object({
-      name: z.string(),
-      // Messages as functions, so they follow a language change
-      taxId: z
-        .string()
-        .regex(/^\d{10}$/, {
-          error: () =>
-            t("tax_id_format", "Tax ID has 10 digits", "NIP ma 10 cyfr"),
-        })
-        .optional(),
+      name: z.string().min(1),
+      // Empty or 10 digits. Messages as functions, so they follow a language change
+      taxId: z.string().regex(/^(\d{10})?$/, {
+        error: () =>
+          t("tax_id_format", "Tax ID has 10 digits", "NIP ma 10 cyfr"),
+      }),
     }),
     addresses: z
       .array(
         z.object({
-          street: z.string(),
-          city: z.string(),
-          zipCode: z
-            .string()
-            .regex(/^\d{2}-\d{3}$/, {
-              error: () =>
-                t("zip_code_format", "Format: 00-000", "Format: 00-000"),
-            })
-            .optional(),
+          street: z.string().min(1),
+          city: z.string().min(1),
+          zipCode: z.string().regex(/^(\d{2}-\d{3})?$/, {
+            error: () =>
+              t("zip_code_format", "Format: 00-000", "Format: 00-000"),
+          }),
         }),
       )
       // The list's own check: its error goes on the list, each address's on its fields

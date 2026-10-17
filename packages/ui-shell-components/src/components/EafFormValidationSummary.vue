@@ -26,9 +26,13 @@ const generalMessage = computed(() => {
   return formMessage || props.generalMessage || "";
 });
 
+// With the errors of fields no EafFormItem shows, so none goes unseen
 const errors = computed(() => {
-  const formErrors = props.form?.summaryErrors
-    ? unref(props.form.summaryErrors)
+  const formErrors = props.form
+    ? [
+        ...unref(props.form.summaryErrors),
+        ...unref(props.form.undisplayedErrors),
+      ]
     : [];
   return formErrors.length > 0 ? formErrors : props.summaryErrors || [];
 });
@@ -49,10 +53,7 @@ const hasContent = computed(() => {
   >
     <div class="flex flex-col gap-2">
       <!-- General message -->
-      <div
-        v-if="generalMessage"
-        class="font-semibold"
-      >
+      <div v-if="generalMessage" class="font-semibold">
         {{ generalMessage }}
       </div>
 
@@ -61,11 +62,7 @@ const hasContent = computed(() => {
         v-if="errors && errors.length > 0"
         class="list-disc list-inside space-y-1 mt-1"
       >
-        <li
-          v-for="(error, index) in errors"
-          :key="index"
-          class="text-sm"
-        >
+        <li v-for="(error, index) in errors" :key="index" class="text-sm">
           {{ error }}
         </li>
       </ul>

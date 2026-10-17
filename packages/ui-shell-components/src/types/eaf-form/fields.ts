@@ -25,6 +25,12 @@ export interface EafField {
   readonly $clearError: () => void;
   /** Checks the field as leaving it does, see `validateOn` - `EafFormItem` calls it on focus out */
   readonly $touch: () => void;
+  /**
+   * Marks the field as shown with its errors until the returned function is
+   * called - `EafFormItem` does it while mounted; errors of fields no one
+   * shows go to the summary, see `EafForm.undisplayedErrors`
+   */
+  readonly $display: () => () => void;
 }
 
 /** Field of `V` plus the fields inside it */

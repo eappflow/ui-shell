@@ -12,9 +12,9 @@ import { useEafForm } from "../../composables/useEafForm";
 import type { EafForm } from "../../types";
 
 const schema = z.object({
-  firstName: z.string(),
+  firstName: z.string().min(1),
   address: z.object({
-    street: z.string("Street is required"),
+    street: z.string().min(1, "Street is required"),
     city: z.string().optional(),
   }),
 });

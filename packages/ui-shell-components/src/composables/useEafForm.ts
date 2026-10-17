@@ -1,5 +1,6 @@
-import { ref, reactive, watch, InjectionKey, inject } from "vue";
+import { computed, ref, reactive, watch, InjectionKey, inject } from "vue";
 import { useI18n, type Composer } from "vue-i18n";
+import { z } from "zod";
 import type {
   EafFields,
   EafForm,
@@ -8,7 +9,14 @@ import type {
 } from "../types";
 import { cloneDeep } from "../utils/cloneDeep";
 import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
-import { blankToUndefined, issuePath, schemaAt } from "../utils/schema";
+import {
+  blanksToUnset,
+  deriveDefaults,
+  isBlank,
+  isRequiredSchema,
+  issuePath,
+  schemaAt,
+} from "../utils/schema";
 import { exposeFormToAi } from "../ai-tools/formTools";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
@@ -18,6 +26,9 @@ export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
 // Overridable via i18nConfig.messages, like any other shell translation.
 const REQUIRED_MESSAGE_KEY = "validation.required";
 const DEFAULT_REQUIRED_MESSAGE = "This field is required";
+// zod's own messages for the other checks (too long, out of range...), in the
+// app's languages - only these, so a host bundles no other locale
+const ZOD_LOCALES = { en: z.locales.en, pl: z.locales.pl };
 
 /** Every path in `value`: objects' keys, arrays and their items, nested ones too */
 function fieldPaths(value: unknown, parentPath: string): string[] {
@@ -47,17 +58,29 @@ export function useEafForm<T extends object>({
 
   // null when no vue-i18n plugin is installed
   let t: Composer["t"] | null = null;
+  let locale: Composer["locale"] | null = null;
   try {
-    ({ t } = useI18n({ useScope: "global" }));
+    ({ t, locale } = useI18n({ useScope: "global" }));
   } catch {
     /* no-op */
   }
 
-  // A copy: `defaultValues` stay as they are - for resetForm(), and the other
+  // What a fresh form starts with: the schema's empty values (and any default it
+  // declares), overridden by the caller's `defaultValues` - where a form-only
+  // field, or one whose empty value differs from the schema, goes.
+  const derived = schema ? deriveDefaults(schema) : undefined;
+  const initialValues = {
+    ...(isPlainObject(derived) ? derived : {}),
+    ...(defaultValues ?? {}),
+  } as T;
+
+  // A copy: `initialValues` stay as they are - for resetForm(), and the other
   // forms that may share them
-  const data = reactive(cloneDeep(defaultValues));
+  const data = reactive(cloneDeep(initialValues));
 
   const fieldErrors = reactive(new Map<string, string[]>());
+  // How many `EafFormItem`s show each field, see `$display`
+  const displayed = reactive(new Map<string, number>());
   const summaryErrors = ref<string[]>([]);
   const generalMessage = ref("");
   const loading = ref(false);
@@ -105,19 +128,21 @@ export function useEafForm<T extends object>({
   }
 
   /**
-   * The schema's errors by field path ("" for the whole form's). A field
-   * missing a value gets the translated required message, unless the schema
-   * gives its own.
+   * The schema's errors by field path ("" for the whole form's). An empty
+   * field (`isBlank`) gets the translated required message, the rest zod's
+   * message in the app's language - unless the schema gives its own.
    */
   function schemaErrors(): Map<string, string[]> {
     const errors = new Map<string, string[]>();
     if (schema === undefined) return errors;
 
-    const result = schema.safeParse(blankToUndefined(data), {
+    const language = locale?.value.split("-")[0] as keyof typeof ZOD_LOCALES;
+    const localeError = ZOD_LOCALES[language]?.().localeError;
+    const result = schema.safeParse(blanksToUnset(schema, data), {
       error: (issue) =>
-        issue.code === "invalid_type" && issue.input === undefined
+        isBlank(issue.input)
           ? (t?.(REQUIRED_MESSAGE_KEY) ?? DEFAULT_REQUIRED_MESSAGE)
-          : undefined,
+          : localeError?.(issue),
     });
     if (result.success) return errors;
 
@@ -169,7 +194,7 @@ export function useEafForm<T extends object>({
 
     loading.value = true;
     try {
-      await onSubmit?.(data as T);
+      await onSubmit?.((schema ? blanksToUnset(schema, data) : data) as T);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -180,10 +205,31 @@ export function useEafForm<T extends object>({
   const setFieldError = (path: string, messages: string | string[]) =>
     fieldErrors.set(path, [messages].flat());
 
-  /** Whether the schema takes no empty value there, see `blankToUndefined` */
+  /** Counts the field as shown until the returned function is called */
+  function display(path: string): () => void {
+    displayed.set(path, (displayed.get(path) ?? 0) + 1);
+    let shown = true;
+    return () => {
+      if (!shown) return;
+      shown = false;
+      const count = (displayed.get(path) ?? 1) - 1;
+      if (count > 0) displayed.set(path, count);
+      else displayed.delete(path);
+    };
+  }
+
+  const undisplayedErrors = computed(() =>
+    [...fieldErrors]
+      .filter(([path]) => !displayed.has(path))
+      .flatMap(([path, messages]) =>
+        messages.map((message) => `${path}: ${message}`),
+      ),
+  );
+
+  /** Whether the schema takes no empty value there, see `isRequiredSchema` */
   function isFieldRequired(path: string): boolean {
     const field = schemaAt(schema, path);
-    return field !== undefined && !field.safeParse(undefined).success;
+    return field !== undefined && isRequiredSchema(field);
   }
 
   function clearErrors(): void {
@@ -192,9 +238,19 @@ export function useEafForm<T extends object>({
     generalMessage.value = "";
   }
 
-  /** Puts `newData` (default: `defaultValues`) into the form, unvalidated */
-  function resetForm(newData: T = defaultValues): void {
-    Object.assign(data, cloneDeep(newData));
+  /**
+   * Puts `newData` (default: the initial values) into the form, unvalidated -
+   * over the initial values, so a field it lacks (a loaded record's `id`) doesn't
+   * keep what the previous data put in
+   */
+  function resetForm(newData: T = initialValues): void {
+    const values = cloneDeep({ ...initialValues, ...newData });
+    for (const key of Object.keys(data)) {
+      if (!Object.hasOwn(values, key)) {
+        delete (data as Record<string, unknown>)[key];
+      }
+    }
+    Object.assign(data, values);
     // After the assign, so it also drops what the change check found
     clearErrors();
     touched.clear();
@@ -280,10 +336,12 @@ export function useEafForm<T extends object>({
       setErrors: setFieldError,
       clearErrors: (path) => fieldErrors.delete(path),
       touch,
+      display,
     }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
+    undisplayedErrors,
     generalMessage,
 
     // Helper functions

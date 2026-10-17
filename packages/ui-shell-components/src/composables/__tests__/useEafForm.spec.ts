@@ -4,6 +4,7 @@ import { mount } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 import { z } from "zod";
 import { useEafForm, EAF_FORM_KEY } from "../useEafForm";
+import { deriveDefaults } from "../../utils/schema";
 import type {
   ApiParsedErrorResponse,
   EafForm,
@@ -19,7 +20,8 @@ interface TestForm {
 
 const schema = z.object({
   firstName: z
-    .string("First name is required")
+    .string()
+    .min(1, "First name is required")
     .min(2, "First name must be 2-10 characters")
     .max(10, "First name must be 2-10 characters"),
   age: z
@@ -27,10 +29,10 @@ const schema = z.object({
     .min(18, "Age must be between 18 and 65")
     .max(65, "Age must be between 18 and 65")
     .optional(),
+  // Empty, or an email address
   email: z
     .string()
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Enter a valid email address")
-    .optional(),
+    .regex(/^$|^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Enter a valid email address"),
 });
 
 function withSetup<T>(
@@ -93,12 +95,141 @@ describe("useEafForm - schema validation", () => {
   });
 });
 
+describe("useEafForm - required fields", () => {
+  it("requires what the schema takes no empty value for - '' and null may stay where it takes them", () => {
+    interface RequiredForm {
+      name: string;
+      note: string;
+      personId: string | null;
+      signedOn: string | null;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<RequiredForm>({
+        defaultValues: {
+          name: "",
+          note: "",
+          personId: null,
+          signedOn: null,
+        },
+        schema: z.object({
+          name: z.string().min(1),
+          note: z.string(),
+          personId: z.string(),
+          signedOn: z.string().nullable(),
+        }),
+      }),
+    );
+
+    expect($f.validate()).toBe(false);
+    expect([...$f.fieldErrors.keys()]).toEqual(["name", "personId"]);
+    expect($f.fields.name.$error).toBe("This field is required");
+    expect($f.fields.personId.$error).toBe("This field is required");
+    expect($f.fields.name.$required).toBe(true);
+    expect($f.fields.note.$required).toBe(false);
+    expect($f.fields.signedOn.$required).toBe(false);
+  });
+});
+
+describe("useEafForm - empty values on submit", () => {
+  it("sends what is empty as null where the schema takes null, leaving data as it is", async () => {
+    const onSubmit = vi.fn();
+    const address = { city: "", street: "" };
+    const { result: $f } = withSetup(() =>
+      useEafForm({
+        defaultValues: {
+          name: "Jan",
+          note: "",
+          email: "",
+          homeAddress: address,
+          workAddress: { city: "Kraków", street: "" },
+          phones: [{ number: "" }],
+        },
+        schema: z.object({
+          name: z.string().min(1),
+          note: z.string(),
+          email: z.string().nullish(),
+          homeAddress: z
+            .object({ city: z.string(), street: z.string() })
+            .nullish(),
+          workAddress: z
+            .object({ city: z.string(), street: z.string().nullable() })
+            .nullable(),
+          phones: z.array(z.object({ number: z.string().nullable() })),
+        }),
+        onSubmit,
+      }),
+    );
+
+    await $f.submit();
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      name: "Jan",
+      note: "",
+      email: null,
+      homeAddress: null,
+      workAddress: { city: "Kraków", street: null },
+      phones: [{ number: null }],
+    });
+    expect($f.data.email).toBe("");
+    expect($f.data.homeAddress).toEqual(address);
+  });
+});
+
+describe("useEafForm - a schema taking null for a sub-object", () => {
+  it("fits a form that always holds the sub-object, which goes out as null once left empty", async () => {
+    // The API's: the address is optional, and when given its fields are required
+    const schema = z.object({
+      name: z.string().min(1),
+      address: z.object({ city: z.string().min(1) }).nullish(),
+    });
+    const onSubmit = vi.fn();
+    const { result: $f } = withSetup(() =>
+      useEafForm<{ name: string; address: { city: string } }>({
+        defaultValues: { name: "Jan", address: { city: "" } },
+        schema,
+        onSubmit,
+      }),
+    );
+
+    await $f.submit();
+    expect(onSubmit).toHaveBeenCalledWith({ name: "Jan", address: null });
+
+    $f.data.address.city = "K";
+    $f.data.name = "";
+    expect($f.validate()).toBe(false);
+    expect([...$f.fieldErrors.keys()]).toEqual(["name"]);
+  });
+});
+
+describe("useEafForm - a schema with optional fields", () => {
+  it("leaves empty optional fields out, and sends empty nullable ones as null", async () => {
+    const schema = z.object({
+      note: z.string().optional(),
+      signedOn: z.date().optional(),
+      comment: z.string().nullable(),
+    });
+    const onSubmit = vi.fn();
+    const { result: $f } = withSetup(() => useEafForm({ schema, onSubmit }));
+
+    await $f.submit();
+    // A cleared input too
+    $f.data.note = "x";
+    $f.data.note = "";
+    await $f.submit();
+
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    for (const [values] of onSubmit.mock.calls) {
+      expect(JSON.stringify(values)).toBe('{"comment":null}');
+    }
+  });
+});
+
 describe("useEafForm - required message", () => {
   it("falls back to a hardcoded message when no vue-i18n plugin is installed", () => {
     const { result: $f } = withSetup(() =>
       useEafForm({
         defaultValues: reactive({ firstName: "" }),
-        schema: z.object({ firstName: z.string() }),
+        schema: z.object({ firstName: z.string().min(1) }),
       }),
     );
 
@@ -121,7 +252,7 @@ describe("useEafForm - required message", () => {
         setup() {
           $f = useEafForm({
             defaultValues: reactive({ firstName: "" }),
-            schema: z.object({ firstName: z.string() }),
+            schema: z.object({ firstName: z.string().min(1) }),
           });
           return () => null;
         },
@@ -131,6 +262,35 @@ describe("useEafForm - required message", () => {
 
     expect($f.validate()).toBe(false);
     expect($f.fields.firstName.$error).toBe("To pole jest wymagane");
+  });
+
+  it("gives the other checks zod's message in the app's language, following a switch", () => {
+    const i18n = createI18n({
+      legacy: false,
+      locale: "pl",
+      messages: { pl: {}, en: {} },
+    });
+
+    let $f!: EafForm<{ name: string }>;
+    mount(
+      {
+        setup() {
+          $f = useEafForm({
+            defaultValues: reactive({ name: "abcdef" }),
+            schema: z.object({ name: z.string().max(3) }),
+          });
+          return () => null;
+        },
+      },
+      { global: { plugins: [i18n] } },
+    );
+
+    $f.validate();
+    expect($f.fields.name.$error).toMatch(/^Za duża wartość/);
+
+    i18n.global.locale.value = "en";
+    $f.validate();
+    expect($f.fields.name.$error).toMatch(/^Too big/);
   });
 });
 
@@ -176,6 +336,21 @@ describe("useEafForm - resetForm", () => {
 
     expect($f.summaryErrors.value).toEqual([]);
     expect($f.generalMessage.value).toBe("");
+  });
+
+  it("drops what the previous data put in that the new data lacks - a loaded record's id", () => {
+    interface Form {
+      name: string;
+      id?: string;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<Form>({ schema: z.object({ name: z.string() }) }),
+    );
+
+    $f.resetForm({ name: "Loaded", id: "a" });
+    $f.resetForm();
+
+    expect($f.data).toEqual({ name: "" });
   });
 });
 
@@ -282,17 +457,17 @@ describe("useEafForm - handleApiError with an injected parser", () => {
 // ─── Nested data ────────────────────────────────────────────────────────────
 
 const nestedSchema = z.object({
-  name: z.string(),
-  // Required all the same - a null one is a missing one
-  address: z
-    .object(
-      {
-        street: z.string("Street is required").max(5, "Street is too long"),
-        city: z.string(),
-      },
-      "Address is required",
-    )
-    .nullable(),
+  name: z.string().min(1),
+  address: z.object(
+    {
+      street: z
+        .string()
+        .min(1, "Street is required")
+        .max(5, "Street is too long"),
+      city: z.string().min(1),
+    },
+    "Address is required",
+  ),
   dimensions: z
     .object({
       length: z.number().min(1, "Length must be positive").optional(),
@@ -303,7 +478,10 @@ const nestedSchema = z.object({
   items: z.array(z.object({ name: z.string().optional() })),
 });
 
-type NestedForm = z.input<typeof nestedSchema>;
+// Held as `null` until there is one - which the schema requires
+type NestedForm = Omit<z.input<typeof nestedSchema>, "address"> & {
+  address: z.input<typeof nestedSchema>["address"] | null;
+};
 
 function nestedData(overrides: Partial<NestedForm> = {}): NestedForm {
   return {
@@ -326,7 +504,7 @@ function createNestedForm(
 ) {
   const { result } = withSetup(
     () =>
-      useEafForm({
+      useEafForm<NestedForm>({
         // Each change checked, so tests needn't leave fields first
         validateOn: "change",
         ...options,
@@ -389,7 +567,7 @@ describe("useEafForm - nested schema validation", () => {
     mount(
       {
         setup() {
-          $f = useEafForm({
+          $f = useEafForm<NestedForm>({
             defaultValues: nestedData({
               address: { street: "Main", city: "" },
             }),
@@ -464,8 +642,16 @@ describe("useEafForm - nested schema validation", () => {
         "Name is the city",
       ),
     });
+    // Every field the schema declares is derived into the form now, so a path
+    // the data lacks has to be one the schema only names in an issue
     const lacking = createNestedForm(nestedData(), {
-      schema: nestedSchema.extend({ nickname: z.string() }),
+      schema: nestedSchema.superRefine((_, ctx) => {
+        ctx.addIssue({
+          code: "custom",
+          message: "This field is required",
+          path: ["nickname"],
+        });
+      }),
     });
 
     expect(whole.validate()).toBe(false);
@@ -659,7 +845,9 @@ describe("useEafForm - validateOn: change", () => {
 
 describe("useEafForm - array items", () => {
   const withItems = nestedSchema.extend({
-    items: z.array(z.object({ name: z.string("Item name is required") })),
+    items: z.array(
+      z.object({ name: z.string().min(1, "Item name is required") }),
+    ),
     tags: z.array(z.string().max(3, "Tag is too long")),
   });
 
@@ -862,7 +1050,7 @@ describe("useEafForm - submit", () => {
       () =>
         useEafForm({
           defaultValues: { firstName: "" },
-          schema: z.object({ firstName: z.string() }),
+          schema: z.object({ firstName: z.string().min(1) }),
           onSubmit,
         }),
       { [EAF_FORM_KEY]: identityParser },
@@ -954,5 +1142,113 @@ describe("useEafForm - validateOn: blur (the default)", () => {
     $f.data.address!.street = "";
 
     expect($f.fields.address.street.$error).toBeUndefined();
+  });
+});
+
+describe("deriveDefaults", () => {
+  it("maps every schema type to its empty form value", () => {
+    const schema = z.object({
+      name: z.string(),
+      count: z.number(),
+      ratio: z.number().nullable(),
+      active: z.boolean(),
+      tags: z.array(z.string()),
+      address: z.object({ city: z.string(), zip: z.string().nullable() }),
+      meta: z.object({ note: z.string() }).nullish(),
+      contact: z.union([
+        z.null(),
+        z.object({ code: z.string(), number: z.string() }),
+      ]),
+      signedOn: z.date().optional(),
+    });
+
+    expect(deriveDefaults(schema)).toEqual({
+      name: "",
+      count: null,
+      ratio: null,
+      active: false,
+      tags: [],
+      address: { city: "", zip: null },
+      meta: { note: "" },
+      contact: { code: "", number: "" },
+      signedOn: null,
+    });
+  });
+
+  it("keeps the value a schema declares with default() or prefault()", () => {
+    const schema = z.object({
+      role: z.string().default("user"),
+      page: z.number().prefault(1),
+      note: z.string().nullable().default("n/a"),
+    });
+
+    expect(deriveDefaults(schema)).toEqual({
+      role: "user",
+      page: 1,
+      note: "n/a",
+    });
+  });
+
+  it("goes through .required(), .readonly() and .catch() to the schema they wrap", () => {
+    const schema = z
+      .object({
+        name: z.string(),
+        ids: z.array(z.string()),
+        note: z.string().readonly(),
+        count: z.number().catch(0),
+      })
+      .required();
+
+    expect(deriveDefaults(schema)).toEqual({
+      name: "",
+      ids: [],
+      note: "",
+      count: null,
+    });
+  });
+});
+
+describe("useEafForm - default values from the schema", () => {
+  it("fills the form from the schema when no defaultValues are given", () => {
+    interface Form {
+      name: string;
+      count: number;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<Form>({
+        schema: z.object({ name: z.string(), count: z.number() }),
+      }),
+    );
+
+    expect($f.data).toEqual({ name: "", count: null });
+  });
+
+  it("lets defaultValues override the schema's own values", () => {
+    interface Form {
+      name: string;
+      count: number;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<Form>({
+        defaultValues: { name: "Jan" },
+        schema: z.object({ name: z.string(), count: z.number() }),
+      }),
+    );
+
+    expect($f.data).toEqual({ name: "Jan", count: null });
+  });
+
+  it("resets to the values derived from the schema", () => {
+    interface Form {
+      name: string;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<Form>({ schema: z.object({ name: z.string() }) }),
+    );
+
+    $f.data.name = "changed";
+    $f.resetForm();
+
+    expect($f.data.name).toBe("");
   });
 });

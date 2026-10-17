@@ -11,11 +11,11 @@ import { useEafForm } from "../../composables/useEafForm";
 const $f = useEafForm({
   defaultValues: { name: "", address: { street: "", city: "" } },
   schema: z.object({
-    name: z.string(),
-    // Required all the same - a null one is a missing one
-    address: z
-      .object({ street: z.string(), city: z.string().optional() })
-      .nullable(),
+    name: z.string().min(1),
+    address: z.object({
+      street: z.string().min(1),
+      city: z.string().optional(),
+    }),
   }),
 });
 
