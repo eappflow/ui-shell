@@ -14,7 +14,7 @@ import {
   EafFormValidationSummary,
   useEafForm,
 } from "@eappflow/ui-shell-components";
-import { z } from "zod";
+import { loginSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -24,11 +24,8 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
 const $f = useEafForm({
-  defaultValues: {
-    login: "",
-    password: "",
-  },
-  schema: z.object({ login: z.string(), password: z.string() }),
+  schema: loginSchema,
+  exposeToAi: false,
   async onSubmit({ login, password }) {
     await authStore.login(login, password);
     router.push(redirectUrl.value);

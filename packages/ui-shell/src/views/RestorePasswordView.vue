@@ -14,7 +14,7 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { z } from "zod";
+import { createRestorePasswordSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -23,19 +23,8 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
 const $f = useEafForm({
-  defaultValues: {
-    email: "",
-  },
-  schema: z.object({
-    email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
-      error: () =>
-        t(
-          "invalid_email",
-          "Enter a valid email address.",
-          "Podaj poprawny adres e-mail.",
-        ),
-    }),
-  }),
+  schema: createRestorePasswordSchema(t),
+  exposeToAi: false,
   async onSubmit({ email }) {
     await authStore.restorePassword(email);
     success.value = true;

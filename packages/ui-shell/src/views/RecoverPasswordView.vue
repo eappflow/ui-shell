@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, inject, onMounted } from "vue";
+import { ref, computed, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
@@ -15,7 +15,7 @@ import {
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
 import UnauthorizedEafLogo from "../components/UnauthorizedEafLogo.vue";
-import { z } from "zod";
+import { recoverPasswordSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -24,18 +24,9 @@ const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
-interface RecoverPasswordForm {
-  newPassword: string;
-  confirmPassword: string;
-}
-const formData: RecoverPasswordForm = reactive({
-  newPassword: "",
-  confirmPassword: "",
-});
-
 const $f = useEafForm({
-  defaultValues: formData,
-  schema: z.object({ newPassword: z.string(), confirmPassword: z.string() }),
+  schema: recoverPasswordSchema,
+  exposeToAi: false,
 });
 const newPassword = ref("");
 const confirmPassword = ref("");

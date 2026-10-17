@@ -12,50 +12,15 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
-import { z } from "zod";
+import { createChangePasswordSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
 const { t } = useScopedI18n();
 
 const $f = useEafForm({
-  defaultValues: {
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  },
-  schema: z
-    .object({
-      currentPassword: z.string(),
-      // Functions, so the messages follow a language change
-      newPassword: z.string().min(6, {
-        error: () =>
-          t(
-            "password_too_short",
-            "Password must be at least 6 characters",
-            "Hasło musi mieć co najmniej 6 znaków",
-          ),
-      }),
-      confirmPassword: z.string(),
-    })
-    .refine((form) => form.newPassword === form.confirmPassword, {
-      error: () =>
-        t(
-          "passwords_mismatch",
-          "Passwords do not match",
-          "Hasła nie są takie same",
-        ),
-      path: ["confirmPassword"],
-    })
-    .refine((form) => form.currentPassword !== form.newPassword, {
-      error: () =>
-        t(
-          "password_unchanged",
-          "New password must be different from current password",
-          "Nowe hasło musi się różnić od obecnego",
-        ),
-      path: ["newPassword"],
-    }),
+  schema: createChangePasswordSchema(t),
+  exposeToAi: false,
   async onSubmit() {
     // In real scenario: this would call authService via store
     // await authService.changePassword({ currentPassword, newPassword })
