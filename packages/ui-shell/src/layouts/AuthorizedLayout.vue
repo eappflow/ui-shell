@@ -14,22 +14,29 @@ import AppMainMenu from "../components/AppMainMenu.vue";
 import AuthorizedEafLogo from "../components/AuthorizedEafLogo.vue";
 import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
+import AppAside from "../components/AppAside.vue";
+import AiChatPanel from "../components/chat/AiChatPanel.vue";
+import { AI_CHAT_SERVICE_KEY } from "../services/interfaces";
+import { useLayoutStore } from "../stores/useLayoutStore";
 import {
   useEafMessageStore,
   EafActionValidationMessage,
 } from "@eappflow/ui-shell-components";
 import { useToast } from "primevue/usetoast";
-import { useBreakpoints } from "@vueuse/core";
 
 const router = useRouter();
 const auth = useEafAuth();
 const layout = useEafLayout();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
+const aiChatService = inject(AI_CHAT_SERVICE_KEY, null);
+const layoutStore = useLayoutStore();
+// Not next to the full-page chat, which is the same chat
+const showAiChat = computed(
+  () => aiChatService !== null && !layoutStore.chatPageOpen,
+);
+const aiChatOpen = ref(false);
 const messageStore = useEafMessageStore();
 const toast = useToast();
-const breakpoints = useBreakpoints({
-  md: 768,
-});
 
 // Sidebar state (collapsed state lives in the layout store so it persists)
 const mobileSidebarVisible = ref(false);
@@ -106,12 +113,8 @@ const accountMenuItems = computed<PrimeMenuItem[]>(() => [
 
 // Methods
 function toggleSidebar(): void {
-  const isMobile = breakpoints.smaller("md");
-  if (isMobile.value) {
-    mobileSidebarVisible.value = !mobileSidebarVisible.value;
-  } else {
-    layout.toggleSidebar();
-  }
+  // The header's button is mobile-only, the desktop sidebar has its own
+  mobileSidebarVisible.value = !mobileSidebarVisible.value;
 }
 
 function handleMenuItemClick(): void {
@@ -131,21 +134,23 @@ async function handleLogout(): Promise<void> {
     <ConfirmDialog />
 
     <!-- Desktop Sidebar -->
-    <AppSidebar :collapsed="layout.sidebarCollapsed">
+    <AppSidebar
+      :collapsed="layout.sidebarCollapsed"
+      @toggle="layout.toggleSidebar()"
+    >
       <!-- Logo Area -->
-      <template #logo>
-        <AuthorizedEafLogo :show-app-name="!layout.sidebarCollapsed" />
+      <template #logo="{ compact }">
+        <AuthorizedEafLogo :show-app-name="!compact" />
       </template>
 
       <!-- Sidebar Content -->
-      <AppMainMenu :compact="layout.sidebarCollapsed" />
+      <template #default="{ compact }">
+        <AppMainMenu :compact="compact" />
+      </template>
     </AppSidebar>
 
     <!-- Mobile Sidebar -->
-    <Drawer
-      v-model:visible="mobileSidebarVisible"
-      class="md:hidden"
-    >
+    <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
         <AuthorizedEafLogo :show-app-name="true" />
       </template>
@@ -154,13 +159,19 @@ async function handleLogout(): Promise<void> {
     </Drawer>
 
     <!-- Main Content Area -->
+    <!-- Makes room for the open aside (as wide as --eaf-aside-width), header included, rather than hiding the page under it -->
     <div
-      class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950"
+      :class="[
+        'flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950 transition-[margin] duration-300 motion-reduce:transition-none [.eaf-aside-resizing_&]:transition-none',
+        { 'md:mr-[var(--eaf-aside-width)]': showAiChat && aiChatOpen },
+      ]"
     >
       <!-- Header -->
       <AppHeader
+        :ai-chat="showAiChat"
         @toggle-sidebar="toggleSidebar"
         @logout="handleLogout"
+        @toggle-ai-chat="aiChatOpen = !aiChatOpen"
       >
         <template #app-name>
           {{ appConfig.name }}
@@ -169,18 +180,12 @@ async function handleLogout(): Promise<void> {
 
       <!-- Settings Overlay -->
       <Popover ref="settingsPanel">
-        <Menu
-          :model="settingsMenuItems"
-          class="border-none"
-        />
+        <Menu :model="settingsMenuItems" class="border-none" />
       </Popover>
 
       <!-- Account Overlay -->
       <Popover ref="accountPanel">
-        <Menu
-          :model="accountMenuItems"
-          class="border-none"
-        />
+        <Menu :model="accountMenuItems" class="border-none" />
       </Popover>
 
       <div class="flex-1 overflow-y-auto flex flex-col">
@@ -200,13 +205,9 @@ async function handleLogout(): Promise<void> {
         </main>
       </div>
     </div>
+
+    <AppAside v-if="showAiChat" v-model:open="aiChatOpen">
+      <AiChatPanel :open="aiChatOpen" @close="aiChatOpen = false" />
+    </AppAside>
   </div>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-authorized-content {
-    background-color: var(--p-content-background);
-  }
-}
-</style>

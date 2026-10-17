@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { login } from "./utils";
 
-test("collapses the sidebar to a compact labelled rail and restores it", async ({
+test("collapses the sidebar to an icon rail that expands on hover", async ({
   page,
 }) => {
   await login(page);
@@ -14,16 +14,25 @@ test("collapses the sidebar to a compact labelled rail and restores it", async (
   await expect(sidebar.getByText("Welcome")).toBeVisible();
 
   await toggle.click();
-  // The sidebar stays visible, just narrowed down to its labelled icon rail.
+  // The sidebar stays visible, narrowed down to its icon rail without labels.
   await expect(sidebar).toBeVisible();
   await expect(sidebar).toHaveAttribute("data-collapsed", "true");
   await expect(sidebar.locator("nav a").first()).toBeVisible();
-  // The label is captioned under the icon.
-  await expect(sidebar.getByText("Welcome")).toBeVisible();
+  // Kept for screen readers only.
+  await expect(sidebar.getByText("Welcome")).toHaveClass(/sr-only/);
 
-  // No tooltip - the caption is shown instead.
+  // The toggle sits in the sidebar, yet collapsing doesn't leave it peeking.
+  await expect(sidebar).toHaveAttribute("data-peek", "false");
+
+  // Hovering the rail again expands it over the page, labels included.
+  await page.mouse.move(1000, 400);
   await sidebar.locator("nav a").first().hover();
-  await expect(page.locator(".p-tooltip")).toHaveCount(0);
+  await expect(sidebar).toHaveAttribute("data-peek", "true");
+  await expect(sidebar.getByText("Welcome")).not.toHaveClass(/sr-only/);
+
+  await page.mouse.move(1000, 400);
+  await expect(sidebar).toHaveAttribute("data-peek", "false");
+  await expect(sidebar.getByText("Welcome")).toHaveClass(/sr-only/);
 
   await toggle.click();
   await expect(sidebar).toBeVisible();

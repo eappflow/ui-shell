@@ -1,10 +1,9 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig((env) => ({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue()],
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
@@ -13,7 +12,15 @@ export default defineConfig((env) => ({
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
     },
     rolldownOptions: {
-      external: ["vue", "vue-i18n", "primevue", "pinia", /^primevue\/.*/],
+      external: [
+        "vue",
+        "vue-i18n",
+        "primevue",
+        "pinia",
+        /^primevue\/.*/,
+        // Schemas come from the host's copy
+        "zod",
+      ],
     },
   },
 }));

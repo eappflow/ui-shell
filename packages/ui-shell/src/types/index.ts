@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from "vue-router";
 import type { App } from "vue";
 import type { EafClasses } from "./eaf-classes";
 import type { EafLogo } from "./eaf-logo";
+import type { EafAiTool } from "@eappflow/ui-shell-components";
 import { I18nOptions } from "vue-i18n";
 
 // ─── Route meta augmentation ─────────────────────────────────────────────────
@@ -107,6 +108,8 @@ export interface EafModule {
   routes?: RouteRecordRaw[];
   /** Menu modules contributed by this module */
   menuModules?: EafMenuModule[];
+  /** AI chat tools contributed by this module */
+  aiTools?: EafAiToolConfig[];
   /** Translation messages for the module's menu items (resolved via i18n) */
   menuI18nMessages?: I18nOptions["messages"];
   /** Permissions declared by this module (for documentation / validation) */
@@ -164,12 +167,8 @@ export interface EafMenuModule {
   isVisible?: (userPermissions: Permission[]) => boolean;
 }
 
-export interface EafFilteredMenuModule {
-  name: string;
-  nameKey?: string;
-  icon: string;
-  items: EafMenuItem[];
-}
+/** A group the user may see, its `isVisible` already checked */
+export type EafFilteredMenuModule = Omit<EafMenuModule, "isVisible">;
 
 // ─── Navigation guard ────────────────────────────────────────────────────────
 
@@ -228,6 +227,23 @@ export type { EafLogo } from "./eaf-logo";
 // ─── I18n Config ──────────────────────────────────────────────────────────────
 
 export type { I18nConfig, Language } from "./i18n";
+
+// ─── AI Chat ─────────────────────────────────────────────────────────────────
+
+/** An AI chat tool for users with at least one of `permissions` - every user when there are none, as with menu items */
+export interface EafAiToolConfig extends EafAiTool {
+  permissions?: Permission[];
+}
+
+export type {
+  AiConversation,
+  AiModel,
+  AiChatMessage,
+  AiClientTool,
+  AiToolCall,
+  AiToolResult,
+  AiChatReply,
+} from "@eappflow/ui-shell-components";
 
 // ─── Validation ──────────────────────────────────────────────────────────────
 

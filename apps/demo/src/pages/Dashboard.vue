@@ -1,68 +1,103 @@
 <script setup lang="ts">
-import { useAuthStore } from "@eappflow/ui-shell";
+import { createScopedI18n, useAuthStore } from "@eappflow/ui-shell";
 import {
   EafFormItem,
   EafFormValidationSummary,
+  useEafAiTool,
   useEafForm,
 } from "@eappflow/ui-shell-components";
+import { ref } from "vue";
+import { z } from "zod";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import { useToast } from "primevue/usetoast";
 
 const auth = useAuthStore();
+// Inline translations only - an app would pass its locale files
+const { t } = createScopedI18n({})();
 const toast = useToast();
 
-const stats = [
+const stats = ref([
   { label: "Users", value: "1,234" },
   { label: "Revenue", value: "$45,678" },
   { label: "Orders", value: "567" },
-];
+]);
 
-interface Address {
-  street: string;
-  city: string;
-  zipCode: string;
-}
+// Let the AI chat read and change what this page shows - offered while it is open
+useEafAiTool({
+  name: "get_dashboard_stats",
+  description:
+    "The stats on the user's dashboard, each with its label and value.",
+  run: () => stats.value,
+});
 
-// Nested form example: an object (`company`) and a list of objects
-// (`addresses`, rules per item via `$each`)
-const $f = useEafForm<{
-  name: string;
-  company: { name: string; taxId: string };
-  addresses: Address[];
-}>({
-  data: {
-    name: "",
-    company: { name: "", taxId: "" },
-    addresses: [{ street: "", city: "", zipCode: "" }],
-  },
-  rules: {
-    name: { $required: true },
-    company: {
-      name: { $required: true },
-      taxId: {
-        $pattern: { regex: /^\d{10}$/, message: "Tax ID has 10 digits" },
-      },
-    },
-    addresses: {
-      $length: { minLength: 1, message: "Add at least one address" },
-      $each: {
-        street: { $required: true },
-        city: { $required: true },
-        zipCode: {
-          $pattern: { regex: /^\d{2}-\d{3}$/, message: "Format: 00-000" },
-        },
-      },
-    },
+useEafAiTool({
+  name: "randomize_dashboard_stats",
+  description:
+    "Gives the stats on the user's dashboard new random values and returns them.",
+  run: () => {
+    for (const stat of stats.value) {
+      // A new number, keeping a $ in front
+      const random = Math.floor(Math.random() * 10_000).toLocaleString("en-US");
+      stat.value = stat.value.replace(/[\d,]+/, random);
+    }
+    return stats.value;
   },
 });
 
-async function save(): Promise<void> {
-  await $f.submit(async () => {
+// Nested form example: an object (`company`) and a list of objects
+// (`addresses`, each item checked by the array's `z.object`)
+const $f = useEafForm({
+  // The schema starts the list empty - one address to fill instead
+  defaultValues: {
+    addresses: [{ street: "", city: "", zipCode: "" }],
+  },
+  // What the AI chat is told besides the fields, nested like the data
+  exposeToAi: {
+    $description: "A contact person and their company.",
+    company: { taxId: "10 digits, no dashes." },
+    addresses: {
+      $description:
+        "Where to deliver, at least two - the first is the main one.",
+      $each: { zipCode: "Like 00-000." },
+    },
+  },
+  schema: z.object({
+    name: z.string().min(1),
+    company: z.object({
+      name: z.string().min(1),
+      // Empty or 10 digits. Messages as functions, so they follow a language change
+      taxId: z.string().regex(/^(\d{10})?$/, {
+        error: () =>
+          t("tax_id_format", "Tax ID has 10 digits", "NIP ma 10 cyfr"),
+      }),
+    }),
+    addresses: z
+      .array(
+        z.object({
+          street: z.string().min(1),
+          city: z.string().min(1),
+          zipCode: z.string().regex(/^(\d{2}-\d{3})?$/, {
+            error: () =>
+              t("zip_code_format", "Format: 00-000", "Format: 00-000"),
+          }),
+        }),
+      )
+      // The list's own check: its error goes on the list, each address's on its fields
+      .min(2, {
+        error: () =>
+          t(
+            "addresses_min",
+            "Add at least two addresses",
+            "Dodaj co najmniej dwa adresy",
+          ),
+      }),
+  }),
+  onSubmit() {
     toast.add({ severity: "success", summary: "Saved", life: 3000 });
-  });
-}
+  },
+});
 </script>
 
 <template>
@@ -98,7 +133,7 @@ async function save(): Promise<void> {
     <Card data-testid="nested-form">
       <template #title> Nested form </template>
       <template #content>
-        <form class="flex flex-col gap-4" @submit.prevent="save">
+        <form class="flex flex-col gap-4" @submit.prevent="$f.submit()">
           <EafFormValidationSummary :form="$f" />
 
           <EafFormItem v-slot="{ id }" :field="$f.fields.name" label="Name">

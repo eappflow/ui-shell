@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, inject, onMounted } from "vue";
+import { ref, computed, inject, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Card from "primevue/card";
 import Button from "primevue/button";
@@ -15,6 +15,7 @@ import {
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
 import UnauthorizedEafLogo from "../components/UnauthorizedEafLogo.vue";
+import { recoverPasswordSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -23,25 +24,9 @@ const authStore = useAuthStore();
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
-interface RecoverPasswordForm {
-  newPassword: string;
-  confirmPassword: string;
-}
-const formData: RecoverPasswordForm = reactive({
-  newPassword: "",
-  confirmPassword: "",
-});
-
-const $f = useEafForm<RecoverPasswordForm>({
-  data: formData,
-  rules: {
-    newPassword: {
-      $required: true,
-    },
-    confirmPassword: {
-      $required: true,
-    },
-  },
+const $f = useEafForm({
+  schema: recoverPasswordSchema,
+  exposeToAi: false,
 });
 const newPassword = ref("");
 const confirmPassword = ref("");
@@ -136,14 +121,8 @@ function requestNewReset() {
     </template>
     <template #content>
       <!-- Token error state -->
-      <div
-        v-if="tokenError"
-        class="flex flex-col gap-5"
-      >
-        <Message
-          severity="error"
-          :closable="false"
-        >
+      <div v-if="tokenError" class="flex flex-col gap-5">
+        <Message severity="error" :closable="false">
           {{ tokenError }}
         </Message>
         <div class="flex flex-col gap-3">
@@ -178,10 +157,7 @@ function requestNewReset() {
       >
         <EafFormValidationSummary :form="$f" />
 
-        <Message
-          severity="info"
-          :closable="false"
-        >
+        <Message severity="info" :closable="false">
           Password reset links are valid for 2 days and can only be used once.
         </Message>
 
@@ -257,14 +233,8 @@ function requestNewReset() {
       </form>
 
       <!-- Success state -->
-      <div
-        v-else-if="success"
-        class="flex flex-col gap-5"
-      >
-        <Message
-          severity="success"
-          :closable="false"
-        >
+      <div v-else-if="success" class="flex flex-col gap-5">
+        <Message severity="success" :closable="false">
           Your password has been successfully reset! You can now log in with
           your new password.
         </Message>
@@ -278,12 +248,3 @@ function requestNewReset() {
     </template>
   </Card>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-recover-password-title {
-    font-weight: 600;
-    font-size: 1.75rem;
-  }
-}
-</style>

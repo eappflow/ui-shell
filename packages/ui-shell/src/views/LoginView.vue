@@ -14,6 +14,7 @@ import {
   EafFormValidationSummary,
   useEafForm,
 } from "@eappflow/ui-shell-components";
+import { loginSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -23,17 +24,11 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 const { t } = useScopedI18n();
 
 const $f = useEafForm({
-  data: {
-    login: "",
-    password: "",
-  },
-  rules: {
-    login: {
-      $required: true,
-    },
-    password: {
-      $required: true,
-    },
+  schema: loginSchema,
+  exposeToAi: false,
+  async onSubmit({ login, password }) {
+    await authStore.login(login, password);
+    router.push(redirectUrl.value);
   },
 });
 const loadingSSO = ref(false);
@@ -50,13 +45,6 @@ const redirectUrl = computed(() => {
   }
   return "/";
 });
-
-async function handleLogin(): Promise<void> {
-  $f.submit(async ({ login, password }) => {
-    await authStore.login(login, password);
-    router.push(redirectUrl.value);
-  });
-}
 
 async function handleLoginWithMicrosoftSSO(): Promise<void> {
   loadingSSO.value = true;
@@ -79,10 +67,7 @@ async function handleLoginWithMicrosoftSSO(): Promise<void> {
       </h1>
     </template>
     <template #content>
-      <form
-        class="flex flex-col gap-5 mt-5"
-        @submit.prevent="handleLogin"
-      >
+      <form class="flex flex-col gap-5 mt-5" @submit.prevent="$f.submit()">
         <EafFormValidationSummary :form="$f" />
 
         <EafFormItem

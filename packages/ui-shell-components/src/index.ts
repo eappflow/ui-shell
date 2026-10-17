@@ -1,5 +1,4 @@
 import type { App } from "vue";
-import "./style/index.css";
 import EafFormItem from "./components/EafFormItem.vue";
 import EafFormValidationSummary from "./components/EafFormValidationSummary.vue";
 import EafActionValidationMessage from "./components/EafActionValidationMessage.vue";
@@ -15,6 +14,9 @@ export { useEafMessageStore } from "./stores/useEafMessageStore";
 // ─── Composables ────────────────────────────────────────────────────────────
 export { useEafForm, EAF_FORM_KEY } from "./composables/useEafForm.js";
 export { useActionValidation } from "./composables/useActionValidation.js";
+export { useEafAiTool } from "./composables/useEafAiTool.js";
+export { defineEafAiTool } from "./ai-tools/defineEafAiTool";
+export { useEafChat, AI_CHAT_SERVICE_KEY } from "./composables/useEafChat.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
@@ -24,7 +26,16 @@ export type {
   ApiParsedErrorResponse,
   EafField,
   EafFields,
-  EafRules,
+  EafAiDescriptions,
+  EafAiTool,
+  AiChatService,
+  AiConversation,
+  AiModel,
+  AiChatMessage,
+  AiClientTool,
+  AiToolCall,
+  AiToolResult,
+  AiChatReply,
 } from "./types";
 
 export default {

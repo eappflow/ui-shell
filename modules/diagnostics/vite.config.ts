@@ -1,17 +1,12 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue()],
   build: {
-    cssCodeSplit: true,
     lib: {
-      entry: {
-        index: resolve(__dirname, "src/index.ts"),
-        style: resolve(__dirname, "src/style/index.css"),
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "EappflowDiagnostics",
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
