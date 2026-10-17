@@ -18,7 +18,13 @@
  * ```
  */
 
-import { type App as VueApp, type Component } from "vue";
+import {
+  effectScope,
+  watchEffect,
+  type App as VueApp,
+  type Component,
+  type EffectScope,
+} from "vue";
 import { createPinia } from "pinia";
 import {
   createRouter,
@@ -46,9 +52,8 @@ import {
 } from "./services/interfaces";
 import { defaultParseApiError } from "./services/defaultParseApiError";
 import {
-  AI_CHAT_TOOLS_KEY,
   EAF_FORM_KEY,
-  eafScreenTools,
+  useEafAiTool,
   type EafFormApiErrorParser,
 } from "@eappflow/ui-shell-components";
 import { filterPermitted, filterVisibleMenuModules } from "./utils/permissions";
@@ -175,19 +180,24 @@ export const EAppFlowUIShell = {
       ...modules.flatMap((mod) => mod.aiTools ?? []),
       ...(options.aiTools ?? []),
     ];
-    app.provide(AI_CHAT_TOOLS_KEY, () => {
+    // Offered next to the screens', made anew when the permissions, the menu
+    // or the chat page change - so a call to one taken back meanwhile fails
+    let shellTools: EffectScope | undefined;
+    watchEffect(() => {
       const permissions = useAuthStore(pinia).userPermissions;
       const menu = filterVisibleMenuModules(
         useEafNavigationStore(pinia).menuModules,
         permissions,
       );
-      return [
-        ...eafScreenTools(),
+      const tools = [
         ...(useLayoutStore(pinia).chatPageOpen
           ? []
           : [navigateTool(router, menu)]),
         ...filterPermitted(aiTools, permissions),
       ];
+      shellTools?.stop();
+      shellTools = effectScope(true);
+      shellTools.run(() => tools.forEach((tool) => useEafAiTool(tool)));
     });
 
     // ── 7. Register modules ──────────────────────────────────────────────

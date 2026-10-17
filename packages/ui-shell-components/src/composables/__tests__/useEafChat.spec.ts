@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { effectScope, type EffectScope } from "vue";
 import { z } from "zod";
 import { useEafChat } from "../useEafChat";
+import { useEafAiTool } from "../useEafAiTool";
 import type {
   AiChatMessage,
   AiChatReply,
@@ -19,7 +21,22 @@ const done = (content: string): AiChatReply => ({
   continuation: null,
 });
 
+const offers = new Map<EafAiTool, EffectScope>();
+afterEach(() => {
+  offers.forEach((scope) => scope.stop());
+  offers.clear();
+});
+
+/** Offers the tool as a screen does, until `takeBack` - as its leaving does */
+function offer(tool: EafAiTool) {
+  const scope = effectScope();
+  scope.run(() => useEafAiTool(tool));
+  offers.set(tool, scope);
+}
+const takeBack = (tool: EafAiTool) => offers.get(tool)?.stop();
+
 function setup(conversations: AiConversation[] = [], tools: EafAiTool[] = []) {
+  tools.forEach(offer);
   const service = {
     getConversations: vi.fn().mockResolvedValue(conversations),
     getMessages: vi.fn().mockResolvedValue([]),
@@ -28,7 +45,7 @@ function setup(conversations: AiConversation[] = [], tools: EafAiTool[] = []) {
     rename: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
   };
-  return { service, chat: useEafChat(() => tools, service) };
+  return { service, chat: useEafChat(service) };
 }
 
 describe("useEafChat", () => {
@@ -132,6 +149,59 @@ describe("useEafChat", () => {
       modelKey: null,
     });
     expect(chat.messages.value.at(-1)?.content).toBe("Filled in.");
+  });
+
+  it("turns down a call to a tool taken back since it was offered", async () => {
+    const tool = (
+      name: string,
+      run: () => unknown = () => null,
+    ): EafAiTool => ({
+      name,
+      description: `${name}.`,
+      run: vi.fn(run),
+    });
+    const old = tool("old");
+    // The next screen's, of the same name
+    const next = tool("old");
+    const leave = tool("leave", () => {
+      takeBack(old);
+      offer(next);
+    });
+    const gone = tool("gone");
+    const { service, chat } = setup([], [leave, old, gone]);
+    let answer!: (reply: AiChatReply) => void;
+    service.send.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+    service.sendToolResults.mockResolvedValue(done("Done."));
+
+    const sending = chat.send("Go");
+    // Taken back while the request is out
+    takeBack(gone);
+    answer({
+      ...done(""),
+      reply: null,
+      toolCalls: ["gone", "leave", "old"].map((name, i) => ({
+        id: String(i + 1),
+        name,
+        arguments: "{}",
+      })),
+      continuation: "turn",
+    });
+    await sending;
+
+    expect(gone.run).not.toHaveBeenCalled();
+    expect(old.run).not.toHaveBeenCalled();
+    expect(next.run).not.toHaveBeenCalled();
+    expect(service.sendToolResults.mock.calls[0]![0].results).toEqual([
+      {
+        toolCallId: "1",
+        result: '{"error":"There is no tool named gone now."}',
+      },
+      { toolCallId: "2", result: expect.any(String) },
+      {
+        toolCallId: "3",
+        result: '{"error":"There is no tool named old now."}',
+      },
+    ]);
   });
 
   it("offers a tool without parameters as taking none", async () => {

@@ -24,10 +24,6 @@ function injectService(): AiChatService {
   return service;
 }
 
-/** The tools `useEafChat` offers the model, asked again each round - the screen's when none are provided */
-export const AI_CHAT_TOOLS_KEY: InjectionKey<() => EafAiTool[]> =
-  Symbol("aiChatTools");
-
 /** Runs a call; the result - or error - goes back to the model as JSON */
 async function runTool(tools: EafAiTool[], call: AiToolCall): Promise<string> {
   try {
@@ -70,14 +66,11 @@ const offered = (tools: EafAiTool[]): AiClientTool[] =>
 
 /**
  * The user's conversations and the open conversation's messages, kept in step
- * with the `AiChatService`. Sending a message offers the model `tools()` -
- * asked again after each round, as what a tool did may have changed them - and
- * runs the calls it makes, until it replies.
+ * with the `AiChatService`. Sending a message offers the model the tools of
+ * the moment (`eafScreenTools`) - asked again each round - and runs the calls
+ * it makes with those offered that are still there, until it replies.
  */
-export function useEafChat(
-  tools: () => EafAiTool[] = inject(AI_CHAT_TOOLS_KEY, eafScreenTools),
-  service: AiChatService = injectService(),
-) {
+export function useEafChat(service: AiChatService = injectService()) {
   const conversations = ref<AiConversation[]>([]);
   const activeId = ref<string | null>(null);
   const messages = ref<AiChatMessage[]>([]);
@@ -118,7 +111,7 @@ export function useEafChat(
   async function reply(message: string) {
     // The one picked when sending, for the whole round
     const model = modelKey.value;
-    let current = tools();
+    let current = eafScreenTools();
     let answer = await service.send({
       message,
       conversationId: activeId.value,
@@ -129,12 +122,15 @@ export function useEafChat(
     while (answer.continuation !== null) {
       const results: AiToolResult[] = [];
       for (const call of answer.toolCalls) {
+        // Not a tool taken back since it was offered - by the screen the user
+        // left meanwhile, or the call before, or a change of permissions
+        const still = eafScreenTools().filter((tool) => current.includes(tool));
         results.push({
           toolCallId: call.id,
-          result: await runTool(current, call),
+          result: await runTool(still, call),
         });
       }
-      current = tools();
+      current = eafScreenTools();
       answer = await service.sendToolResults({
         continuation: answer.continuation,
         results,

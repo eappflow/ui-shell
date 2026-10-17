@@ -22,7 +22,7 @@ export function useEafAiTool<P extends z.ZodObject>(tool: EafAiTool<P>): void {
   onScopeDispose(() => offeredTools.delete(key));
 }
 
-/** The tools of what is on screen: its forms', then those its components offer - each once */
+/** The AI chat's tools: the forms' on screen, then those offered with `useEafAiTool` - the screen's and the shell's - each once */
 export function eafScreenTools(): EafAiTool[] {
   return [...eafFormTools(), ...new Set(offeredTools.values())];
 }

@@ -11,11 +11,9 @@ describe("exports", () => {
     "EAF_FORM_KEY",
     "useActionValidation",
     "useEafAiTool",
-    "eafScreenTools",
     "defineEafAiTool",
     "useEafChat",
     "AI_CHAT_SERVICE_KEY",
-    "AI_CHAT_TOOLS_KEY",
     "default",
   ] as const;
 
