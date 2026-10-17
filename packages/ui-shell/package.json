@@ -22,14 +22,11 @@
       "import": "./dist/services/interfaces.js",
       "require": "./dist/services/interfaces.cjs"
     },
-    "./style": {
-      "style": "./dist/ui-shell.css",
-      "import": "./dist/ui-shell.css",
-      "require": "./dist/ui-shell.css"
-    }
+    "./style": "./src/style/index.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style"
   ],
   "scripts": {
     "build": "vite build && vue-tsc -b",

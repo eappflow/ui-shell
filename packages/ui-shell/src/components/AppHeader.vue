@@ -61,24 +61,3 @@ const emit = defineEmits<{
     </div>
   </header>
 </template>
-
-<style>
-@layer eaf-shell {
-  /* As tall as the sidebar's and the chat panel's top rows, its buttons centred whatever their size */
-  .eaf-header {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    height: 3.5rem;
-    padding: 0 1rem;
-    background-color: var(--p-content-background);
-    border-bottom: 1px solid var(--p-content-border-color);
-  }
-
-  .eaf-header-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--p-text-color);
-  }
-}
-</style>

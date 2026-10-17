@@ -43,30 +43,7 @@ watch(
       :aria-label="
         t('chat_thinking', 'Waiting for the reply', 'Czekam na odpowiedź')
       "
-      class="chat-thinking bg-primary ms-1 mt-1 size-3 shrink-0 self-start rounded-full"
+      class="motion-safe:animate-eaf-chat-thinking bg-primary ms-1 mt-1 size-3 shrink-0 self-start rounded-full"
     />
   </div>
 </template>
-
-<style scoped>
-.chat-thinking {
-  animation: chat-thinking 1s ease-in-out infinite;
-}
-
-@keyframes chat-thinking {
-  0%,
-  100% {
-    transform: scale(0.6);
-  }
-
-  50% {
-    transform: scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chat-thinking {
-    animation: none;
-  }
-}
-</style>

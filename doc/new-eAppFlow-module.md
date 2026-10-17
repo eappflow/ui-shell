@@ -56,12 +56,9 @@ modules/<module-name>/
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    }
+    "./style": "./src/style/index.css"
   },
-  "files": ["dist"],
+  "files": ["dist", "src/style"],
   "scripts": {
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
     "type-check": "vue-tsc --noEmit"
@@ -94,7 +91,7 @@ modules/<module-name>/
 >
 > - `"private": false` allows publishing to npm if needed.
 > - `peerDependencies` ensure the host app provides Vue, Vue Router, and the UI Shell.
-> - The `exports` map exposes two entry points: the module code (`"."`) and styles (`"./style"`).
+> - The `exports` map exposes two entry points: the module code (`"."`) and styles (`"./style"`) - the source stylesheet, for the host's Tailwind build (step 7).
 
 ---
 
@@ -104,17 +101,12 @@ modules/<module-name>/
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
-import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue()],
   build: {
-    cssCodeSplit: true,
     lib: {
-      entry: {
-        index: resolve(__dirname, "src/index.ts"),
-        style: resolve(__dirname, "src/style/index.css"),
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "Eappflow<ModuleName>",
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
@@ -213,19 +205,12 @@ export const <MODULE_NAME>_CONFIG_KEY: InjectionKey<<ModuleName>Config> =
 ## 7. `src/style/index.css` — Module Styles
 
 ```css
-/* Tailwind CSS base styles */
-@import "tailwindcss";
-
-/* PrimeVue styles */
-@import "primeicons/primeicons.css";
-
-@source "../components";
-@source "../views";
-@import "tailwindcss-primeui";
+/* For the host's Tailwind build, next to @eappflow/ui-shell/style */
+@source "../../dist/**/*.js";
 ```
 
-> `@import "tailwindcss-primeui"` enables the PrimeVue TailwindCSS plugin (required for compatibility).
-> `@source` directives tell Tailwind to scan the module's views/components for class usage.
+> The module ships no compiled CSS. `@source` tells the host's Tailwind to scan the built module for class usage, so the host generates every utility in one build - a plain class of one package can't override a variant (`md:block`) of another.
+> Don't import `tailwindcss`, `tailwindcss-primeui` or `primeicons` here: the host imports them once.
 
 ---
 
@@ -450,13 +435,16 @@ app.use(EAppFlowUIShell, {
 
 ## 11. Import Module Styles in the Host App
 
-In the host's main CSS file (e.g. `apps/demo/src/assets/main.css`), import the module's styles:
+In the host's main CSS file (e.g. `apps/demo/src/assets/main.css`), import the module's styles after Tailwind, PrimeUI, PrimeIcons and the shell's:
 
 ```css
 @import "tailwindcss";
-@import "@eappflow/<module-name>/style";
 @import "tailwindcss-primeui";
 @import "primeicons/primeicons.css";
+@custom-variant dark (&:is(.dark, .dark *));
+
+@import "@eappflow/ui-shell/style";
+@import "@eappflow/<module-name>/style";
 ```
 
 ---
@@ -512,7 +500,7 @@ pnpm --filter @eappflow/<module-name> build
 | 4    | `tsconfig.json`                         | TypeScript configuration extending base                       |
 | 5    | `src/env.d.ts`                          | Vite + Vue SFC type declarations                              |
 | 6    | `src/types.ts`                          | Module config interface & injection key                       |
-| 7    | `src/style/index.css`                   | TailwindCSS + PrimeVue styles with `tailwindcss-primeui`      |
+| 7    | `src/style/index.css`                   | `@source` of the built module for the host's Tailwind build   |
 | 8    | `src/index.ts`                          | Module factory function (routes, menus, permissions, install) |
 | 9    | `src/views/*.vue`                       | View components                                               |
 | 10   | Host `main.ts`                          | Import & register module via plugin options                   |
@@ -531,9 +519,8 @@ Ensure `/^primevue\/.*/` is in `vite.config.ts` → `build.rollupOptions.externa
 
 Make sure:
 
-- `@import "tailwindcss-primeui"` is in the module's `src/style/index.css`
-- The host app imports `@eappflow/<module-name>/style` in its CSS
-- The host app also imports `tailwindcss-primeui` in its own CSS
+- The module is built: its `src/style/index.css` points Tailwind at `dist`
+- The host app imports `@eappflow/<module-name>/style` in its CSS, after `tailwindcss` and `tailwindcss-primeui`
 
 ### Module Routes Not Found
 

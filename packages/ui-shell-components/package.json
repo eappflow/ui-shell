@@ -17,14 +17,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style": {
-      "style": "./dist/ui-shell-components.css",
-      "import": "./dist/ui-shell-components.css",
-      "require": "./dist/ui-shell-components.css"
-    }
+    "./style": "./src/style/index.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style"
   ],
   "scripts": {
     "build": "vite build && vue-tsc -b",

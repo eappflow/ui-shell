@@ -211,11 +211,3 @@ async function handleLogout(): Promise<void> {
     </AppAside>
   </div>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-authorized-content {
-    background-color: var(--p-content-background);
-  }
-}
-</style>

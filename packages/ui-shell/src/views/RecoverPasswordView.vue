@@ -257,12 +257,3 @@ function requestNewReset() {
     </template>
   </Card>
 </template>
-
-<style>
-@layer eaf-shell {
-  .eaf-recover-password-title {
-    font-weight: 600;
-    font-size: 1.75rem;
-  }
-}
-</style>

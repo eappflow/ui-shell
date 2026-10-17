@@ -1,28 +1,24 @@
-/* Tailwind CSS base styles */
-@import "tailwindcss";
-/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
-@custom-variant dark (&:is(.dark, .dark *));
-
-/* Semantic tokens that flip automatically between light and dark, unlike
-   the raw surface/primary scale which stays the same shade in both themes.
-   Prefixed eaf- because this stylesheet ships into host apps as a library,
-   so these become global utility classes on the host page. */
-@theme inline {
-  --color-eaf-ink: var(--p-text-color);
-  --color-eaf-ink-muted: var(--p-text-muted-color);
-  --color-eaf-card: var(--p-content-background);
-  --color-eaf-card-border: var(--p-content-border-color);
-  --color-eaf-highlight: var(--p-highlight-background);
-}
-
-/* PrimeVue styles */
-@import "primeicons/primeicons.css";
-
-@source "../components";
-@source "../views";
-@source "../layouts";
+/* For the host's Tailwind build - import it after `@import "tailwindcss"`, `tailwindcss-primeui`
+   and `primeicons`. Brings ui-shell-components' part, and the shell's own styles - kept here,
+   not in the components' <style>, so the library ships no CSS of its own. */
 @import "@eappflow/ui-shell-components/style";
-@import "tailwindcss-primeui";
+@source "../../dist/**/*.js";
+
+@theme {
+  /* ChatMessageList's "thinking" dot */
+  --animate-eaf-chat-thinking: eaf-chat-thinking 1s ease-in-out infinite;
+
+  @keyframes eaf-chat-thinking {
+    0%,
+    100% {
+      transform: scale(0.6);
+    }
+
+    50% {
+      transform: scale(1);
+    }
+  }
+}
 
 @layer eaf-shell {
   html {
@@ -36,6 +32,19 @@
   body {
     background-color: var(--p-content-background);
     color: var(--p-text-color);
+  }
+
+  /* As tall as the sidebar's and the chat panel's top rows, its buttons centred whatever their size */
+  .eaf-header {
+    @apply flex h-14 shrink-0 items-center border-b border-eaf-card-border bg-eaf-card px-4;
+  }
+
+  .eaf-header-title {
+    @apply text-[1.25rem] font-bold text-eaf-ink;
+  }
+
+  .eaf-recover-password-title {
+    @apply text-[1.75rem] font-semibold;
   }
 }
 

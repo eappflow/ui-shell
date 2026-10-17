@@ -72,7 +72,3 @@ const hasContent = computed(() => {
     </div>
   </Message>
 </template>
-
-<style scoped>
-/* Additional styles if needed */
-</style>

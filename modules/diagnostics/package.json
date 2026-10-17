@@ -17,14 +17,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style": {
-      "style": "./dist/style.css",
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    }
+    "./style": "./src/style/index.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style"
   ],
   "scripts": {
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
