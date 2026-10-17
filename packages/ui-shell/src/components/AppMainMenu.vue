@@ -72,10 +72,12 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
         <span
           :class="[
             'flex h-4 items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap',
+            compact && 'justify-center',
             appConfig.classes?.layout?.authorized?.menu?.['group-label'],
           ]"
         >
-          <span v-if="compact" class="h-px w-full bg-eaf-card-border" />
+          <!-- As wide as the item icons below, on the same axis -->
+          <span v-if="compact" class="h-px w-5 shrink-0 bg-eaf-card-border" />
           <span :class="compact && 'sr-only'">{{ item.label }}</span>
         </span>
       </template>
@@ -85,6 +87,8 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
           v-bind="itemProps.action"
           :class="[
             'flex items-center w-full min-w-0! text-[0.8125rem] font-medium',
+            // The rail is narrower than the icon: centring keeps it on the rail's axis
+            compact && 'justify-center',
             appConfig.classes?.layout?.authorized?.menu?.item,
             isActive(item) && 'font-semibold bg-eaf-highlight',
             isActive(item) &&
@@ -92,9 +96,10 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
           ]"
           @click="navigateToPage(asEafMenuItem(item))"
         >
+          <!-- 1lh: a label line tall, so the row keeps its height once the label is gone -->
           <span
             v-if="item.icon"
-            class="flex shrink-0 items-center justify-center w-5"
+            class="flex shrink-0 items-center justify-center w-5 h-[1lh]"
           >
             <i
               :class="[item.icon, isActive(item) && 'text-primary']"
