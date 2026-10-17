@@ -4,7 +4,7 @@ const hasOwn = (value: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(value, key);
 
 /** `"items[0].name"` → `items`, `0`, `name`; `null` for empty segments */
-function splitPath(path: string): string[] | null {
+export function splitPath(path: string): string[] | null {
   const segments = path.replace(/\[(\d+)\]/g, ".$1").split(".");
   return segments.every((segment) => segment !== "") ? segments : null;
 }
@@ -22,9 +22,8 @@ export function isPlainObject(
 
 const NOT_FOUND = Symbol("not-found");
 
-/** Value at `path` through own properties, or `NOT_FOUND` */
-function resolvePath(source: unknown, path: string): unknown {
-  const segments = splitPath(path);
+/** Value at `segments` (see `splitPath`) through own properties, or `NOT_FOUND` */
+function resolvePath(source: unknown, segments: string[] | null): unknown {
   if (!segments) {
     return NOT_FOUND;
   }
@@ -45,13 +44,29 @@ function resolvePath(source: unknown, path: string): unknown {
 
 /** Value at `path` (own properties only), or `undefined` */
 export function getByPath(source: unknown, path: string): unknown {
-  const value = resolvePath(source, path);
+  const value = resolvePath(source, splitPath(path));
   return value === NOT_FOUND ? undefined : value;
 }
 
 /** Whether `path` exists (even holding `null`/`undefined`) */
 export function hasPath(source: unknown, path: string): boolean {
-  return resolvePath(source, path) !== NOT_FOUND;
+  return resolvePath(source, splitPath(path)) !== NOT_FOUND;
+}
+
+/** Sets the value at an existing `path` (see `hasPath`); `false` if there is none */
+export function setByPath(
+  target: unknown,
+  path: string,
+  value: unknown,
+): boolean {
+  const segments = splitPath(path);
+  const key = segments?.pop();
+  const parent = resolvePath(target, segments);
+  if (key === undefined || resolvePath(parent, [key]) === NOT_FOUND) {
+    return false;
+  }
+  (parent as Record<string, unknown>)[key] = value;
+  return true;
 }
 
 /** `$f.fields`: property access builds the path, `$` members use `source` */
@@ -62,6 +77,8 @@ export function createFields(
     isRequired: (path: string) => boolean;
     setErrors: (path: string, messages: string | string[]) => void;
     clearErrors: (path: string) => void;
+    touch: (path: string) => void;
+    display: (path: string) => () => void;
   },
   path = "",
 ): unknown {
@@ -83,6 +100,10 @@ export function createFields(
               source.setErrors(path, messages);
           case "$clearError":
             return () => source.clearErrors(path);
+          case "$touch":
+            return () => source.touch(path);
+          case "$display":
+            return () => source.display(path);
         }
         // Not fields: symbols, Vue probes, `then`, Object.prototype members
         if (

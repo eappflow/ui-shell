@@ -15,9 +15,15 @@ import ConfirmationService from "primevue/confirmationservice";
 import Button from "primevue/button";
 import Aura from "@primeuix/themes/aura";
 
-import { EAppFlowUIShell } from "@eappflow/ui-shell";
+import {
+  AI_CHAT_SERVICE_KEY,
+  EAppFlowUIShell,
+  EafAiChatView,
+  type EafModule,
+} from "@eappflow/ui-shell";
 import { createDiagnosticsModule } from "@eappflow/diagnostics";
 import { createFakeAuthService } from "./services/fakeAuthService";
+import { createFakeAiChatService } from "./services/fakeAiChatService";
 import { parseApiError } from "./services/parseApiError";
 import { DEMO_CONFIG } from "./config/app";
 import en from "../locales/en.json";
@@ -32,7 +38,62 @@ const diagnosticsModule = createDiagnosticsModule({
   registerInMenu: true,
 });
 
-const eAppFlowModules = [diagnosticsModule];
+// The AI chat: the layout shows it once its service is provided, plus a full-page view
+const aiModule: EafModule = {
+  id: "ai",
+  name: "AI",
+  routes: [{ path: "ai-chat", name: "ai-chat", component: EafAiChatView }],
+  menuModules: [
+    {
+      name: "AI",
+      icon: "pi pi-sparkles",
+      items: [
+        {
+          name: "AI Chat",
+          icon: "pi pi-comments",
+          path: "/ai-chat",
+          permissions: [],
+        },
+      ],
+    },
+  ],
+  // Offered only to users with one of the permissions, as menu items are shown
+  aiTools: [
+    {
+      name: "current_time",
+      description: "The user's current date and time.",
+      run: () => new Date().toLocaleString(),
+      permissions: ["TechnicalAdministrator"],
+    },
+  ],
+  install(app) {
+    app.provide(AI_CHAT_SERVICE_KEY, createFakeAiChatService());
+  },
+};
+
+// The start screen, first in the menu
+const dashboardModule: EafModule = {
+  id: "dashboard",
+  name: "Dashboard",
+  routes: [
+    {
+      path: "",
+      name: "dashboard",
+      component: () => import("./pages/Dashboard.vue"),
+    },
+  ],
+  menuModules: [
+    {
+      name: "Demo",
+      icon: "pi pi-home",
+      items: [
+        { name: "Dashboard", icon: "pi pi-home", path: "/", permissions: [] },
+      ],
+    },
+  ],
+};
+
+const eAppFlowModules = [dashboardModule, diagnosticsModule, aiModule];
 
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 const app: VueApp = createApp(App);
@@ -69,15 +130,6 @@ app.use(EAppFlowUIShell, {
     authService: createFakeAuthService(),
     microsoftSSOService: createFakeMicrosoftSSOService(),
     parseApiError,
-  },
-  router: {
-    extraRoutes: [
-      {
-        path: "",
-        name: "dashboard",
-        component: () => import("./pages/Dashboard.vue"),
-      },
-    ],
   },
 });
 

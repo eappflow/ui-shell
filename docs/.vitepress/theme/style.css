@@ -1,0 +1,41 @@
+/* Vue green as the brand color, like the logo. Text and links get a darker
+   green on light backgrounds, as #42b883 on white is too light to read. */
+:root {
+  --vp-c-brand-1: #268057;
+  --vp-c-brand-2: #2e8b62;
+  --vp-c-brand-3: #42b883;
+  --vp-c-brand-soft: rgba(66, 184, 131, 0.14);
+
+  /* White text on the green buttons, darker green on hover */
+  --vp-button-brand-text: #fff;
+  --vp-button-brand-hover-text: #fff;
+  --vp-button-brand-active-text: #fff;
+  --vp-button-brand-hover-bg: #33a06f;
+  --vp-button-brand-active-bg: #2e8b62;
+
+  /* Green glow behind the logo on the home page */
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    #42b883 50%,
+    #35eb9a 50%
+  );
+  --vp-home-hero-image-filter: blur(40px);
+}
+
+.dark {
+  --vp-c-brand-1: #42b883;
+  --vp-c-brand-2: #5ec795;
+  --vp-c-brand-3: #42b883;
+  --vp-c-brand-soft: rgba(66, 184, 131, 0.16);
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(52px);
+  }
+}
+
+/* A smaller glow than VitePress's default  */
+.VPHero .image-container .image-bg {
+  transform: translate(-50%, -50%) scale(0.7);
+}

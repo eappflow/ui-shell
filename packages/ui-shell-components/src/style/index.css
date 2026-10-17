@@ -1,7 +1,7 @@
-/* Tailwind CSS base styles */
-@import "tailwindcss";
-/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
-@custom-variant dark (&:is(.dark, .dark *));
+/* For the host's Tailwind build - import it after `@import "tailwindcss"`, `tailwindcss-primeui`
+   and `primeicons`. The package ships no compiled utilities: the host generates them with its
+   own, so every variant (md:, hover:) sorts after every plain class, whichever package uses them. */
+@source "../../dist/**/*.js";
 
 /* Semantic tokens that flip automatically between light and dark, unlike
    the raw surface/primary scale which stays the same shade in both themes.
@@ -14,9 +14,3 @@
   --color-eaf-card-border: var(--p-content-border-color);
   --color-eaf-highlight: var(--p-highlight-background);
 }
-
-/* PrimeVue styles */
-@import "primeicons/primeicons.css";
-
-@source "../components";
-@import "tailwindcss-primeui";

@@ -3,6 +3,8 @@ import { ref } from "vue";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import Password from "primevue/password";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
 import {
@@ -10,37 +12,27 @@ import {
   EafFormItem,
   EafFormValidationSummary,
 } from "@eappflow/ui-shell-components";
+import { createChangePasswordSchema } from "./authSchemas";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const toast = useToast();
 const { t } = useScopedI18n();
 
-interface ChangePasswordForm {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-const $f = useEafForm<ChangePasswordForm>({
-  data: {
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  },
-  rules: {
-    currentPassword: {
-      $required: true,
-    },
-    newPassword: {
-      $required: true,
-      $length: {
-        minLength: 6,
-        message: "Password must be at least 6 characters",
-      },
-    },
-    confirmPassword: {
-      $required: true,
-    },
+const $f = useEafForm({
+  schema: createChangePasswordSchema(t),
+  exposeToAi: false,
+  async onSubmit() {
+    // In real scenario: this would call authService via store
+    // await authService.changePassword({ currentPassword, newPassword })
+    // The form's reset, not resetForm() - that one hides the success message too
+    $f.resetForm();
+    success.value = true;
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Your password has been changed successfully",
+      life: 5000,
+    });
   },
 });
 const success = ref(false);
@@ -49,40 +41,10 @@ function resetForm() {
   $f.resetForm();
   success.value = false;
 }
-
-async function handleChangePassword(): Promise<void> {
-  if (!$f.validate()) return;
-
-  // Cross-field checks the declarative `rules` engine can't express
-  const { currentPassword, newPassword, confirmPassword } = $f.data;
-  if (newPassword !== confirmPassword) {
-    $f.fields.confirmPassword.$setError("Passwords do not match");
-    return;
-  }
-  if (currentPassword === newPassword) {
-    $f.fields.newPassword.$setError(
-      "New password must be different from current password",
-    );
-    return;
-  }
-
-  await $f.submit(async () => {
-    // In real scenario: this would call authService via store
-    // await authService.changePassword({ currentPassword, newPassword })
-    success.value = true;
-    resetForm();
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: "Your password has been changed successfully",
-      life: 5000,
-    });
-  });
-}
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto space-y-6">
+  <div class="w-full max-w-md mx-auto space-y-6">
     <div>
       <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-100">
         Change Password
@@ -91,145 +53,6 @@ async function handleChangePassword(): Promise<void> {
         Update your current password to a new one
       </p>
     </div>
-
-    <Card>
-      <template #content>
-        <form
-          class="space-y-6"
-          @submit.prevent="handleChangePassword"
-        >
-          <Message
-            v-if="success"
-            severity="success"
-            :closable="true"
-            @close="success = false"
-          >
-            {{
-              t(
-                "password_changed_successfully",
-                "Your password has been changed successfully!",
-                "Twoje hasło zostało pomyślnie zmienione!",
-              )
-            }}
-          </Message>
-
-          <EafFormValidationSummary :form="$f" />
-
-          <Message
-            severity="info"
-            :closable="false"
-          >
-            {{
-              t(
-                "password_change_info",
-                "For security reasons, you will need to use your new password for future logins.",
-                "Ze względów bezpieczeństwa będziesz musiał używać nowego hasła przy przyszłych logowaniach.",
-              )
-            }}
-          </Message>
-
-          <EafFormValidationSummary :form="$f" />
-
-          <Message
-            severity="info"
-            :closable="false"
-          >
-            {{
-              t(
-                "password_change_info",
-                "For security reasons, you will need to use your new password for future logins.",
-                "Ze względów bezpieczeństwa będziesz musiał używać nowego hasła przy przyszłych logowaniach.",
-              )
-            }}
-          </Message>
-
-          <EafFormItem
-            :field="$f.fields.currentPassword"
-            :label="t('current_password', 'Current Password', 'Aktualne hasło')"
-          >
-            <Password
-              v-model="$f.data.currentPassword"
-              :disabled="$f.loading.value"
-              :placeholder="
-                t(
-                  'enter_current_password',
-                  'Enter your current password',
-                  'Wprowadź swoje aktualne hasło',
-                )
-              "
-              :feedback="false"
-              toggle-mask
-            />
-          </EafFormItem>
-
-          <EafFormItem
-            :field="$f.fields.newPassword"
-            :label="t('new_password', 'New Password', 'Nowe hasło')"
-          >
-            <Password
-              v-model="$f.data.newPassword"
-              :disabled="$f.loading.value"
-              :placeholder="
-                t(
-                  'enter_new_password',
-                  'Enter your new password',
-                  'Wprowadź swoje nowe hasło',
-                )
-              "
-              :feedback="true"
-              toggle-mask
-            />
-            <small class="text-surface-500">{{
-              t(
-                "minimum_6_characters",
-                "Minimum 6 characters required",
-                "Minimalnie 6 znaków wymaganych",
-              )
-            }}</small>
-          </EafFormItem>
-
-          <EafFormItem
-            :field="$f.fields.confirmPassword"
-            :label="
-              t(
-                'confirm_new_password',
-                'Confirm New Password',
-                'Potwierdź nowe hasło',
-              )
-            "
-          >
-            <Password
-              v-model="$f.data.confirmPassword"
-              :disabled="$f.loading.value"
-              :placeholder="
-                t(
-                  'confirm_new_password',
-                  'Confirm New Password',
-                  'Potwierdź nowe hasło',
-                )
-              "
-              :feedback="false"
-              toggle-mask
-            />
-          </EafFormItem>
-
-          <div class="flex justify-end gap-3 pt-4">
-            <Button
-              :label="t('cancel', 'Cancel', 'Anuluj')"
-              severity="secondary"
-              outlined
-              :disabled="$f.loading.value"
-              @click="resetForm"
-            />
-            <Button
-              type="submit"
-              :label="t('change_password', 'Change Password', 'Zmień hasło')"
-              :loading="$f.loading.value"
-            />
-          </div>
-        </form>
-      </template>
-    </Card>
 
     <Card>
       <template #header>
@@ -305,6 +128,149 @@ async function handleChangePassword(): Promise<void> {
             }}
           </li>
         </ul>
+      </template>
+    </Card>
+
+    <Card>
+      <template #content>
+        <form class="space-y-6" @submit.prevent="$f.submit()">
+          <Message
+            v-if="success"
+            severity="success"
+            :closable="true"
+            @close="success = false"
+          >
+            {{
+              t(
+                "password_changed_successfully",
+                "Your password has been changed successfully!",
+                "Twoje hasło zostało pomyślnie zmienione!",
+              )
+            }}
+          </Message>
+
+          <EafFormValidationSummary :form="$f" />
+
+          <Message severity="info" :closable="false">
+            {{
+              t(
+                "password_change_info",
+                "For security reasons, you will need to use your new password for future logins.",
+                "Ze względów bezpieczeństwa będziesz musiał używać nowego hasła przy przyszłych logowaniach.",
+              )
+            }}
+          </Message>
+
+          <!-- Like the login's password -->
+          <EafFormItem
+            v-slot="{ id }"
+            :field="$f.fields.currentPassword"
+            :label="t('current_password', 'Current Password', 'Aktualne hasło')"
+          >
+            <IconField>
+              <InputIcon class="pi pi-lock" />
+              <Password
+                v-model="$f.data.currentPassword"
+                :input-id="id"
+                :disabled="$f.loading.value"
+                :placeholder="
+                  t(
+                    'enter_current_password',
+                    'Enter your current password',
+                    'Wprowadź swoje aktualne hasło',
+                  )
+                "
+                :feedback="false"
+                toggle-mask
+                class="w-full"
+                input-class="w-full"
+                autocomplete="current-password"
+              />
+            </IconField>
+          </EafFormItem>
+
+          <EafFormItem
+            v-slot="{ id }"
+            :field="$f.fields.newPassword"
+            :label="t('new_password', 'New Password', 'Nowe hasło')"
+          >
+            <IconField>
+              <InputIcon class="pi pi-lock" />
+              <Password
+                v-model="$f.data.newPassword"
+                :input-id="id"
+                :disabled="$f.loading.value"
+                :placeholder="
+                  t(
+                    'enter_new_password',
+                    'Enter your new password',
+                    'Wprowadź swoje nowe hasło',
+                  )
+                "
+                :feedback="true"
+                toggle-mask
+                class="w-full"
+                input-class="w-full"
+                autocomplete="new-password"
+              />
+            </IconField>
+            <small class="text-surface-500">{{
+              t(
+                "minimum_6_characters",
+                "Minimum 6 characters required",
+                "Minimalnie 6 znaków wymaganych",
+              )
+            }}</small>
+          </EafFormItem>
+
+          <EafFormItem
+            v-slot="{ id }"
+            :field="$f.fields.confirmPassword"
+            :label="
+              t(
+                'confirm_new_password',
+                'Confirm New Password',
+                'Potwierdź nowe hasło',
+              )
+            "
+          >
+            <IconField>
+              <InputIcon class="pi pi-lock" />
+              <Password
+                v-model="$f.data.confirmPassword"
+                :input-id="id"
+                :disabled="$f.loading.value"
+                :placeholder="
+                  t(
+                    'confirm_new_password',
+                    'Confirm New Password',
+                    'Potwierdź nowe hasło',
+                  )
+                "
+                :feedback="false"
+                toggle-mask
+                class="w-full"
+                input-class="w-full"
+                autocomplete="new-password"
+              />
+            </IconField>
+          </EafFormItem>
+
+          <div class="flex justify-end gap-3 pt-4">
+            <Button
+              :label="t('cancel', 'Cancel', 'Anuluj')"
+              severity="secondary"
+              outlined
+              :disabled="$f.loading.value"
+              @click="resetForm"
+            />
+            <Button
+              type="submit"
+              :label="t('change_password', 'Change Password', 'Zmień hasło')"
+              :loading="$f.loading.value"
+            />
+          </div>
+        </form>
       </template>
     </Card>
   </div>

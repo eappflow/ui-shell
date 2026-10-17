@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { defineComponent, reactive } from "vue";
+import { defineComponent, nextTick, reactive, ref } from "vue";
 import { mount } from "@vue/test-utils";
 import EafFormValidationSummary from "../EafFormValidationSummary.vue";
 import EafFormItem from "../EafFormItem.vue";
@@ -23,7 +23,7 @@ function mountFormWithBackendError(backendError: ApiParsedErrorResponse) {
     components: { EafFormValidationSummary, EafFormItem },
     setup() {
       const form = useEafForm<TestForm>({
-        data: reactive({ firstName: "" }),
+        defaultValues: reactive({ firstName: "" }),
       });
       form.handleApiError(backendError);
       return { form };
@@ -44,7 +44,7 @@ function mountFormWithBackendError(backendError: ApiParsedErrorResponse) {
 }
 
 describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
-  it("shows a registered field's error next to the field, not in the summary", () => {
+  it("shows a registered field's error next to the field, not in the summary", async () => {
     const wrapper = mountFormWithBackendError({
       status: 422,
       success: false,
@@ -52,6 +52,8 @@ describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
         firstName: ["First name is already taken"],
       },
     });
+    // The summary above renders before the item registers its field
+    await nextTick();
 
     expect(wrapper.get('[data-testid="firstName-error"]').text()).toBe(
       "First name is already taken",
@@ -103,5 +105,55 @@ describe("backend errors parsed via EAF_FORM_KEY are displayed", () => {
     expect(wrapper.find('[data-testid="firstName-error"]').exists()).toBe(
       false,
     );
+  });
+});
+
+describe("errors of fields no EafFormItem shows", () => {
+  function mountWithHiddenFields() {
+    const Host = defineComponent({
+      components: { EafFormValidationSummary, EafFormItem },
+      setup() {
+        // The id is held without an input; the note's input can be hidden
+        const form = useEafForm({
+          defaultValues: reactive({ id: "1", note: "" }),
+        });
+        const noteShown = ref(true);
+        return { form, noteShown };
+      },
+      template: `
+        <EafFormValidationSummary :form="form" />
+        <EafFormItem v-if="noteShown" :field="form.fields.note">
+          <input />
+        </EafFormItem>
+      `,
+    });
+    return mount(Host, {
+      global: { provide: { [EAF_FORM_KEY]: identityParser } },
+    });
+  }
+
+  it("shows a field's error in the summary while no EafFormItem shows the field", async () => {
+    const wrapper = mountWithHiddenFields();
+    const { form } = wrapper.vm as unknown as {
+      form: ReturnType<typeof useEafForm<{ id: string; note: string }>>;
+      noteShown: boolean;
+    };
+    form.handleApiError({
+      status: 422,
+      success: false,
+      validationErrors: { id: ["Not found"], note: ["Too long"] },
+    });
+    await nextTick();
+
+    const summary = () =>
+      wrapper.get('[data-testid="form-validation-summary"]').text();
+    expect(form.fields.id.$error).toBe("Not found");
+    expect(summary()).toContain("id: Not found");
+    expect(summary()).not.toContain("Too long");
+    expect(wrapper.get('[data-testid="note-error"]').text()).toBe("Too long");
+
+    (wrapper.vm as unknown as { noteShown: boolean }).noteShown = false;
+    await nextTick();
+    expect(summary()).toContain("note: Too long");
   });
 });

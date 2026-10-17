@@ -13,7 +13,13 @@ export default defineConfig({
   },
   resolve: {
     // Workspace packages must share the app's theme registry and Vue runtime.
-    dedupe: ["vue", "primevue", "@primevue/core", "@primeuix/styled"],
+    dedupe: [
+      "vue",
+      "primevue",
+      "@primevue/core",
+      "@primeuix/styled",
+      "@primeuix/themes",
+    ],
     alias: {
       "@eappflow/ui-shell-components": resolve(
         __dirname,
