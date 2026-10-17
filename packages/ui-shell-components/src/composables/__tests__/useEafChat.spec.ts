@@ -290,6 +290,76 @@ describe("useEafChat", () => {
     expect(chat.messages.value).toEqual([older]);
   });
 
+  it("shows the conversation picked last, whatever order the histories come back in", async () => {
+    const { service, chat } = setup();
+    const history = (content: string): AiChatMessage[] => [
+      { role: "Assistant", content, sentAt },
+    ];
+    let answerA!: (messages: AiChatMessage[]) => void;
+    let answerB!: (messages: AiChatMessage[]) => void;
+    service.getMessages
+      .mockReturnValueOnce(new Promise((resolve) => (answerA = resolve)))
+      .mockReturnValueOnce(new Promise((resolve) => (answerB = resolve)));
+
+    const openingA = chat.open("a");
+    const openingB = chat.open("b");
+    expect(chat.loading.value).toBe(true);
+    answerB(history("B"));
+    await openingB;
+    answerA(history("A"));
+    await openingA;
+
+    expect(chat.activeId.value).toBe("b");
+    expect(chat.messages.value).toEqual(history("B"));
+    expect(chat.loading.value).toBe(false);
+  });
+
+  it("keeps a history that comes late out of a new conversation", async () => {
+    const { service, chat } = setup();
+    let answer!: (messages: AiChatMessage[]) => void;
+    service.getMessages.mockReturnValue(
+      new Promise((resolve) => (answer = resolve)),
+    );
+    service.send.mockResolvedValue(done("Hi!"));
+
+    const opening = chat.open("a");
+    chat.startNew();
+    expect(chat.loading.value).toBe(false);
+    await chat.send("Hello");
+    answer([{ role: "Assistant", content: "Older", sentAt }]);
+    await opening;
+
+    expect(chat.activeId.value).toBe("new");
+    expect(chat.messages.value.map((m) => m.content)).toEqual(["Hello", "Hi!"]);
+  });
+
+  it("stays on a conversation opened while a reply was on its way", async () => {
+    const { service, chat } = setup();
+    const older: AiChatMessage[] = [
+      { role: "Assistant", content: "Older", sentAt },
+    ];
+    let answerSend!: (reply: AiChatReply) => void;
+    let answerA!: (messages: AiChatMessage[]) => void;
+    service.send.mockReturnValue(
+      new Promise((resolve) => (answerSend = resolve)),
+    );
+    service.getMessages.mockReturnValue(
+      new Promise((resolve) => (answerA = resolve)),
+    );
+
+    const sending = chat.send("Hello");
+    const opening = chat.open("a");
+    answerSend(done("Hi!"));
+    await sending;
+    answerA(older);
+    await opening;
+
+    expect(chat.activeId.value).toBe("a");
+    expect(chat.messages.value).toEqual(older);
+    expect(chat.loading.value).toBe(false);
+    expect(chat.conversations.value.map((c) => c.id)).toEqual(["new"]);
+  });
+
   it("clears the view when the open conversation is deleted", async () => {
     const { chat } = setup([{ id: "a", title: "A", updatedAt: sentAt }]);
     await chat.load();

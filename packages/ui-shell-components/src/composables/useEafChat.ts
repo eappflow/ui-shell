@@ -75,9 +75,13 @@ export function useEafChat(service: AiChatService = injectService()) {
   const activeId = ref<string | null>(null);
   const messages = ref<AiChatMessage[]>([]);
   const sending = ref(false);
+  /** While the open conversation's messages load - they'd replace a message sent meanwhile */
+  const loading = ref(false);
   /** Empty without `canChangeModel` */
   const models = ref<AiModel[]>([]);
   const modelKey = ref<string | null>(null);
+  /** Bumped when the view moves to another conversation - what comes back for the one before is dropped */
+  let view = 0;
 
   async function loadModels(): Promise<void> {
     if (!service.canChangeModel || !service.getModels) return;
@@ -97,14 +101,25 @@ export function useEafChat(service: AiChatService = injectService()) {
   }
 
   async function open(id: string): Promise<void> {
+    const ticket = ++view;
     activeId.value = id;
-    messages.value = await service.getMessages(id);
+    messages.value = [];
+    loading.value = true;
+    try {
+      const list = await service.getMessages(id);
+      // Dropped when another conversation, or a new one, was picked meanwhile
+      if (ticket === view) messages.value = list;
+    } finally {
+      if (ticket === view) loading.value = false;
+    }
   }
 
   // Only clears the view - the server starts the conversation with its first message.
   function startNew(): void {
+    view++;
     activeId.value = null;
     messages.value = [];
+    loading.value = false;
   }
 
   /** The model's reply, after running the tool calls it makes first */
@@ -148,6 +163,7 @@ export function useEafChat(service: AiChatService = injectService()) {
 
   /** Shows the message straight away and takes it back out if sending fails, rethrowing the error. */
   async function send(message: string): Promise<void> {
+    const ticket = view;
     sending.value = true;
     const sent: AiChatMessage = {
       role: "User",
@@ -160,14 +176,17 @@ export function useEafChat(service: AiChatService = injectService()) {
       const answer = await reply(message);
       const id = answer.conversationId;
       const title = answer.conversationTitle;
-      messages.value.push(answer.reply);
 
       // Moves to the top: the list is newest first
       conversations.value = [
         { id, title, updatedAt: answer.reply.sentAt },
         ...conversations.value.filter((c) => c.id !== id),
       ];
-      activeId.value = id;
+      // Not over a conversation opened meanwhile
+      if (ticket === view) {
+        messages.value.push(answer.reply);
+        activeId.value = id;
+      }
     } catch (error) {
       // This message, not the last one - a conversation opened meanwhile replaces the list
       const index = messages.value.indexOf(sent);
@@ -199,6 +218,7 @@ export function useEafChat(service: AiChatService = injectService()) {
     activeId,
     messages,
     sending,
+    loading,
     models,
     modelKey,
     load,

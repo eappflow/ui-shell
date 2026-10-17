@@ -14,6 +14,7 @@ const {
   activeId,
   messages,
   sending,
+  loading,
   models,
   modelKey,
   load,
@@ -86,6 +87,7 @@ onUnmounted(() => (layoutStore.chatPageOpen = false));
           <ChatComposer
             v-model:model-key="modelKey"
             :send="send"
+            :disabled="loading"
             :models="models"
             class="mx-auto w-full max-w-3xl"
           />

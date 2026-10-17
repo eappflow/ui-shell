@@ -20,6 +20,7 @@ const {
   activeId,
   messages,
   sending,
+  loading,
   models,
   modelKey,
   load,
@@ -80,6 +81,7 @@ watch(
       <ChatComposer
         v-model:model-key="modelKey"
         :send="send"
+        :disabled="loading"
         :models="models"
       />
     </div>

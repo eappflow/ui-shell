@@ -16,6 +16,8 @@ const props = defineProps<{
   send: ReturnType<typeof useEafChat>["send"];
   /** The picker shows when there are any */
   models?: AiModel[];
+  /** Holds the message back, e.g. while the conversation loads */
+  disabled?: boolean;
 }>();
 const modelKey = defineModel<string | null>("modelKey", { default: null });
 
@@ -39,7 +41,7 @@ const $f = useEafForm({
 });
 
 function sendMessage() {
-  if ($f.loading.value || !$f.data.message.trim()) return;
+  if (props.disabled || $f.loading.value || !$f.data.message.trim()) return;
   $f.submit();
 }
 </script>
@@ -109,7 +111,7 @@ function sendMessage() {
             class="-mr-2 ml-auto size-8! shrink-0"
             :aria-label="t('chat_send', 'Send', 'Wyślij')"
             :loading="$f.loading.value"
-            :disabled="!$f.data.message.trim()"
+            :disabled="disabled || !$f.data.message.trim()"
             data-testid="ai-chat-send-button"
           />
         </div>
