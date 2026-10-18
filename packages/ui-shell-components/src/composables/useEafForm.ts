@@ -1,17 +1,23 @@
-import { ref, reactive, watch, InjectionKey, inject } from "vue";
+import { computed, ref, reactive, watch, InjectionKey, inject } from "vue";
 import { useI18n, type Composer } from "vue-i18n";
+import { z } from "zod";
 import type {
   EafFields,
   EafForm,
   EafFormApiErrorParser,
   EafFormConfig,
 } from "../types";
-import {
-  getFieldViolations,
-  type FieldRule,
-} from "../validators/fieldValidators";
 import { cloneDeep } from "../utils/cloneDeep";
 import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
+import {
+  blanksToUnset,
+  deriveDefaults,
+  isBlank,
+  isRequiredSchema,
+  issuePath,
+  schemaAt,
+} from "../utils/schema";
+import { exposeFormToAi } from "../ai-tools/formTools";
 
 export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
   "eaf:form-error-parser",
@@ -19,44 +25,82 @@ export const EAF_FORM_KEY: InjectionKey<EafFormApiErrorParser> = Symbol(
 
 // Overridable via i18nConfig.messages, like any other shell translation.
 const REQUIRED_MESSAGE_KEY = "validation.required";
+const DEFAULT_REQUIRED_MESSAGE = "This field is required";
+// zod's own messages for the other checks (too long, out of range...), in the
+// app's languages - only these, so a host bundles no other locale
+const ZOD_LOCALES = { en: z.locales.en, pl: z.locales.pl };
 
-/**
- * Composable for handling form validation errors from API responses
- * and client-side validation errors
- *
- * @param config Form data and validation rules
- * @returns Validation state and helper functions
- */
-export function useEafForm<T extends object>(
-  config: EafFormConfig<T>,
-): EafForm<T> {
+/** Every path in `value`: objects' keys, arrays and their items, nested ones too */
+function fieldPaths(value: unknown, parentPath: string): string[] {
+  const children: [string, unknown][] = Array.isArray(value)
+    ? value.map((item, index) => [`${parentPath}[${index}]`, item])
+    : isPlainObject(value)
+      ? Object.entries(value).map(([key, child]) => [
+          parentPath ? `${parentPath}.${key}` : key,
+          child,
+        ])
+      : [];
+  return children.flatMap(([path, child]) => [
+    path,
+    ...fieldPaths(child, path),
+  ]);
+}
+
+/** A form: its values, checked by `schema`, and the schema's and the API's errors on its fields */
+export function useEafForm<T extends object>({
+  defaultValues,
+  schema,
+  onSubmit,
+  validateOn = "blur",
+  exposeToAi = true,
+}: EafFormConfig<T>): EafForm<T> {
   const errorParser = inject(EAF_FORM_KEY, null);
 
   // null when no vue-i18n plugin is installed
   let t: Composer["t"] | null = null;
+  let locale: Composer["locale"] | null = null;
   try {
-    ({ t } = useI18n({ useScope: "global" }));
+    ({ t, locale } = useI18n({ useScope: "global" }));
   } catch {
     /* no-op */
   }
 
-  const data = reactive(config.data);
-  const initialData: T = cloneDeep(config.data);
+  // What a fresh form starts with: the schema's empty values (and any default it
+  // declares), overridden by the caller's `defaultValues` - where a form-only
+  // field, or one whose empty value differs from the schema, goes.
+  const derived = schema ? deriveDefaults(schema) : undefined;
+  const initialValues = {
+    ...(isPlainObject(derived) ? derived : {}),
+    ...(defaultValues ?? {}),
+  } as T;
 
-  // Reactive validation state
+  // A copy: `initialValues` stay as they are - for resetForm(), and the other
+  // forms that may share them
+  const data = reactive(cloneDeep(initialValues));
+
   const fieldErrors = reactive(new Map<string, string[]>());
+  // How many `EafFormItem`s show each field, see `$display`
+  const displayed = reactive(new Map<string, number>());
   const summaryErrors = ref<string[]>([]);
-  const generalMessage = ref<string>("");
+  const generalMessage = ref("");
   const loading = ref(false);
 
-  /**
-   * Handles API error responses that the errorParser marks as validation
-   * errors to handle (response.handleErrors)
-   * Extracts validation errors and maps them to form fields
-   *
-   * @param error The error object from the API call (typically from axios)
-   * @returns true if error was handled as validation error, false otherwise
-   */
+  /** Errors go on their fields - those of none, the whole form's ("") or a path the data lacks, in the summary */
+  function showErrors(errors: Iterable<[string, string[]]>): void {
+    for (const [path, messages] of errors) {
+      if (path !== "" && hasPath(data, path) && messages.length > 0) {
+        fieldErrors.set(path, messages);
+      } else {
+        summaryErrors.value.push(
+          ...messages.map((message) =>
+            path ? `${path}: ${message}` : message,
+          ),
+        );
+      }
+    }
+  }
+
+  /** Shows the error the `EAF_FORM_KEY` parser makes of `rawError`; `false` when it isn't one to show */
   function handleApiError(rawError: unknown): boolean {
     if (errorParser === null) {
       console.warn(
@@ -66,135 +110,91 @@ export function useEafForm<T extends object>(
     }
 
     const response = errorParser(rawError);
-
     if (response.handleErrors === false) {
       return false;
     }
 
-    // Clear previous errors
     clearErrors();
-
-    // Extract general message
-    if (response?.generalMessage) {
-      generalMessage.value = response.generalMessage;
-    }
-
-    // Log traceId for debugging
-    if (response?.traceId) {
+    generalMessage.value = response.generalMessage ?? "";
+    if (response.traceId) {
       console.warn("[Validation Error]", {
         code: response.code,
         message: response.message,
         traceId: response.traceId,
       });
     }
+    showErrors(Object.entries(response.validationErrors ?? {}));
+    return true;
+  }
 
-    // Process validation errors
-    if (response?.validationErrors) {
-      const unmatchedErrors: string[] = [];
+  /**
+   * The schema's errors by field path ("" for the whole form's). An empty
+   * field (`isBlank`) gets the translated required message, the rest zod's
+   * message in the app's language - unless the schema gives its own.
+   */
+  function schemaErrors(): Map<string, string[]> {
+    const errors = new Map<string, string[]>();
+    if (schema === undefined) return errors;
 
-      Object.entries(response.validationErrors).forEach(
-        ([fieldName, messages]) => {
-          const isRegistered = hasPath(data, fieldName);
+    const language = locale?.value.split("-")[0] as keyof typeof ZOD_LOCALES;
+    const localeError = ZOD_LOCALES[language]?.().localeError;
+    const result = schema.safeParse(blanksToUnset(schema, data), {
+      error: (issue) =>
+        isBlank(issue.input)
+          ? (t?.(REQUIRED_MESSAGE_KEY) ?? DEFAULT_REQUIRED_MESSAGE)
+          : localeError?.(issue),
+    });
+    if (result.success) return errors;
 
-          if (isRegistered && messages.length > 0) {
-            // Map to form field
-            fieldErrors.set(fieldName, messages);
-          } else {
-            // Field not registered, add to summary
-            messages.forEach((msg) => {
-              unmatchedErrors.push(`${fieldName}: ${msg}`);
-            });
-          }
-        },
-      );
-
-      summaryErrors.value = unmatchedErrors;
+    for (const issue of result.error.issues) {
+      const path = issuePath(issue.path);
+      errors.set(path, [...(errors.get(path) ?? []), issue.message]);
     }
 
-    return true;
+    return errors;
+  }
+
+  // Fields left once, and whether validate() ran - their changes are checked from then on
+  const touched = new Set<string>();
+  let validated = false;
+
+  /** Whether a change to the field at `path` checks it, see `validateOn` */
+  function checksOnChange(path: string): boolean {
+    return (
+      validateOn === "change" ||
+      validated ||
+      touched.has(path) ||
+      fieldErrors.has(path)
+    );
+  }
+
+  /** Leaving the field: checks it - an error it already has, e.g. the API's, stays until it changes */
+  function touch(path: string): void {
+    // Not while submitting: its check ran, and inputs it disables lose focus
+    if (validateOn !== "blur" || loading.value) {
+      return;
+    }
+    touched.add(path);
+    if (!fieldErrors.has(path)) {
+      validateField(path);
+    }
   }
 
   function validate(): boolean {
     clearErrors();
-
-    const rules = config.rules;
-    if (!rules) {
-      return true;
-    }
-
-    validateRules(data, rules as Record<string, unknown>, "");
-
+    validated = true;
+    showErrors(schemaErrors());
     return !hasErrors();
   }
 
-  function validateRules(
-    values: unknown,
-    rules: Record<string, unknown>,
-    parentPath: string,
-  ): void {
-    for (const key of Object.keys(rules)) {
-      if (key.startsWith("$")) {
-        continue;
-      }
-
-      const fieldRules = rules[key];
-      if (!isPlainObject(fieldRules)) {
-        continue;
-      }
-
-      const path = parentPath === "" ? key : `${parentPath}.${key}`;
-      const value =
-        values !== null && typeof values === "object"
-          ? (values as Record<string, unknown>)[key]
-          : undefined;
-
-      validateNode(value, fieldRules, path);
-    }
-  }
-
-  /** Checks a value: an object's children, or the value (+ array items) */
-  function validateNode(
-    value: unknown,
-    nodeRules: Record<string, unknown>,
-    path: string,
-  ): void {
-    if (isPlainObject(value)) {
-      validateRules(value, nodeRules, path);
-      return;
-    }
-
-    const messages = getFieldViolations(
-      value,
-      withTranslatedRequiredMessage(nodeRules as FieldRule),
-    );
-    if (messages.length > 0) {
-      setFieldError(path, messages);
-    }
-
-    const each = nodeRules.$each;
-    if (Array.isArray(value) && isPlainObject(each)) {
-      value.forEach((item, index) =>
-        validateNode(item, each, `${path}[${index}]`),
-      );
-    }
-  }
-
-  function withTranslatedRequiredMessage(fieldRules: FieldRule): FieldRule {
-    return fieldRules.$required === true && t
-      ? { ...fieldRules, $required: { message: t(REQUIRED_MESSAGE_KEY) } }
-      : fieldRules;
-  }
-
-  async function submit(
-    handleSubmit: (data: T) => Promise<void>,
-  ): Promise<void> {
+  async function submit(): Promise<void> {
     if (!validate()) {
       return;
     }
 
     loading.value = true;
     try {
-      await handleSubmit(data as T);
+      await onSubmit?.((schema ? blanksToUnset(schema, data) : data) as T);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -202,43 +202,36 @@ export function useEafForm<T extends object>(
     }
   }
 
-  /**
-   * Sets validation error(s) for a specific field (client-side validation)
-   *
-   * @param fieldName The field name (camelCase)
-   * @param messages Error message(s) - can be a single string or array
-   */
-  function setFieldError(fieldName: string, messages: string | string[]): void {
-    const errorArray = Array.isArray(messages) ? messages : [messages];
-    fieldErrors.set(fieldName, errorArray);
+  const setFieldError = (path: string, messages: string | string[]) =>
+    fieldErrors.set(path, [messages].flat());
+
+  /** Counts the field as shown until the returned function is called */
+  function display(path: string): () => void {
+    displayed.set(path, (displayed.get(path) ?? 0) + 1);
+    let shown = true;
+    return () => {
+      if (!shown) return;
+      shown = false;
+      const count = (displayed.get(path) ?? 1) - 1;
+      if (count > 0) displayed.set(path, count);
+      else displayed.delete(path);
+    };
   }
 
-  /**
-   * Gets all error messages for a specific field (regardless of config)
-   *
-   * @param fieldName The field name (camelCase)
-   * @returns Array of all error messages for the field, or empty array if none
-   */
-  function getAllFieldErrors(fieldName: string): string[] {
-    return fieldErrors.get(fieldName) || [];
-  }
+  const undisplayedErrors = computed(() =>
+    [...fieldErrors]
+      .filter(([path]) => !displayed.has(path))
+      .flatMap(([path, messages]) =>
+        messages.map((message) => `${path}: ${message}`),
+      ),
+  );
 
-  /** `items[0].name` → rules at `items.$each.name` */
-  function rulesAt(path: string): unknown {
-    return getByPath(
-      config.rules,
-      path.replace(/\[\d+\]/g, () => ".$each"),
-    );
-  }
-
+  /** Whether the schema takes no empty value there, see `isRequiredSchema` */
   function isFieldRequired(path: string): boolean {
-    const fieldRules = rulesAt(path);
-    return isPlainObject(fieldRules) && Boolean(fieldRules.$required);
+    const field = schemaAt(schema, path);
+    return field !== undefined && isRequiredSchema(field);
   }
 
-  /**
-   * Clears all validation errors (field-level, summary, and general message)
-   */
   function clearErrors(): void {
     fieldErrors.clear();
     summaryErrors.value = [];
@@ -246,79 +239,42 @@ export function useEafForm<T extends object>(
   }
 
   /**
-   * Clears validation errors for a specific field
-   *
-   * @param fieldName The field name (camelCase)
+   * Puts `newData` (default: the initial values) into the form, unvalidated -
+   * over the initial values, so a field it lacks (a loaded record's `id`) doesn't
+   * keep what the previous data put in
    */
-  function clearFieldError(fieldName: string): void {
-    fieldErrors.delete(fieldName);
-  }
-
-  /** Puts `newData` (default: the initial data) into the form, unvalidated */
-  function resetForm(newData: T = initialData): void {
-    Object.assign(data, cloneDeep(newData));
+  function resetForm(newData: T = initialValues): void {
+    const values = cloneDeep({ ...initialValues, ...newData });
+    for (const key of Object.keys(data)) {
+      if (!Object.hasOwn(values, key)) {
+        delete (data as Record<string, unknown>)[key];
+      }
+    }
+    Object.assign(data, values);
     // After the assign, so it also drops what the change check found
     clearErrors();
+    touched.clear();
+    validated = false;
   }
 
   /** Sets or clears the errors of one field, as validate() would */
-  function validateField(path: string): void {
-    const fieldRules = rulesAt(path);
-    const value = getByPath(data, path);
-    const messages =
-      hasPath(data, path) && isPlainObject(fieldRules) && !isPlainObject(value)
-        ? getFieldViolations(
-            value,
-            withTranslatedRequiredMessage(fieldRules as FieldRule),
-          )
-        : [];
-    if (messages.length > 0) {
-      setFieldError(path, messages);
+  function validateField(path: string, errors = schemaErrors()): void {
+    const messages = errors.get(path);
+    if (messages) {
+      fieldErrors.set(path, messages);
     } else {
-      clearFieldError(path);
+      fieldErrors.delete(path);
     }
   }
 
-  /** Data paths that have rules, walked like validate() */
-  function ruledPaths(
-    value: unknown,
-    nodeRules: Record<string, unknown>,
-    parentPath: string,
-  ): string[] {
-    if (Array.isArray(value)) {
-      const each = nodeRules.$each;
-      return isPlainObject(each)
-        ? value.flatMap((item, index) => {
-            const path = `${parentPath}[${index}]`;
-            return [path, ...ruledPaths(item, each, path)];
-          })
-        : [];
-    }
-    if (!isPlainObject(value)) {
-      return [];
-    }
-    return Object.entries(nodeRules).flatMap(([key, childRules]) => {
-      if (
-        key.startsWith("$") ||
-        !isPlainObject(childRules) ||
-        !(key in value)
-      ) {
-        return [];
-      }
-      const path = parentPath === "" ? key : `${parentPath}.${key}`;
-      return [path, ...ruledPaths(value[key], childRules, path)];
-    });
-  }
-
-  // Checks each field whose value changed; fields that are gone lose their
-  // errors. `sync`, so resetForm() can clear what it triggers.
-  if (config.validateOnChange !== false && config.rules) {
-    const rules = config.rules as Record<string, unknown>;
-    // Arrays by length: push/splice keep the reference, and an array's own
-    // rules (`$required`, `$length`) only look at the length
+  // Checks the fields whose value changed, see `checksOnChange`; fields that
+  // are gone lose their errors. `sync`, so resetForm() can clear what it triggers.
+  if (validateOn !== "submit" && schema) {
+    // Arrays by length: push/splice keep the reference, and the array's own
+    // checks (e.g. `.min(1)`) only look at the length
     const snapshot = () =>
       new Map(
-        ruledPaths(data, rules, "").map((path) => {
+        fieldPaths(data, "").map((path) => {
           const value = getByPath(data, path);
           return [path, Array.isArray(value) ? value.length : value];
         }),
@@ -328,16 +284,22 @@ export function useEafForm<T extends object>(
       data,
       () => {
         const current = snapshot();
+        const errors = schemaErrors();
 
         for (const [path, value] of current) {
-          if (last.has(path) && !Object.is(last.get(path), value)) {
-            validateField(path);
+          if (
+            last.has(path) &&
+            !Object.is(last.get(path), value) &&
+            checksOnChange(path)
+          ) {
+            validateField(path, errors);
           }
         }
 
         for (const path of last.keys()) {
           if (!current.has(path)) {
-            clearFieldError(path);
+            fieldErrors.delete(path);
+            touched.delete(path);
           }
         }
         last = current;
@@ -346,11 +308,17 @@ export function useEafForm<T extends object>(
     );
   }
 
-  /**
-   * Checks if there are any validation errors present
-   *
-   * @returns true if any errors exist (field, summary, or general), false otherwise
-   */
+  if (exposeToAi !== false) {
+    exposeFormToAi({
+      data,
+      errors: fieldErrors,
+      isRequired: isFieldRequired,
+      validate: (path) => validateField(path),
+      schema,
+      descriptions: exposeToAi,
+    });
+  }
+
   function hasErrors(): boolean {
     return (
       fieldErrors.size > 0 ||
@@ -363,14 +331,17 @@ export function useEafForm<T extends object>(
     // Reactive state
     data,
     fields: createFields({
-      errors: getAllFieldErrors,
+      errors: (path) => fieldErrors.get(path) ?? [],
       isRequired: isFieldRequired,
       setErrors: setFieldError,
-      clearErrors: clearFieldError,
+      clearErrors: (path) => fieldErrors.delete(path),
+      touch,
+      display,
     }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
+    undisplayedErrors,
     generalMessage,
 
     // Helper functions

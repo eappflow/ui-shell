@@ -1,6 +1,3 @@
-// ─── Styles ─────────────────────────────────────────────────────────────────
-import "./style/index.css";
-
 // Types
 export type {
   Permission,
@@ -41,6 +38,7 @@ export type {
   MenuService,
   ThemeService,
   MicrosoftSSOService,
+  AiChatService,
 } from "./services/interfaces";
 
 // ─── Vue Plugin ─────────────────────────────────────────────────────────────
@@ -51,6 +49,7 @@ export {
   MENU_SERVICE_KEY,
   THEME_SERVICE_KEY,
   APP_CONFIG_KEY,
+  AI_CHAT_SERVICE_KEY,
 } from "./services/interfaces";
 export { createDefaultAuthService } from "./services/defaultAuthService";
 export {
@@ -69,6 +68,9 @@ export {
   type ScopedI18nComposer,
 } from "./composables/createScopedI18n";
 export { getEafI18n } from "./composables/createEafI18n";
+
+// ─── Views ─────────────────────────────────────────────────────────────────
+export { default as EafAiChatView } from "./views/AiChatView.vue";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type {
@@ -89,4 +91,11 @@ export type {
   EafClasses,
   EafModule,
   ModuleRegistrationResult,
+  AiConversation,
+  AiChatMessage,
+  AiClientTool,
+  AiToolCall,
+  AiToolResult,
+  AiChatReply,
+  EafAiToolConfig,
 } from "./types";

@@ -86,6 +86,16 @@ export interface ThemeService {
   applyTheme(settings: ThemeSettings): void;
 }
 
+// ─── AI Chat Service ─────────────────────────────────────────────────────────
+
+/**
+ * The AI chat's backend (its shape is `useEafChat`'s, in ui-shell-components).
+ * The layout shows the chat, whose tools can fill the forms on screen, once a
+ * host app or module provides it under `AI_CHAT_SERVICE_KEY`.
+ */
+export type { AiChatService } from "@eappflow/ui-shell-components";
+export { AI_CHAT_SERVICE_KEY } from "@eappflow/ui-shell-components";
+
 // ─── Injection Keys ──────────────────────────────────────────────────────────
 
 export const AUTH_SERVICE_KEY: InjectionKey<AuthService> =

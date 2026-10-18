@@ -17,14 +17,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style": {
-      "style": "./dist/ui-shell-components.css",
-      "import": "./dist/ui-shell-components.css",
-      "require": "./dist/ui-shell-components.css"
-    }
+    "./style": "./src/style/index.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style"
   ],
   "scripts": {
     "build": "vite build && vue-tsc -b",
@@ -35,7 +32,8 @@
     "pinia": "^3.0.4 || ^4.0.2",
     "primevue": "^4.2.0",
     "vue": "^3.5.0 || ^4.0.0",
-    "vue-i18n": "^11.4.6"
+    "vue-i18n": "^11.4.6",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
@@ -50,7 +48,8 @@
     "vitest": "^4.1.9",
     "vue": "^3.5.38",
     "vue-i18n": "^11.4.6",
-    "vue-tsc": "^3.3.5"
+    "vue-tsc": "^3.3.5",
+    "zod": "^4.6.5"
   },
   "publishConfig": {
     "access": "public"

@@ -13,9 +13,13 @@
     "test:e2e": "pnpm -r test:e2e",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "docs:dev": "pnpm --filter @eappflow/ui-shell-docs docs:dev",
+    "docs:build": "pnpm --filter @eappflow/ui-shell-docs docs:build",
+    "docs:preview": "pnpm --filter @eappflow/ui-shell-docs docs:preview",
     "format": "prettier --write \"**/*.{vue,ts,json,css,md}\"",
     "mcp:setup": "pnpm --dir tools/mcp-primevue install",
-    "i18n": "node tools/i18n.mjs"
+    "i18n": "node tools/i18n.mjs",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",

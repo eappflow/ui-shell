@@ -1,16 +1,10 @@
-/* Tailwind CSS base styles */
-
+/* The app's one Tailwind build - the packages' stylesheets only add their classes' sources,
+   tokens and own CSS */
 @import "tailwindcss";
-/* Enable class-based dark mode (toggled via the `dark` class on <html>) */
-@custom-variant dark (&:is(.dark, .dark *));
-/* VERY IMPORTANT */
-@import "@eappflow/diagnostics/style";
-@import "@eappflow/ui-shell/style";
 @import "tailwindcss-primeui";
-
-/* PrimeVue styles */
 @import "primeicons/primeicons.css";
+/* Class-based dark mode (toggled via the `dark` class on <html>) */
+@custom-variant dark (&:is(.dark, .dark *));
 
-/* Force-include classes used by packages */
-
-/* @layer tailwind-base, primeui, tailwind-utilities; */
+@import "@eappflow/ui-shell/style";
+@import "@eappflow/diagnostics/style";

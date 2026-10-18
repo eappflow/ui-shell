@@ -22,14 +22,11 @@
       "import": "./dist/services/interfaces.js",
       "require": "./dist/services/interfaces.cjs"
     },
-    "./style": {
-      "style": "./dist/ui-shell.css",
-      "import": "./dist/ui-shell.css",
-      "require": "./dist/ui-shell.css"
-    }
+    "./style": "./src/style/index.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/style"
   ],
   "scripts": {
     "build": "vite build && vue-tsc -b",
@@ -39,9 +36,10 @@
   "dependencies": {
     "@azure/msal-browser": "^5.16.0",
     "@vueuse/core": "^14.3.0",
+    "dompurify": "^3.4.16",
+    "marked": "^18.0.14",
     "mitt": "^3.0.1",
-    "primeicons": "^7.0.0",
-    "primevue": "^4.5.5"
+    "primeicons": "^7.0.0"
   },
   "peerDependencies": {
     "@eappflow/ui-shell-components": "workspace:*",
@@ -51,7 +49,8 @@
     "primevue": "^4.0.0",
     "vue": "^3.5.0 || ^4.0.0",
     "vue-i18n": "^11.4.6",
-    "vue-router": "^4.5.0 || ^5.1.0"
+    "vue-router": "^4.5.0 || ^5.1.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@eappflow/ui-shell-components": "workspace:*",
@@ -60,13 +59,15 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.11",
     "pinia": "^3.0.4",
+    "primevue": "^4.5.5",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.3",
     "vite": "^8.0.16",
     "vitest": "^4.1.9",
     "vue": "^3.5.38",
     "vue-router": "^4.5.0",
-    "vue-tsc": "^3.3.5"
+    "vue-tsc": "^3.3.5",
+    "zod": "^4.6.5"
   },
   "publishConfig": {
     "access": "public"

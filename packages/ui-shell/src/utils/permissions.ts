@@ -11,6 +11,21 @@ export function hasAnyPermission(
 }
 
 /**
+ * Keep what the user may use: anything without `permissions`, the rest with
+ * at least one of them.
+ */
+export function filterPermitted<T extends { permissions?: string[] }>(
+  items: T[],
+  userPermissions: string[],
+): T[] {
+  return items.filter(
+    ({ permissions = [] }) =>
+      permissions.length === 0 ||
+      hasAnyPermission(userPermissions, permissions),
+  );
+}
+
+/**
  * Evaluate if a menu item should be visible based on permissions and custom logic.
  */
 export function isMenuItemVisible(
