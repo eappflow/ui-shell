@@ -1159,6 +1159,8 @@ describe("deriveDefaults", () => {
         z.null(),
         z.object({ code: z.string(), number: z.string() }),
       ]),
+      // How orval writes an optional nullable object
+      phone: z.union([z.null(), z.object({ code: z.string() })]).optional(),
       signedOn: z.date().optional(),
     });
 
@@ -1171,8 +1173,30 @@ describe("deriveDefaults", () => {
       address: { city: "", zip: null },
       meta: { note: "" },
       contact: { code: "", number: "" },
+      phone: { code: "" },
       signedOn: null,
     });
+  });
+
+  it("marks a field of an optional nullable object required by its own schema", () => {
+    interface Form {
+      phone?: { code: string; note: string } | null;
+    }
+    const { result: $f } = withSetup(() =>
+      useEafForm<Form>({
+        schema: z.object({
+          phone: z
+            .union([
+              z.null(),
+              z.object({ code: z.string().min(1), note: z.string() }),
+            ])
+            .optional(),
+        }),
+      }),
+    );
+
+    expect($f.fields.phone.code.$required).toBe(true);
+    expect($f.fields.phone.note.$required).toBe(false);
   });
 
   it("keeps the value a schema declares with default() or prefault()", () => {

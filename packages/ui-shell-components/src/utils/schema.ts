@@ -37,15 +37,26 @@ interface Def {
 
 const defOf = (schema: z.ZodType) => schema._zod.def as Def;
 
-/** Through `.optional()`, `.nullable()`, `.transform()`... to the schema they wrap */
+/** A union's one option besides `null`/`undefined` - how orval writes a nullable object */
+function soleOption(def: Def): z.ZodType | undefined {
+  const options = def.options?.filter((option) => {
+    const type = defOf(option).type;
+    return type !== "null" && type !== "undefined" && type !== "void";
+  });
+  return options?.length === 1 ? options[0] : undefined;
+}
+
+/** Through `.optional()`, `.nullable()`, `.transform()`, a nullable union... to the schema they wrap */
 function unwrap(schema: z.ZodType): z.ZodType {
-  const inner = defOf(schema).innerType ?? defOf(schema).in;
+  const def = defOf(schema);
+  const inner = def.innerType ?? def.in ?? soleOption(def);
   return inner ? unwrap(inner) : schema;
 }
 
 /**
  * The part of `schema` for the field at `path`, e.g. `items[0].name` - or
- * `undefined` where it can't be followed (unions, records, lazy...)
+ * `undefined` where it can't be followed (a union of several schemas, records,
+ * lazy...)
  */
 export function schemaAt(
   schema: z.ZodType | undefined,
@@ -197,11 +208,8 @@ export function deriveDefaults(schema: z.ZodType): unknown {
     case "union": {
       // orval wraps a nullable object as `z.union([z.null(), z.object({...})])`:
       // keep the object so its inputs bind (an empty one goes out as `null`)
-      const options = (def.options ?? []).filter((option) => {
-        const type = defOf(option).type;
-        return type !== "null" && type !== "undefined" && type !== "void";
-      });
-      return options.length === 1 ? deriveDefaults(options[0]) : null;
+      const option = soleOption(def);
+      return option ? deriveDefaults(option) : null;
     }
     case "pipe":
       return def.in ? deriveDefaults(def.in) : null;
