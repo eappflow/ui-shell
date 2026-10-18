@@ -39,8 +39,7 @@
     "dompurify": "^3.4.16",
     "marked": "^18.0.14",
     "mitt": "^3.0.1",
-    "primeicons": "^7.0.0",
-    "primevue": "^4.5.5"
+    "primeicons": "^7.0.0"
   },
   "peerDependencies": {
     "@eappflow/ui-shell-components": "workspace:*",
@@ -60,6 +59,7 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.11",
     "pinia": "^3.0.4",
+    "primevue": "^4.5.5",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.3",
     "vite": "^8.0.16",
