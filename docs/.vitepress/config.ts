@@ -2,10 +2,18 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  // served from https://eappflow.github.io/ui-shell/
+  base: "/ui-shell/",
   title: "UI Shell",
   description:
     "Modular Vue 3 UI shell and component library with Zod-driven forms and a context-aware AI assistant.",
-  head: [["link", { rel: "icon", type: "image/svg+xml", href: "/logo.svg" }]],
+  // head links aren't base-prefixed by VitePress
+  head: [
+    [
+      "link",
+      { rel: "icon", type: "image/svg+xml", href: "/ui-shell/logo.svg" },
+    ],
+  ],
   themeConfig: {
     logo: "/logo.svg",
     // https://vitepress.dev/reference/default-theme-config
