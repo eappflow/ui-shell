@@ -42,7 +42,7 @@ Modules (e.g. Diagnostics) implement the `EafModule` interface (`packages/ui-she
 
 Modules are created via factory functions (e.g. `createDiagnosticsModule(config)`). See `modules/diagnostics/src/index.ts` for the canonical shape.
 
-To create a new module, follow `doc/new-eAppFlow-module.md`. Critical: `vite.config.ts` must externalize `/^primevue\/.*/` to avoid duplicate PrimeVue registrations.
+To create a new module, follow `docs/core-concepts/modules.md` and `docs/guide/module-package.md`. A module published to npm needs a library build, and its `vite.config.ts` must externalize `/^primevue\/.*/` to avoid duplicate PrimeVue registrations.
 
 ### DI Pattern (Dependency Inversion)
 
@@ -150,4 +150,4 @@ pnpm test:e2e                                             # Same, from repo root
 | `packages/ui-shell/src/stores/useEafNavigationStore.ts` | Navigation/menu state                                           |
 | `packages/ui-shell/src/stores/useLayoutStore.ts`        | Theme/sidebar state                                             |
 | `packages/ui-shell/src/utils/permissions.ts`            | Permission filtering utilities                                  |
-| `doc/new-eAppFlow-module.md`                            | Guide for creating new modules                                  |
+| `docs/guide/module-package.md`                          | Guide for creating new modules                                  |

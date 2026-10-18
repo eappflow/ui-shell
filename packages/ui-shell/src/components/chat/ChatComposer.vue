@@ -97,7 +97,10 @@ function sendMessage() {
             <template #option="{ option }">
               <div class="flex flex-col">
                 <span>{{ option.modelName }}</span>
-                <small v-if="option.description" class="text-muted-color">
+                <small
+                  v-if="option.description"
+                  class="text-muted-color whitespace-normal"
+                >
                   {{ option.description }}
                 </small>
               </div>

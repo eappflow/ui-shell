@@ -2,6 +2,10 @@ packages:
   - "packages/*"
   - "apps/*"
   - "modules/*"
+  - docs
+
 allowBuilds:
   esbuild: true
   vue-demi: true
+
+dedupePeers: true
