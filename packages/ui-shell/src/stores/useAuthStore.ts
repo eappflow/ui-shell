@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed, inject } from "vue";
-import type { User } from "../types";
+import type { AuthResult, User } from "../types";
 import {
   AUTH_SERVICE_KEY,
   MICROSOFT_SSO_SERVICE_KEY,
@@ -32,6 +32,8 @@ export const useAuthStore = defineStore("auth", () => {
   const authService: AuthService =
     inject(AUTH_SERVICE_KEY, undefined) ?? createDefaultAuthService();
 
+  const isSessionMode = authService.mode === "session";
+
   // Parses and displays API/service errors via the shared validation banner
   const actionValidation = useActionValidation();
 
@@ -39,10 +41,10 @@ export const useAuthStore = defineStore("auth", () => {
     () => microsoftSSOService.enabled !== false,
   );
 
-  const isAuthenticated = computed(() => {
-    if (isInitializing.value) return false;
-    return !!accessToken.value && !!user.value;
-  });
+  // The access token is a transport detail, not auth state: in session mode the
+  // credential lives in an HttpOnly cookie and never reaches JS, so a hydrated
+  // user is the only signal that works in both modes.
+  const isAuthenticated = computed(() => !isInitializing.value && !!user.value);
 
   const userPermissions = computed(() => user.value?.permissions || []);
   const userName = computed(() => {
@@ -53,6 +55,20 @@ export const useAuthStore = defineStore("auth", () => {
   async function login(login: string, password: string): Promise<void> {
     actionValidation.clearErrors();
     const result = await authService.login({ login, password });
+    await completeLogin(result);
+  }
+
+  /**
+   * Shared tail of every sign-in flow (password, Microsoft SSO). The service's
+   * return value carries the contract, so there is nothing to branch on: a
+   * token means token mode, nothing means the backend already holds the
+   * session (cookie) and the user can be hydrated right away.
+   */
+  async function completeLogin(result?: AuthResult | void): Promise<void> {
+    if (!result) {
+      await loadCurrentUser();
+      return;
+    }
 
     if (!result.accessToken) {
       throw new Error("No access token received");
@@ -76,7 +92,8 @@ export const useAuthStore = defineStore("auth", () => {
       const userData = await authService.getCurrentUser();
       user.value = userData;
     } catch {
-      await logout();
+      // Never let a failing logout mask the real reason we got here
+      await logout().catch(() => {});
       throw new Error("Failed to load user data");
     }
   }
@@ -115,20 +132,42 @@ export const useAuthStore = defineStore("auth", () => {
     return permissions.every((p) => user.value!.permissions.includes(p));
   }
 
-  async function initializeFromStorage(): Promise<void> {
-    const storedToken = localStorage.getItem("access_token");
-    if (storedToken) {
+  /**
+   * Restore the signed-in user on app boot. Named after the session rather than
+   * storage: in session mode the credential is a cookie that JS cannot see.
+   */
+  async function restoreSession(): Promise<void> {
+    if (isSessionMode) {
+      // The session cookie is invisible to JS, so ask the backend; an error just
+      // means "not logged in". Don't call logout() here - an anonymous visitor
+      // must not fire a logout request on every page load.
       isInitializing.value = true;
-      accessToken.value = storedToken;
       try {
-        await loadCurrentUser();
+        user.value = await authService.getCurrentUser();
       } catch {
-        await logout();
+        user.value = null;
       } finally {
         isInitializing.value = false;
       }
+      return;
+    }
+
+    const storedToken = localStorage.getItem("access_token");
+    if (!storedToken) return;
+
+    isInitializing.value = true;
+    accessToken.value = storedToken;
+    try {
+      await loadCurrentUser();
+    } catch {
+      // loadCurrentUser() already logged out and cleared the stale token
+    } finally {
+      isInitializing.value = false;
     }
   }
+
+  /** @deprecated Use `restoreSession()`. Kept for host apps that call it directly. */
+  const initializeFromStorage = restoreSession;
 
   // ─── Microsoft SSO Start ──────────────────────────────────────────────────────────
 
@@ -220,7 +259,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     try {
       const result = await microsoftSSOService.login(authenticationResult);
-      await saveAccessToken(result.accessToken);
+      await completeLogin(result);
     } catch (error) {
       actionValidation.handleApiError(error);
       return "/login";
@@ -237,7 +276,7 @@ export const useAuthStore = defineStore("auth", () => {
   // Confirmed as a real, reproducible bug (not just theoretical) via the Microsoft
   // account-linking redirect flow, which always does a full page reload on return.
   queueMicrotask(() => {
-    initializeFromStorage();
+    restoreSession();
   });
 
   return {
@@ -257,6 +296,7 @@ export const useAuthStore = defineStore("auth", () => {
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
+    restoreSession,
     initializeFromStorage,
     loginWithMicrosoftSSO,
     linkMicrosoftAccount,

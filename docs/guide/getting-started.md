@@ -94,6 +94,18 @@ logout, current user, password reset). The demo's
 [fake service](https://github.com/eappflow/ui-shell/blob/main/apps/demo/src/services/fakeAuthService.ts)
 is a good starting point.
 
+Two transports are supported, picked by `AuthService.mode`:
+
+- **`"token"` (default)** — `login()` resolves with `{ accessToken }`. The shell
+  keeps it in `localStorage`; your HTTP client sends it as a header.
+- **`"session"`** — the backend keeps the session itself (e.g. an HttpOnly
+  cookie) and `login()` resolves with nothing. The shell never sees a token: on
+  boot it asks `getCurrentUser()` whether a session exists. Configure your HTTP
+  client to send the cookie (`withCredentials: true`, or same-origin).
+
+In session mode `useAuthStore().accessToken` stays `null` and `isAuthenticated`
+is driven by the loaded user, so don't read the token in interceptors.
+
 ## Next steps
 
 - [Modules](../core-concepts/modules.md): add routes, menu items and permissions.

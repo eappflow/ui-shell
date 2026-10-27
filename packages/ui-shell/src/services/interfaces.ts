@@ -28,8 +28,22 @@ import * as msal from "@azure/msal-browser";
 // ─── Auth Service ────────────────────────────────────────────────────────────
 
 export interface AuthService {
-  /** Authenticate user with credentials */
-  login(request: LoginRequest): Promise<AuthResult>;
+  /**
+   * Which transport the backend uses.
+   *
+   * - omitted / `"token"` — `login` resolves with an access token, which the
+   *   shell keeps in `localStorage` and sends as a header (host's HTTP client).
+   * - `"session"` — the backend keeps the session itself (e.g. an HttpOnly
+   *   cookie), `login` resolves with nothing, and the shell asks
+   *   `getCurrentUser()` on boot instead of looking for a stored token.
+   */
+  mode?: "token" | "session";
+
+  /**
+   * Authenticate user with credentials. Resolves with the access token in
+   * `token` mode, or with nothing in `session` mode.
+   */
+  login(request: LoginRequest): Promise<AuthResult | void>;
 
   /** Logout current user */
   logout(): Promise<void>;
@@ -50,13 +64,34 @@ export interface AuthService {
   linkMicrosoftAccount(request: MicrosoftSSOLoginRequest): Promise<void>;
 }
 
+/**
+ * Convenience subtype for token-based backends: narrower `mode` and a `login`
+ * that must resolve with an access token. Assignable to `AuthService`.
+ */
+export interface TokenAuthService extends AuthService {
+  mode?: "token";
+  login(request: LoginRequest): Promise<AuthResult>;
+}
+
+/**
+ * Convenience subtype for session-based backends: narrower `mode` and a `login`
+ * that resolves with nothing. Assignable to `AuthService`.
+ */
+export interface SessionAuthService extends AuthService {
+  mode: "session";
+  login(request: LoginRequest): Promise<void>;
+}
+
 // ─── Microsoft SSO Service ───────────────────────────────────────────────────
 
 export interface MicrosoftSSOService {
   enabled?: boolean;
   config: MicrosoftSSOConfig;
-  /** Authenticate user with Microsoft SSO access token */
-  login(response: MicrosoftSSOLoginRequest): Promise<AuthResult>;
+  /**
+   * Authenticate user with Microsoft SSO access token. Resolves with the shell's
+   * access token, or nothing when the AuthService is in `session` mode.
+   */
+  login(response: MicrosoftSSOLoginRequest): Promise<AuthResult | void>;
 }
 
 export type MicrosoftSSOConfig = Pick<
