@@ -34,6 +34,10 @@ export const useAuthStore = defineStore("auth", () => {
 
   const isSessionMode = authService.mode === "session";
 
+  // Bumped whenever a login or logout starts, so a slower user fetch that began
+  // earlier (e.g. the boot-time restoreSession) can tell it is stale and drop its result.
+  let sessionEpoch = 0;
+
   // Parses and displays API/service errors via the shared validation banner
   const actionValidation = useActionValidation();
 
@@ -53,6 +57,7 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   async function login(login: string, password: string): Promise<void> {
+    sessionEpoch++;
     actionValidation.clearErrors();
     const result = await authService.login({ login, password });
     await completeLogin(result);
@@ -65,6 +70,7 @@ export const useAuthStore = defineStore("auth", () => {
    * session (cookie) and the user can be hydrated right away.
    */
   async function completeLogin(result?: AuthResult | void): Promise<void> {
+    sessionEpoch++;
     if (!result) {
       await loadCurrentUser();
       return;
@@ -78,6 +84,7 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function logout(): Promise<void> {
+    sessionEpoch++;
     try {
       await authService.logout();
     } finally {
@@ -88,10 +95,13 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   async function loadCurrentUser(): Promise<void> {
+    const epoch = sessionEpoch;
     try {
       const userData = await authService.getCurrentUser();
+      if (epoch !== sessionEpoch) return;
       user.value = userData;
     } catch {
+      if (epoch !== sessionEpoch) return;
       // Never let a failing logout mask the real reason we got here
       await logout().catch(() => {});
       throw new Error("Failed to load user data");
@@ -142,10 +152,12 @@ export const useAuthStore = defineStore("auth", () => {
       // means "not logged in". Don't call logout() here - an anonymous visitor
       // must not fire a logout request on every page load.
       isInitializing.value = true;
+      const epoch = sessionEpoch;
       try {
-        user.value = await authService.getCurrentUser();
+        const userData = await authService.getCurrentUser();
+        if (epoch === sessionEpoch) user.value = userData;
       } catch {
-        user.value = null;
+        if (epoch === sessionEpoch) user.value = null;
       } finally {
         isInitializing.value = false;
       }
