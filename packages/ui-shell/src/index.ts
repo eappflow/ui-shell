@@ -35,6 +35,8 @@ export { useLayoutStore } from "./stores/useLayoutStore";
 // ─── Services / DI ──────────────────────────────────────────────────────────
 export type {
   AuthService,
+  TokenAuthService,
+  SessionAuthService,
   MenuService,
   ThemeService,
   MicrosoftSSOService,

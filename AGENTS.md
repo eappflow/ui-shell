@@ -54,11 +54,13 @@ Services follow the Dependency Inversion Principle:
 
 ### Auth Flow
 
-1. App boots → `useAuthStore` checks `localStorage` for `access_token`
+0. `AuthService.mode` picks the transport: omitted/`"token"` (login returns `accessToken`, kept in `localStorage`) or `"session"` (backend cookie; login returns nothing and the shell asks `getCurrentUser()` on boot)
+1. App boots → `restoreSession()` (`initializeFromStorage()` is a deprecated alias) checks `localStorage` for `access_token` (session mode: calls `getCurrentUser()` instead)
 2. If found, calls `authService.getCurrentUser()` to hydrate the user
-3. Login via `authService.login()` stores token, loads user
+3. Login via `authService.login()` stores token, loads user (session mode: just loads the user)
 4. Logout clears token and user state
-5. Route-level permissions checked via `meta.permissions` in navigation guards (OR logic — any matching permission grants access)
+5. `isAuthenticated` is derived from the hydrated user alone — a token is a transport detail, not auth state
+6. Route-level permissions checked via `meta.permissions` in navigation guards (OR logic — any matching permission grants access)
 
 ### Layout & Routing
 

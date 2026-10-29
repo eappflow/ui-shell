@@ -27,7 +27,7 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
         path: "diagnostics/welcome",
         name: "welcome",
         component: () => import("./views/Welcome.vue"),
-        meta: { permissions: [] },
+        meta: { permissions: ["TechnicalAdministrator"] },
       },
       {
         path: "diagnostics",
@@ -55,7 +55,7 @@ export function createDiagnosticsModule(config?: DiagnosticsConfig): EafModule {
             nameKey: "welcome",
             icon: "pi pi-users",
             path: "/diagnostics/welcome",
-            permissions: [],
+            permissions: ["TechnicalAdministrator"],
           },
           {
             name: "Diagnostics",
