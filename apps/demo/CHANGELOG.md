@@ -1,5 +1,22 @@
 # @eappflow/demo
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [aef870e]
+- Updated dependencies [aef870e]
+- Updated dependencies [aef870e]
+- Updated dependencies [24db455]
+- Updated dependencies [24db455]
+- Updated dependencies [187bd2f]
+- Updated dependencies [21c0c0d]
+- Updated dependencies [187bd2f]
+- Updated dependencies [aef870e]
+  - @eappflow/ui-shell@1.0.0
+  - @eappflow/ui-shell-components@0.2.0
+  - @eappflow/diagnostics@1.0.0
+
 ## 0.0.1
 
 ### Patch Changes
