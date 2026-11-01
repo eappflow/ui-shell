@@ -30,6 +30,7 @@
   ],
   "scripts": {
     "build": "vite build && vue-tsc -b",
+    "prepublishOnly": "pnpm build",
     "type-check": "vue-tsc -b --noEmit",
     "test": "vitest run"
   },
