@@ -1,5 +1,11 @@
 # @eappflow/ui-shell
 
+## 1.1.0
+
+### Minor Changes
+
+- ae01916: Chat panel state lives in `useLayoutStore` (`chatPanelOpen`, `toggleChatPanel`). The "Ask AI" button is now a floating button above dialogs, so `AppHeader` no longer has the `aiChat` prop.
+
 ## 1.0.0
 
 ### Minor Changes
