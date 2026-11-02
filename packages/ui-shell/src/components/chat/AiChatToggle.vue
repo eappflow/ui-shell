@@ -8,9 +8,6 @@ const layoutStore = useLayoutStore();
 </script>
 
 <template>
-  <!-- Above PrimeVue's modal masks (z-index 1100 and up, +1 per dialog), so it stays clickable
-       while a dialog is open. Gone while the panel is open, which has its own close button.
-       The wrapper takes the positioning because the Button root sets its own position. -->
   <div
     v-if="!layoutStore.chatPanelOpen"
     class="fixed! bottom-4! right-4! z-2000"
