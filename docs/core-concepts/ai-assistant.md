@@ -27,6 +27,24 @@ const aiModule: EafModule = {
 };
 ```
 
+## Open and close the panel
+
+The panel's state lives in the layout store. Read it, set it, or toggle it from
+any component:
+
+```ts
+import { useLayoutStore } from "@eappflow/ui-shell";
+
+const layout = useLayoutStore();
+
+layout.chatPanelOpen; // is the panel open
+layout.toggleChatPanel(); // open if closed, close if open
+layout.chatPanelOpen = true; // or set it directly
+```
+
+The panel starts closed and does not remember its state after a reload. It
+also steps aside while the full-page chat is open.
+
 ## The service
 
 `AiChatService` keeps the conversations (`getConversations`, `getMessages`,

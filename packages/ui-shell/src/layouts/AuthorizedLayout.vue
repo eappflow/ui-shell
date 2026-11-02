@@ -16,6 +16,7 @@ import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
 import AppAside from "../components/AppAside.vue";
 import AiChatPanel from "../components/chat/AiChatPanel.vue";
+import AiChatToggle from "../components/chat/AiChatToggle.vue";
 import { AI_CHAT_SERVICE_KEY } from "../services/interfaces";
 import { useLayoutStore } from "../stores/useLayoutStore";
 import {
@@ -34,7 +35,6 @@ const layoutStore = useLayoutStore();
 const showAiChat = computed(
   () => aiChatService !== null && !layoutStore.chatPageOpen,
 );
-const aiChatOpen = ref(false);
 const messageStore = useEafMessageStore();
 const toast = useToast();
 
@@ -163,16 +163,14 @@ async function handleLogout(): Promise<void> {
     <div
       :class="[
         'flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-surface-50 dark:bg-surface-950 transition-[margin] duration-300 motion-reduce:transition-none [.eaf-aside-resizing_&]:transition-none',
-        { 'md:mr-[var(--eaf-aside-width)]': showAiChat && aiChatOpen },
+        {
+          'md:mr-[var(--eaf-aside-width)]':
+            showAiChat && layoutStore.chatPanelOpen,
+        },
       ]"
     >
       <!-- Header -->
-      <AppHeader
-        :ai-chat="showAiChat"
-        @toggle-sidebar="toggleSidebar"
-        @logout="handleLogout"
-        @toggle-ai-chat="aiChatOpen = !aiChatOpen"
-      >
+      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
         <template #app-name>
           {{ appConfig.name }}
         </template>
@@ -206,8 +204,13 @@ async function handleLogout(): Promise<void> {
       </div>
     </div>
 
-    <AppAside v-if="showAiChat" v-model:open="aiChatOpen">
-      <AiChatPanel :open="aiChatOpen" @close="aiChatOpen = false" />
+    <AppAside v-if="showAiChat" v-model:open="layoutStore.chatPanelOpen">
+      <AiChatPanel
+        :open="layoutStore.chatPanelOpen"
+        @close="layoutStore.chatPanelOpen = false"
+      />
     </AppAside>
+
+    <AiChatToggle v-if="showAiChat" />
   </div>
 </template>

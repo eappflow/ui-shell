@@ -3,21 +3,12 @@ import { inject } from "vue";
 import Button from "primevue/button";
 import AccountMenu from "./AccountMenu.vue";
 import { APP_CONFIG_KEY } from "../services/interfaces";
-import { useScopedI18n } from "../composables/useScopedI18n";
-
-const { t } = useScopedI18n();
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
-
-defineProps<{
-  /** Shows the "Ask AI" button, which emits `toggleAiChat` */
-  aiChat?: boolean;
-}>();
 
 const emit = defineEmits<{
   toggleSidebar: [];
   logout: [];
-  toggleAiChat: [];
 }>();
 </script>
 
@@ -47,15 +38,6 @@ const emit = defineEmits<{
       </div>
 
       <div class="flex items-center gap-2">
-        <Button
-          v-if="aiChat"
-          :label="t('chat_ask_ai', 'Ask AI', 'Zapytaj AI')"
-          icon="pi pi-sparkles"
-          size="small"
-          text
-          data-testid="ai-chat-button"
-          @click="emit('toggleAiChat')"
-        />
         <AccountMenu @logout="emit('logout')" />
       </div>
     </div>

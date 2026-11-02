@@ -27,6 +27,12 @@ export const useLayoutStore = defineStore("layout", () => {
   const primaryColor = ref(settings.primaryColor);
   /** The full-page AI chat is open - the layout's chat panel steps aside meanwhile */
   const chatPageOpen = ref(false);
+  /** The side chat panel (aside) is open */
+  const chatPanelOpen = ref(false);
+
+  function toggleChatPanel() {
+    chatPanelOpen.value = !chatPanelOpen.value;
+  }
 
   function toggleSidebar() {
     sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -83,6 +89,8 @@ export const useLayoutStore = defineStore("layout", () => {
     primaryColor,
     availableColors,
     chatPageOpen,
+    chatPanelOpen,
+    toggleChatPanel,
     toggleSidebar,
     setSidebarCollapsed,
     toggleDarkMode,
