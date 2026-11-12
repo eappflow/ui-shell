@@ -20,11 +20,14 @@ export const useUserPreferencesStore = defineStore("user-preferences", () => {
 
   const preferences = ref<UserPreferences>({});
   const loading = ref(false);
+  // Until the saved preferences are read, saving would overwrite them with what's on screen
+  let loadSucceeded = false;
 
   watch(
     () => auth.user,
     async (user) => {
       preferences.value = {};
+      loadSucceeded = false;
       loading.value = !!user;
       if (!user) return;
       try {
@@ -32,6 +35,7 @@ export const useUserPreferencesStore = defineStore("user-preferences", () => {
         // A later login/logout wins over this one's late answer
         if (auth.user !== user) return;
         preferences.value = loaded;
+        loadSucceeded = true;
         if (loaded.darkMode !== undefined) layout.setDarkMode(loaded.darkMode);
         if (loaded.language && i18n?.availableLocales.includes(loaded.language))
           i18n.locale.value = loaded.language;
@@ -65,6 +69,8 @@ export const useUserPreferencesStore = defineStore("user-preferences", () => {
     )
       return;
     preferences.value = next;
+    // Failed to load: the change shows on screen, the saved ones come back on the next login
+    if (!loadSucceeded) return;
 
     const user = auth.user;
     queue = queue
