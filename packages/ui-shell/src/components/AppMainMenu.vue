@@ -10,6 +10,7 @@ import type { EafMenuItem } from "../types";
 import { useEafNavigation } from "../composables/useEafNavigation";
 import { APP_CONFIG_KEY } from "../services/interfaces";
 import { useUserPreferencesStore } from "../stores/useUserPreferencesStore";
+import { useLayoutStore } from "../stores/useLayoutStore";
 import { useScopedI18n } from "../composables/useScopedI18n";
 
 const router = useRouter();
@@ -23,6 +24,7 @@ const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
 // The host's own classes for the menu's parts
 const hostClasses = appConfig.classes?.layout?.authorized?.menu;
 const preferences = useUserPreferencesStore();
+const layout = useLayoutStore();
 
 const props = defineProps<{
   compact?: boolean;
@@ -40,15 +42,16 @@ const visibleMenuModules = computed(() =>
 );
 
 const menuModel = computed(() => {
-  const groups = visibleMenuModules.value.map((module) => ({
-    label: label(module),
-    items: module.items,
-  }));
+  const groups = visibleMenuModules.value.map((module) =>
+    group(module.name, label(module), module.items),
+  );
 
-  const pinned = groups
-    .flatMap((group) => group.items)
+  // From the modules, not the groups: a folded group has no items in the model
+  const pinned = visibleMenuModules.value
+    .flatMap((module) => module.items)
     .filter((item) => isPinned(item.path))
     .map((item) => ({ ...item, inPinnedGroup: true }));
+  // Never folded, so no key
   return pinned.length || preferences.loading
     ? [
         {
@@ -60,6 +63,19 @@ const menuModel = computed(() => {
       ]
     : groups;
 });
+
+// Folding is remembered by the module's group name, not the label, which changes
+// with the language. A folded group keeps its header only. The rail never folds:
+// it has no header to unfold by.
+function group(key: string, groupLabel: string, items: EafMenuItem[]) {
+  const collapsed = !props.compact && layout.collapsedMenuGroups.includes(key);
+  return {
+    groupKey: key,
+    label: groupLabel,
+    collapsed,
+    items: collapsed ? [] : items,
+  };
+}
 
 function isPinned(path: string): boolean {
   return preferences.pinnedPages.includes(path);
@@ -98,19 +114,41 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
       class="w-full min-w-0! border-none! bg-transparent!"
       :class="hostClasses?.root"
     >
-      <!-- Compact: the group name gives way to a divider of the same height, so nothing shifts on expand -->
       <template #submenulabel="{ item }">
+        <!-- Compact: the group name gives way to a divider of the same height, so nothing shifts on expand -->
         <span
-          class="flex h-4 items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap"
-          :class="[compact && 'justify-center', hostClasses?.['group-label']]"
+          v-if="compact"
+          class="flex h-4 items-center justify-center"
+          :class="hostClasses?.['group-label']"
         >
           <!-- As wide as the item icons below, on the same axis -->
-          <span v-if="compact" class="h-px w-5 shrink-0 bg-eaf-card-border" />
-          <span :class="compact && 'sr-only'">{{ item.label }}</span>
+          <span class="h-px w-5 shrink-0 bg-eaf-card-border" />
+          <span class="sr-only">{{ item.label }}</span>
+        </span>
+        <!-- The whole header folds and unfolds the group -->
+        <button
+          v-else-if="item.groupKey"
+          type="button"
+          :aria-expanded="!item.collapsed"
+          class="flex h-4 w-full cursor-pointer items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap"
+          :class="hostClasses?.['group-label']"
+          @click="layout.toggleMenuGroup(item.groupKey)"
+        >
+          {{ item.label }}
+          <!-- `!`: PrimeVue's unlayered .pi sets the icon size, beating the utilities -->
           <i
-            v-if="item.loading && !compact"
-            class="pi pi-spinner pi-spin ml-2 text-xs"
+            class="pi ml-auto text-xs!"
+            :class="item.collapsed ? 'pi-chevron-right' : 'pi-chevron-down'"
           />
+        </button>
+        <!-- Pinned: never folds -->
+        <span
+          v-else
+          class="flex h-4 items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap"
+          :class="hostClasses?.['group-label']"
+        >
+          {{ item.label }}
+          <i v-if="item.loading" class="pi pi-spinner pi-spin ml-2 text-xs" />
         </span>
       </template>
 
