@@ -39,6 +39,8 @@ export type {
   SessionAuthService,
   MenuService,
   ThemeService,
+  UserPreferences,
+  UserPreferencesService,
   MicrosoftSSOService,
   AiChatService,
 } from "./services/interfaces";
@@ -50,6 +52,7 @@ export {
   AUTH_SERVICE_KEY,
   MENU_SERVICE_KEY,
   THEME_SERVICE_KEY,
+  USER_PREFERENCES_SERVICE_KEY,
   APP_CONFIG_KEY,
   AI_CHAT_SERVICE_KEY,
 } from "./services/interfaces";
@@ -59,6 +62,7 @@ export {
   createStaticMenuService,
 } from "./services/defaultMenuService";
 export { createDefaultThemeService } from "./services/defaultThemeService";
+export { createDefaultUserPreferencesService } from "./services/defaultUserPreferencesService";
 
 // ─── Composables ───────────────────────────────────────────────────────────
 export { useEafAuth as useAuth } from "./composables/useEafAuth";
