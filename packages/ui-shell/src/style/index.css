@@ -40,11 +40,11 @@
   }
 
   .eaf-header-title {
-    @apply text-[1.25rem] font-bold text-eaf-ink;
+    @apply text-xl font-bold text-eaf-ink;
   }
 
   .eaf-recover-password-title {
-    @apply text-[1.75rem] font-semibold;
+    @apply text-3xl font-semibold;
   }
 }
 
