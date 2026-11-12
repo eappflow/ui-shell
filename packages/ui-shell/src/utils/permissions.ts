@@ -72,6 +72,7 @@ export function filterVisibleMenuModules(
         name: module.name,
         nameKey: module.nameKey,
         icon: module.icon,
+        collapsible: module.collapsible,
         items: visibleItems,
       });
     }

@@ -153,6 +153,8 @@ export interface EafMenuItem {
   component?: () => Promise<unknown>;
   permissions?: Permission[];
   isVisible?: (userPermissions: Permission[]) => boolean;
+  /** Lets the user pin the page to the "Pinned" group at the top. On by default, `false` opts out. */
+  pinnable?: boolean;
 }
 
 export interface EafMenuModule {
@@ -164,6 +166,8 @@ export interface EafMenuModule {
   nameKey?: string;
   icon: string;
   items: EafMenuItem[];
+  /** Lets the user collapse the group in the menu. On by default, `false` opts out. */
+  collapsible?: boolean;
   isVisible?: (userPermissions: Permission[]) => boolean;
 }
 

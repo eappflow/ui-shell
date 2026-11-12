@@ -48,6 +48,13 @@
   }
 }
 
+/* While a dialog is open the right aside, border included, stays above it (as the AI chat button does):
+   otherwise it would slip under the mask. Unlayered, so it beats AppAside's own z-index utility;
+   closed dialogs leave it below PrimeVue's overlays, so the menus it opens stay on top. */
+html:has(.p-dialog-mask) .eaf-aside[data-side="right"] {
+  z-index: 2000;
+}
+
 /* The open right aside (AppAside, --eaf-aside-width), e.g. the AI chat, docks on the right from md up: modal dialogs
    keep to the room beside it, maximized ones too - their forms are often the ones the chat fills.
    PrimeVue puts them in <body>, out of the layout's reach, hence :has(). Unlayered and !important,

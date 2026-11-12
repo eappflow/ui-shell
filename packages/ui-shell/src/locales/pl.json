@@ -1,5 +1,10 @@
 {
   "validation": {
     "required": "To pole jest wymagane"
+  },
+  "menu": {
+    "pinned": "Przypięte",
+    "pin": "Przypnij",
+    "unpin": "Odepnij"
   }
 }

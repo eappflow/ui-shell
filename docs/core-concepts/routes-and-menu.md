@@ -68,6 +68,26 @@ user's permissions from `AuthService.getCurrentUser()`.
 - `meta.permissions` on a route works the same way. A user without them can't
   open the page, even by typing its address.
 
+## Pinning pages and collapsing groups
+
+Both are on by default. The user can fold any group, and pin any page: pinned
+pages are listed in a collapsible "Pinned" group at the top of the menu (marked with a
+yellow star, click it again to unpin). Set `collapsible: false` on a group or
+`pinnable: false` on an item to opt out. The choices are kept per browser in
+`localStorage`. In the compact (rail) sidebar groups never collapse and the pin
+control is hidden.
+
+```ts
+menuModules: [
+  {
+    name: "Sales",
+    icon: "pi pi-shopping-cart",
+    collapsible: false,
+    items: [{ name: "Orders", path: "/orders", pinnable: false }],
+  },
+],
+```
+
 ## Menu labels
 
 To translate the menu, give groups and items a `nameKey`, and the module its

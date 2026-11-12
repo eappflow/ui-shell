@@ -152,7 +152,10 @@ async function handleLogout(): Promise<void> {
     <!-- Mobile Sidebar -->
     <Drawer v-model:visible="mobileSidebarVisible" class="md:hidden">
       <template #header>
-        <AuthorizedEafLogo :show-app-name="true" />
+        <AuthorizedEafLogo
+          :show-app-name="true"
+          @navigate="handleMenuItemClick"
+        />
       </template>
 
       <AppMainMenu @item-click="handleMenuItemClick" />
