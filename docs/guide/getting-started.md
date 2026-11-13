@@ -106,6 +106,28 @@ Two transports are supported, picked by `AuthService.mode`:
 In session mode `useAuthStore().accessToken` stays `null` and `isAuthenticated`
 is driven by the loaded user, so don't read the token in interceptors.
 
+## User preferences
+
+The user's dark mode, language and [pinned pages](../core-concepts/routes-and-menu.md#pinned-pages)
+stay in this browser's `localStorage`. To keep them per user, on every device,
+give the shell a `UserPreferencesService`:
+
+```ts
+services: {
+  authService,
+  userPreferencesService: {
+    get: () => api.get("/me/preferences"), // e.g. { darkMode: true, language: "pl", pinnedPages: ["/orders"] }
+    save: (preferences) => api.put("/me/preferences", preferences),
+  },
+},
+```
+
+- `get` is called when the user logs in or the session is restored. The shell
+  then applies their dark mode and language.
+- `save` gets the whole object after every change, one call at a time. Keys
+  your app adds come back untouched. A failed save is not retried by itself:
+  the next change sends it along.
+
 ## Next steps
 
 - [Modules](../core-concepts/modules.md): add routes, menu items and permissions.

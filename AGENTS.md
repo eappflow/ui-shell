@@ -23,7 +23,7 @@ modules/
 Host apps call `app.use(EAppFlowUIShell, options)` which handles everything in one call:
 
 1. Creates Pinia instance
-2. Provides DI services (`AuthService`, `MenuService`, `ThemeService`, `AppConfig`) via `app.provide()`
+2. Provides DI services (`AuthService`, `MenuService`, `ThemeService`, `UserPreferencesService`, `AppConfig`) via `app.provide()`
 3. Builds the router — public routes under `UnauthorizedLayout`, module routes nested under `AuthorizedLayout`
 4. Registers navigation guards (auth initialization, login redirect, permission checks)
 5. Registers modules (runs `install` hooks, merges menu items into the navigation store)
@@ -48,7 +48,7 @@ To create a new module, follow `docs/core-concepts/modules.md` and `docs/guide/m
 
 Services follow the Dependency Inversion Principle:
 
-- **Interfaces** + **InjectionKeys** defined in `packages/ui-shell/src/services/interfaces.ts` (`AuthService`, `MenuService`, `ThemeService`, `AppConfig`)
+- **Interfaces** + **InjectionKeys** defined in `packages/ui-shell/src/services/interfaces.ts` (`AuthService`, `MenuService`, `ThemeService`, `UserPreferencesService`, `AppConfig`)
 - **Default implementations** in `packages/ui-shell/src/services/` throw by default — host apps **must** provide concrete implementations at bootstrap
 - **Stores and composables** inject services rather than importing them directly (see `useAuthStore` for the pattern: `inject(AUTH_SERVICE_KEY, undefined) ?? createDefaultAuthService()`)
 

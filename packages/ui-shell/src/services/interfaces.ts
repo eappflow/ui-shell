@@ -121,6 +121,23 @@ export interface ThemeService {
   applyTheme(settings: ThemeSettings): void;
 }
 
+// ─── User Preferences Service ────────────────────────────────────────────────
+
+/** What the shell keeps per user */
+export interface UserPreferences {
+  darkMode?: boolean;
+  language?: string;
+  /** Paths of the pages pinned to the top of the menu */
+  pinnedPages?: string[];
+}
+
+export interface UserPreferencesService {
+  /** Read once the user is known: on login, or when the session is restored */
+  get(): UserPreferences | Promise<UserPreferences>;
+  /** After every change: the whole object, to keep. Calls come one at a time. */
+  save(preferences: UserPreferences): void | Promise<void>;
+}
+
 // ─── AI Chat Service ─────────────────────────────────────────────────────────
 
 /**
@@ -139,6 +156,8 @@ export const MENU_SERVICE_KEY: InjectionKey<MenuService> =
   Symbol("menuService");
 export const THEME_SERVICE_KEY: InjectionKey<ThemeService> =
   Symbol("themeService");
+export const USER_PREFERENCES_SERVICE_KEY: InjectionKey<UserPreferencesService> =
+  Symbol("userPreferencesService");
 export const MICROSOFT_SSO_SERVICE_KEY: InjectionKey<MicrosoftSSOService> =
   Symbol("microsoftSSOService");
 export const APP_CONFIG_KEY: InjectionKey<AppConfig> = Symbol("appConfig");

@@ -42,10 +42,12 @@ import {
   AUTH_SERVICE_KEY,
   MENU_SERVICE_KEY,
   THEME_SERVICE_KEY,
+  USER_PREFERENCES_SERVICE_KEY,
   APP_CONFIG_KEY,
   type AuthService,
   type MenuService,
   type ThemeService,
+  type UserPreferencesService,
   type MicrosoftSSOService,
   MICROSOFT_SSO_SERVICE_KEY,
   I18n_CONFIG_KEY,
@@ -90,6 +92,8 @@ export interface EAppFlowUIShellPluginOptions {
     microsoftSSOService?: MicrosoftSSOService;
     menuService?: MenuService;
     themeService?: ThemeService;
+    /** Where the user's preferences (dark mode, language, pinned pages) are kept; this browser's localStorage by default */
+    userPreferencesService?: UserPreferencesService;
     parseApiError?: EafFormApiErrorParser;
   };
 
@@ -141,6 +145,12 @@ export const EAppFlowUIShell = {
     }
     if (services?.themeService) {
       app.provide(THEME_SERVICE_KEY, services.themeService);
+    }
+    if (services?.userPreferencesService) {
+      app.provide(
+        USER_PREFERENCES_SERVICE_KEY,
+        services.userPreferencesService,
+      );
     }
     if (services?.microsoftSSOService) {
       app.provide(MICROSOFT_SSO_SERVICE_KEY, services.microsoftSSOService);
