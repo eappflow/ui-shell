@@ -1,5 +1,14 @@
 # @eappflow/diagnostics
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies [81d010f]
+- Updated dependencies [1bb9e96]
+- Updated dependencies [46dad09]
+  - @eappflow/ui-shell@1.2.0
+
 ## 2.0.0
 
 ### Patch Changes

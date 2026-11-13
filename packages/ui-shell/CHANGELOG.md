@@ -1,5 +1,13 @@
 # @eappflow/ui-shell
 
+## 1.2.0
+
+### Minor Changes
+
+- 81d010f: Menu groups fold with a click on their name. The choice is remembered per browser.
+- 1bb9e96: Menu pages can be pinned to a "Pinned" group at the top of the menu. The new `UserPreferencesService` keeps the user's dark mode, language and pins (in `localStorage` by default).
+- 46dad09: Refresh tokens in token mode. `AuthResult` carries a `refreshToken` next to the `accessToken`, `AuthService` gets `refresh()` (required on `TokenAuthService`) and `logout()` receives `{ refreshToken }`. `useAuthStore().refreshAccessToken()` swaps the tokens - the host's HTTP client calls it on a 401 and retries once. Requests failing together share one refresh, other tabs wait on a Web Lock, and a failed refresh logs out.
+
 ## 1.1.0
 
 ### Minor Changes
