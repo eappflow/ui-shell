@@ -8,7 +8,7 @@ import {
   type SessionAuthService,
   type TokenAuthService,
 } from "../../services/interfaces";
-import type { User } from "../../types";
+import type { AuthResult, User } from "../../types";
 
 const testUser: User = {
   id: "1",
@@ -38,7 +38,11 @@ function createTokenAuthService(
   accessToken = "tok-1",
 ): TokenAuthService {
   return {
-    login: vi.fn(async () => ({ accessToken })),
+    login: vi.fn(async () => ({ accessToken, refreshToken: "ref-1" })),
+    refresh: vi.fn(async () => ({
+      accessToken: "tok-2",
+      refreshToken: "ref-2",
+    })),
     logout: vi.fn(async () => {}),
     getCurrentUser: vi.fn(getCurrentUser),
     requestPasswordReset: vi.fn(async () => {}),
@@ -139,7 +143,7 @@ describe("useAuthStore in token mode", () => {
 
   it("rejects a login that returns no access token", async () => {
     const store = setup({
-      login: vi.fn(async () => ({}) as { accessToken: string }),
+      login: vi.fn(async () => ({}) as AuthResult),
       logout: vi.fn(async () => {}),
       getCurrentUser: vi.fn(async () => testUser),
       requestPasswordReset: vi.fn(async () => {}),

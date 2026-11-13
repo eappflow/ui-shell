@@ -49,6 +49,16 @@ export interface MicrosoftSSOLoginRequest {
 
 export interface AuthResult {
   accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  /** Lets the backend end the session; `null` in session mode or when none is stored. */
+  refreshToken: string | null;
 }
 
 export interface PasswordResetRequest {

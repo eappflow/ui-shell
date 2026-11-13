@@ -81,6 +81,8 @@ export type {
   LoginRequest,
   MicrosoftSSOLoginRequest,
   AuthResult,
+  RefreshRequest,
+  LogoutRequest,
   PasswordResetRequest,
   PasswordResetConfirm,
   ChangePasswordRequest,

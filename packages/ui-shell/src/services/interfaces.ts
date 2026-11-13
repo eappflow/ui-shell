@@ -13,6 +13,8 @@ import type {
   User,
   LoginRequest,
   AuthResult,
+  RefreshRequest,
+  LogoutRequest,
   PasswordResetRequest,
   PasswordResetConfirm,
   ChangePasswordRequest,
@@ -40,13 +42,19 @@ export interface AuthService {
   mode?: "token" | "session";
 
   /**
-   * Authenticate user with credentials. Resolves with the access token in
-   * `token` mode, or with nothing in `session` mode.
+   * Authenticate user with credentials. Resolves with the access and refresh
+   * tokens in `token` mode, or with nothing in `session` mode.
    */
   login(request: LoginRequest): Promise<AuthResult | void>;
 
-  /** Logout current user */
-  logout(): Promise<void>;
+  /**
+   * Exchange the refresh token for a new pair; the one sent stops working.
+   * `token` mode only - the shell calls it from `refreshAccessToken()`.
+   */
+  refresh?(request: RefreshRequest): Promise<AuthResult>;
+
+  /** Logout current user; the refresh token lets the backend end the session. */
+  logout(request: LogoutRequest): Promise<void>;
 
   /** Get current authenticated user data */
   getCurrentUser(): Promise<User>;
@@ -65,12 +73,14 @@ export interface AuthService {
 }
 
 /**
- * Convenience subtype for token-based backends: narrower `mode` and a `login`
- * that must resolve with an access token. Assignable to `AuthService`.
+ * Convenience subtype for token-based backends: narrower `mode`, a `login`
+ * that must resolve with the tokens and a required `refresh`. Assignable to
+ * `AuthService`.
  */
 export interface TokenAuthService extends AuthService {
   mode?: "token";
   login(request: LoginRequest): Promise<AuthResult>;
+  refresh(request: RefreshRequest): Promise<AuthResult>;
 }
 
 /**

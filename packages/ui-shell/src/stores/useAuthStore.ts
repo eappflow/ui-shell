@@ -9,6 +9,7 @@ import {
 import { createDefaultAuthService } from "../services/defaultAuthService";
 import { createDefaultMsalInstance } from "../services/defaultMsalInstance";
 import { createDefaultMicrosoftSSOConfig } from "../services/defaultSSOService";
+import { STORAGE_KEYS } from "../utils/constants";
 import { useActionValidation } from "@eappflow/ui-shell-components";
 import * as msal from "@azure/msal-browser";
 import { Router } from "vue-router";
@@ -79,18 +80,25 @@ export const useAuthStore = defineStore("auth", () => {
     if (!result.accessToken) {
       throw new Error("No access token received");
     }
+    if (!result.refreshToken) {
+      throw new Error("No refresh token received");
+    }
 
-    await saveAccessToken(result.accessToken);
+    saveTokens(result);
+    await loadCurrentUser();
   }
 
   async function logout(): Promise<void> {
     sessionEpoch++;
     try {
-      await authService.logout();
+      await authService.logout({
+        refreshToken: localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN),
+      });
     } finally {
       user.value = null;
       accessToken.value = null;
-      localStorage.removeItem("access_token");
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     }
   }
 
@@ -108,12 +116,59 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function saveAccessToken(token: string): Promise<void> {
-    accessToken.value = token;
-    localStorage.setItem("access_token", token);
+  // The refresh token lives in localStorage only, never in memory, so every tab
+  // reads the one the last refresh (from whichever tab) left there.
+  function saveTokens(result: AuthResult): void {
+    accessToken.value = result.accessToken;
+    localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, result.accessToken);
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, result.refreshToken);
+  }
 
-    // Load user data after login
-    await loadCurrentUser();
+  let refreshing: Promise<void> | null = null;
+
+  /**
+   * Swaps the refresh token for a new pair - call it when the backend answers
+   * 401, then retry the request. Requests failing together share one refresh,
+   * and other tabs wait on a Web Lock, because the backend ends the whole
+   * session when a refresh token is sent twice. Logs out when it fails.
+   */
+  function refreshAccessToken(): Promise<void> {
+    if (refreshing === null) {
+      const seen = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      refreshing = withRefreshLock(() => rotateTokens(seen)).finally(() => {
+        refreshing = null;
+      });
+    }
+    return refreshing;
+  }
+
+  async function rotateTokens(seen: string | null): Promise<void> {
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    // Another tab refreshed while this one waited for the lock - use its tokens.
+    if (refreshToken && refreshToken !== seen) {
+      accessToken.value = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      return;
+    }
+
+    const epoch = sessionEpoch;
+    try {
+      if (!refreshToken || !authService.refresh) {
+        throw new Error("No refresh token to sign in with");
+      }
+      const result = await authService.refresh({ refreshToken });
+      // A logout or a new login while waiting - that session wins.
+      if (epoch === sessionEpoch) saveTokens(result);
+    } catch (error) {
+      if (epoch === sessionEpoch) await logout().catch(() => {});
+      throw error;
+    }
+  }
+
+  function withRefreshLock(refresh: () => Promise<void>): Promise<void> {
+    // Without Web Locks (jsdom, very old browsers) only one tab's requests are merged.
+    return navigator.locks
+      ? navigator.locks.request("eaf-auth-refresh", refresh)
+      : refresh();
   }
 
   async function restorePassword(email: string): Promise<void> {
@@ -164,7 +219,7 @@ export const useAuthStore = defineStore("auth", () => {
       return;
     }
 
-    const storedToken = localStorage.getItem("access_token");
+    const storedToken = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     if (!storedToken) return;
 
     isInitializing.value = true;
@@ -291,6 +346,14 @@ export const useAuthStore = defineStore("auth", () => {
     restoreSession();
   });
 
+  // Another tab refreshed (or logged out): take its access token, so this tab
+  // doesn't send a refresh token that is already used.
+  window.addEventListener("storage", (event) => {
+    if (event.key === STORAGE_KEYS.AUTH_TOKEN && !isSessionMode) {
+      accessToken.value = event.newValue;
+    }
+  });
+
   return {
     user,
     accessToken,
@@ -302,6 +365,7 @@ export const useAuthStore = defineStore("auth", () => {
     userName,
     login,
     logout,
+    refreshAccessToken,
     loadCurrentUser,
     restorePassword,
     recoverPassword,

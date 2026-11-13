@@ -7,7 +7,12 @@ import type { AuthResult, User } from "../../types";
 
 function createFakeAuthService(user: User): AuthService {
   return {
-    login: vi.fn(async (): Promise<AuthResult> => ({ accessToken: "tok-1" })),
+    login: vi.fn(
+      async (): Promise<AuthResult> => ({
+        accessToken: "tok-1",
+        refreshToken: "ref-1",
+      }),
+    ),
     logout: vi.fn(async () => {}),
     getCurrentUser: vi.fn(async () => user),
     requestPasswordReset: vi.fn(async () => {}),
