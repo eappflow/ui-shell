@@ -275,4 +275,41 @@ describe("useAuthStore refreshAccessToken", () => {
     expect(localStorage.getItem("access_token")).toBeNull();
     expect(localStorage.getItem("refresh_token")).toBeNull();
   });
+
+  it("does not bring tokens back after another tab logged out", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    let answer!: (result: AuthResult) => void;
+    vi.mocked(service.refresh).mockReturnValue(
+      new Promise((resolve) => (answer = resolve)),
+    );
+    const store = setup(service);
+    await flushPromises();
+
+    const refreshed = store.refreshAccessToken();
+    localStorage.clear(); // the other tab's logout
+    answer({ accessToken: "tok-2", refreshToken: "ref-2" });
+    await refreshed;
+
+    expect(localStorage.getItem("access_token")).toBeNull();
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+  });
+
+  it("keeps the account another tab signed in to meanwhile", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    let fail!: (error: Error) => void;
+    vi.mocked(service.refresh).mockReturnValue(
+      new Promise((_, reject) => (fail = reject)),
+    );
+    const store = setup(service);
+    await flushPromises();
+
+    const refreshed = store.refreshAccessToken();
+    localStorage.setItem("access_token", "tok-other-user");
+    localStorage.setItem("refresh_token", "ref-other-user");
+    fail(new Error("422"));
+    await expect(refreshed).rejects.toThrow("422");
+
+    expect(service.logout).not.toHaveBeenCalled();
+    expect(localStorage.getItem("refresh_token")).toBe("ref-other-user");
+  });
 });
