@@ -96,8 +96,12 @@ is a good starting point.
 
 Two transports are supported, picked by `AuthService.mode`:
 
-- **`"token"` (default)** — `login()` resolves with `{ accessToken }`. The shell
-  keeps it in `localStorage`; your HTTP client sends it as a header.
+- **`"token"` (default)** — `login()` resolves with `{ accessToken, refreshToken }`.
+  The shell keeps both in `localStorage`; your HTTP client sends the access token
+  as a header. On a 401 it should `await useAuthStore().refreshAccessToken()` and
+  retry the request once - the shell calls `refresh()` (one call across tabs) and
+  logs out when that fails. `logout()` receives the refresh token so the backend
+  can end the session.
 - **`"session"`** — the backend keeps the session itself (e.g. an HttpOnly
   cookie) and `login()` resolves with nothing. The shell never sees a token: on
   boot it asks `getCurrentUser()` whether a session exists. Configure your HTTP
