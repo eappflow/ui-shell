@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   THEME_PRIMARY_COLOR: "theme_primary_color",
   SIDEBAR_COLLAPSED: "eappflow_sidebar_collapsed",
   USER_PREFERENCES: "eappflow_user_preferences",
+  MENU_COLLAPSED_GROUPS: "eappflow_menu_collapsed_groups",
   ASIDE_WIDTH: "eappflow_aside_width",
   ASIDE_LEFT_WIDTH: "eappflow_aside_left_width",
 } as const;

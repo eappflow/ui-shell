@@ -56,6 +56,8 @@ menuModules: [
 - Icons are CSS classes, e.g. [PrimeIcons](https://primevue.org/icons) (`pi pi-...`).
 - Groups with the same `name` become one group, even from different modules.
   The groups come in the order of the modules.
+- Users fold a group with a click on its name. The shell remembers it per
+  browser.
 
 ## Permissions
 

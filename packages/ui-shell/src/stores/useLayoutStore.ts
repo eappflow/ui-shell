@@ -23,6 +23,11 @@ export const useLayoutStore = defineStore("layout", () => {
     STORAGE_KEYS.SIDEBAR_COLLAPSED,
     false,
   );
+  /** Keys of the menu groups the user folded */
+  const collapsedMenuGroups = useLocalStorage<string[]>(
+    STORAGE_KEYS.MENU_COLLAPSED_GROUPS,
+    [],
+  );
   const darkMode = ref(settings.darkMode);
   const primaryColor = ref(settings.primaryColor);
   /** The full-page AI chat is open - the layout's chat panel steps aside meanwhile */
@@ -40,6 +45,12 @@ export const useLayoutStore = defineStore("layout", () => {
 
   function setSidebarCollapsed(collapsed: boolean) {
     sidebarCollapsed.value = collapsed;
+  }
+
+  function toggleMenuGroup(key: string) {
+    collapsedMenuGroups.value = collapsedMenuGroups.value.includes(key)
+      ? collapsedMenuGroups.value.filter((k) => k !== key)
+      : [...collapsedMenuGroups.value, key];
   }
 
   function toggleDarkMode() {
@@ -85,6 +96,7 @@ export const useLayoutStore = defineStore("layout", () => {
 
   return {
     sidebarCollapsed,
+    collapsedMenuGroups,
     darkMode,
     primaryColor,
     availableColors,
@@ -93,6 +105,7 @@ export const useLayoutStore = defineStore("layout", () => {
     toggleChatPanel,
     toggleSidebar,
     setSidebarCollapsed,
+    toggleMenuGroup,
     toggleDarkMode,
     setDarkMode,
     setPrimaryColor,
