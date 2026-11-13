@@ -8,7 +8,7 @@ import {
   type SessionAuthService,
   type TokenAuthService,
 } from "../../services/interfaces";
-import type { User } from "../../types";
+import type { AuthResult, User } from "../../types";
 
 const testUser: User = {
   id: "1",
@@ -38,7 +38,11 @@ function createTokenAuthService(
   accessToken = "tok-1",
 ): TokenAuthService {
   return {
-    login: vi.fn(async () => ({ accessToken })),
+    login: vi.fn(async () => ({ accessToken, refreshToken: "ref-1" })),
+    refresh: vi.fn(async () => ({
+      accessToken: "tok-2",
+      refreshToken: "ref-2",
+    })),
     logout: vi.fn(async () => {}),
     getCurrentUser: vi.fn(getCurrentUser),
     requestPasswordReset: vi.fn(async () => {}),
@@ -139,7 +143,7 @@ describe("useAuthStore in token mode", () => {
 
   it("rejects a login that returns no access token", async () => {
     const store = setup({
-      login: vi.fn(async () => ({}) as { accessToken: string }),
+      login: vi.fn(async () => ({}) as AuthResult),
       logout: vi.fn(async () => {}),
       getCurrentUser: vi.fn(async () => testUser),
       requestPasswordReset: vi.fn(async () => {}),
@@ -194,5 +198,118 @@ describe("useAuthStore in token mode", () => {
     expect(store.isAuthenticated).toBe(false);
     expect(store.accessToken).toBeNull();
     expect(localStorage.getItem("access_token")).toBeNull();
+  });
+
+  it("keeps the refresh token on login and sends it on logout", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    const store = setup(service);
+
+    await store.login("bob", "pw");
+    expect(localStorage.getItem("refresh_token")).toBe("ref-1");
+
+    await store.logout();
+    expect(service.logout).toHaveBeenCalledWith({ refreshToken: "ref-1" });
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+  });
+});
+
+describe("useAuthStore refreshAccessToken", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem("access_token", "tok-1");
+    localStorage.setItem("refresh_token", "ref-1");
+  });
+
+  it("merges refreshes started together into one call", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    const store = setup(service);
+    await flushPromises();
+
+    await Promise.all([store.refreshAccessToken(), store.refreshAccessToken()]);
+
+    expect(service.refresh).toHaveBeenCalledTimes(1);
+    expect(service.refresh).toHaveBeenCalledWith({ refreshToken: "ref-1" });
+    expect(store.accessToken).toBe("tok-2");
+    expect(localStorage.getItem("refresh_token")).toBe("ref-2");
+  });
+
+  it("takes the tokens another tab stored while it waited for the lock", async () => {
+    let openLock!: () => void;
+    const lockFree = new Promise<void>((resolve) => (openLock = resolve));
+    vi.stubGlobal("navigator", {
+      locks: {
+        request: async (_name: string, fn: () => Promise<void>) => {
+          await lockFree;
+          return fn();
+        },
+      },
+    });
+    try {
+      const service = createTokenAuthService(async () => testUser);
+      const store = setup(service);
+      await flushPromises();
+
+      const refreshed = store.refreshAccessToken();
+      localStorage.setItem("access_token", "tok-other-tab");
+      localStorage.setItem("refresh_token", "ref-other-tab");
+      openLock();
+      await refreshed;
+
+      expect(service.refresh).not.toHaveBeenCalled();
+      expect(store.accessToken).toBe("tok-other-tab");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("logs out and rejects when the refresh fails", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    vi.mocked(service.refresh).mockRejectedValue(new Error("422"));
+    const store = setup(service);
+    await flushPromises();
+
+    await expect(store.refreshAccessToken()).rejects.toThrow("422");
+
+    expect(service.logout).toHaveBeenCalledWith({ refreshToken: "ref-1" });
+    expect(store.isAuthenticated).toBe(false);
+    expect(localStorage.getItem("access_token")).toBeNull();
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+  });
+
+  it("does not bring tokens back after another tab logged out", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    let answer!: (result: AuthResult) => void;
+    vi.mocked(service.refresh).mockReturnValue(
+      new Promise((resolve) => (answer = resolve)),
+    );
+    const store = setup(service);
+    await flushPromises();
+
+    const refreshed = store.refreshAccessToken();
+    localStorage.clear(); // the other tab's logout
+    answer({ accessToken: "tok-2", refreshToken: "ref-2" });
+    await refreshed;
+
+    expect(localStorage.getItem("access_token")).toBeNull();
+    expect(localStorage.getItem("refresh_token")).toBeNull();
+  });
+
+  it("keeps the account another tab signed in to meanwhile", async () => {
+    const service = createTokenAuthService(async () => testUser);
+    let fail!: (error: Error) => void;
+    vi.mocked(service.refresh).mockReturnValue(
+      new Promise((_, reject) => (fail = reject)),
+    );
+    const store = setup(service);
+    await flushPromises();
+
+    const refreshed = store.refreshAccessToken();
+    localStorage.setItem("access_token", "tok-other-user");
+    localStorage.setItem("refresh_token", "ref-other-user");
+    fail(new Error("422"));
+    await expect(refreshed).rejects.toThrow("422");
+
+    expect(service.logout).not.toHaveBeenCalled();
+    expect(localStorage.getItem("refresh_token")).toBe("ref-other-user");
   });
 });

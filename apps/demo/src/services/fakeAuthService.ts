@@ -4,9 +4,9 @@
  * Implements the AuthService interface from @eappflow/ui-shell
  * for demo / development purposes.
  */
-import type { AuthService, AuthResult, User } from "@eappflow/ui-shell";
+import type { TokenAuthService, AuthResult, User } from "@eappflow/ui-shell";
 
-export function createFakeAuthService(): AuthService {
+export function createFakeAuthService(): TokenAuthService {
   return {
     async login(_request: {
       login: string;
@@ -18,6 +18,14 @@ export function createFakeAuthService(): AuthService {
       // Any credentials work in demo mode
       return {
         accessToken: "fake-jwt-token-demo-user",
+        refreshToken: "fake-refresh-token-demo-user",
+      };
+    },
+
+    async refresh(): Promise<AuthResult> {
+      return {
+        accessToken: "fake-jwt-token-demo-user",
+        refreshToken: "fake-refresh-token-demo-user",
       };
     },
 
@@ -68,7 +76,9 @@ export function createFakeAuthService(): AuthService {
       // In demo mode, any password change succeeds
     },
 
-    async linkMicrosoftAccount(_request: { accessToken: string }): Promise<void> {
+    async linkMicrosoftAccount(_request: {
+      accessToken: string;
+    }): Promise<void> {
       await new Promise((r) => setTimeout(r, 300));
       // Always succeeds in demo mode
     },

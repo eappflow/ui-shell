@@ -54,13 +54,14 @@ Services follow the Dependency Inversion Principle:
 
 ### Auth Flow
 
-0. `AuthService.mode` picks the transport: omitted/`"token"` (login returns `accessToken`, kept in `localStorage`) or `"session"` (backend cookie; login returns nothing and the shell asks `getCurrentUser()` on boot)
+0. `AuthService.mode` picks the transport: omitted/`"token"` (login returns `accessToken` + `refreshToken`, kept in `localStorage`) or `"session"` (backend cookie; login returns nothing and the shell asks `getCurrentUser()` on boot)
 1. App boots → `restoreSession()` (`initializeFromStorage()` is a deprecated alias) checks `localStorage` for `access_token` (session mode: calls `getCurrentUser()` instead)
 2. If found, calls `authService.getCurrentUser()` to hydrate the user
-3. Login via `authService.login()` stores token, loads user (session mode: just loads the user)
-4. Logout clears token and user state
-5. `isAuthenticated` is derived from the hydrated user alone — a token is a transport detail, not auth state
-6. Route-level permissions checked via `meta.permissions` in navigation guards (OR logic — any matching permission grants access)
+3. Login via `authService.login()` stores the tokens, loads user (session mode: just loads the user)
+4. On a 401 the host's HTTP client calls `refreshAccessToken()` and retries once. It swaps the refresh token via `authService.refresh()` - one call per tab for requests failing together, other tabs wait on the `eaf-auth-refresh` Web Lock and take the stored result, since the backend ends the session when a refresh token is sent twice. A failed refresh logs out
+5. Logout passes the refresh token to `authService.logout()` (so the backend can end the session), then clears tokens and user state
+6. `isAuthenticated` is derived from the hydrated user alone — a token is a transport detail, not auth state
+7. Route-level permissions checked via `meta.permissions` in navigation guards (OR logic — any matching permission grants access)
 
 ### Layout & Routing
 
