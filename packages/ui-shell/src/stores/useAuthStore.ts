@@ -150,16 +150,19 @@ export const useAuthStore = defineStore("auth", () => {
       return;
     }
 
-    const epoch = sessionEpoch;
+    // A logout or a login in any tab while waiting replaces the stored refresh
+    // token (localStorage is shared, the session epoch is per tab) - then that
+    // session wins and this refresh must neither save nor log out.
+    const sameSession = () =>
+      localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN) === refreshToken;
     try {
       if (!refreshToken || !authService.refresh) {
         throw new Error("No refresh token to sign in with");
       }
       const result = await authService.refresh({ refreshToken });
-      // A logout or a new login while waiting - that session wins.
-      if (epoch === sessionEpoch) saveTokens(result);
+      if (sameSession()) saveTokens(result);
     } catch (error) {
-      if (epoch === sessionEpoch) await logout().catch(() => {});
+      if (sameSession()) await logout().catch(() => {});
       throw error;
     }
   }
