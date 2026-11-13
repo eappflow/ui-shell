@@ -99,9 +99,9 @@ In practice the messages come from the module's locale files, see
 
 ## Pinned pages
 
-Users can pin menu pages with the star next to them. Pinned pages show in a
-"Pinned" group at the top of the menu. A pin to a page the user can no longer
-see stays hidden.
+Users can pin menu pages with the pin button shown next to them on hover.
+Pinned pages show in a "Pinned" group at the top of the menu. A pin to a page
+the user can no longer see stays hidden.
 
 The pins are kept with the user's other preferences, see
 [User preferences](../guide/getting-started.md#user-preferences).
