@@ -12,6 +12,7 @@ import { APP_CONFIG_KEY } from "../services/interfaces";
 import { useUserPreferencesStore } from "../stores/useUserPreferencesStore";
 import { useLayoutStore } from "../stores/useLayoutStore";
 import { useScopedI18n } from "../composables/useScopedI18n";
+import PinIcon from "./PinIcon.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -30,7 +31,7 @@ const props = defineProps<{
   compact?: boolean;
 }>();
 
-// Not while loading: a star then would show the user's pins as not there
+// Not while loading: a pin then would show the user's pins as not there
 const showPins = computed(() => !props.compact && !preferences.loading);
 
 const emit = defineEmits<{
@@ -49,8 +50,7 @@ const menuModel = computed(() => {
   // From the modules, not the groups: a folded group has no items in the model
   const pinned = visibleMenuModules.value
     .flatMap((module) => module.items)
-    .filter((item) => isPinned(item.path))
-    .map((item) => ({ ...item, inPinnedGroup: true }));
+    .filter((item) => isPinned(item.path));
   // Never folded, so no key
   return pinned.length || preferences.loading
     ? [
@@ -79,11 +79,6 @@ function group(key: string, groupLabel: string, items: EafMenuItem[]) {
 
 function isPinned(path: string): boolean {
   return preferences.pinnedPages.includes(path);
-}
-
-// A pinned page's star shows outside the Pinned group - in it every row is pinned
-function starAlwaysShown(item: MenuItem): boolean {
-  return isPinned(item.path) && !item.inPinnedGroup;
 }
 
 function navigateToPage(item: EafMenuItem): void {
@@ -147,6 +142,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
           class="flex h-4 items-center text-[0.65625rem] uppercase tracking-[0.7px] whitespace-nowrap"
           :class="hostClasses?.['group-label']"
         >
+          <PinIcon filled class="mr-1.5 text-sm" />
           {{ item.label }}
           <i v-if="item.loading" class="pi pi-spinner pi-spin ml-2 text-xs" />
         </span>
@@ -160,7 +156,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             :class="[
               // The rail is narrower than the icon: centring keeps it on the rail's axis
               compact && 'justify-center',
-              // Room for the star, so a long label truncates before it
+              // Room for the pin, so a long label truncates before it
               showPins && 'pr-8!',
               hostClasses?.item,
               isActive(item) && [
@@ -186,23 +182,23 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             }}</span>
           </a>
           <!-- Beside the link, not in it: a button inside an <a> isn't valid HTML.
-               Otherwise shown on hover or focus only. -->
+               Shown on hover or focus only. -->
           <button
             v-if="showPins"
             type="button"
             :aria-pressed="isPinned(item.path)"
             :aria-label="shellT('menu_pin', 'Pin', 'Przypnij')"
-            class="absolute inset-y-0 right-2 flex cursor-pointer items-center px-1"
-            :class="[
-              !starAlwaysShown(item) &&
-                'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
-            ]"
+            class="absolute inset-y-0 right-2 flex cursor-pointer items-center px-1 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
             @click.stop="preferences.togglePin(item.path)"
           >
-            <i
-              class="pi text-xs"
+            <!-- An unpinned page's pin is tilted, outlined and muted -->
+            <PinIcon
+              :filled="isPinned(item.path)"
+              class="text-sm"
               :class="
-                isPinned(item.path) ? 'pi-star-fill text-yellow-400' : 'pi-star'
+                isPinned(item.path)
+                  ? 'text-primary'
+                  : 'rotate-45 text-muted-color'
               "
             />
           </button>
