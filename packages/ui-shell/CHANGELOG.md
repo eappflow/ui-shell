@@ -1,5 +1,11 @@
 # @eappflow/ui-shell
 
+## 1.2.1
+
+### Patch Changes
+
+- 995cc18: The menu's pin button is a pin, not a star, and shows on hover only. The "Pinned" group's name has a pin icon.
+
 ## 1.2.0
 
 ### Minor Changes
