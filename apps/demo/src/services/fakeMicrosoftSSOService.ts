@@ -21,6 +21,7 @@ export function createFakeMicrosoftSSOService(): MicrosoftSSOService {
       // Any credentials work in demo mode
       return {
         accessToken: "fake-jwt-token-demo-user",
+        refreshToken: "fake-refresh-token-demo-user",
       };
     },
   };
