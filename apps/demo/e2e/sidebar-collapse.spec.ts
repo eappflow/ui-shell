@@ -57,3 +57,24 @@ test("keeps the collapsed sidebar after a reload", async ({ page }) => {
   await expect(sidebar).toBeVisible();
   await expect(sidebar).toHaveAttribute("data-collapsed", "true");
 });
+
+test("shows each folded group as a divider on the icon rail", async ({
+  page,
+}) => {
+  await login(page);
+
+  const sidebar = page.getByTestId("app-sidebar");
+  const groups = sidebar.locator("nav button[aria-expanded]");
+  await expect(groups.first()).toBeVisible();
+  const count = await groups.count();
+  for (let i = 0; i < count; i++) await groups.nth(i).click();
+  await expect(sidebar.locator("nav a")).toHaveCount(0);
+
+  await page.getByTestId("toggle-sidebar-button").click();
+  await expect(sidebar).toHaveAttribute("data-collapsed", "true");
+  // The rail shows only once the panel has shrunk
+  await expect(sidebar.locator("nav")).toHaveAttribute("data-compact", "true");
+  // One divider per group, none of their pages
+  await expect(sidebar.locator(".p-menu-submenu-label")).toHaveCount(count);
+  await expect(sidebar.locator("nav a")).toHaveCount(0);
+});
