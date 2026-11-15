@@ -1,5 +1,11 @@
 # @eappflow/ui-shell-components
 
+## 0.2.2
+
+### Patch Changes
+
+- 0b3d09f: A form whose `exposeToAi` turns on after it's created (e.g. `exposeToAi: dialogVisible`) is now shown to the AI chat - it used to stay hidden. Descriptions given through a ref or getter reach the chat as well.
+
 ## 0.2.1
 
 ### Patch Changes

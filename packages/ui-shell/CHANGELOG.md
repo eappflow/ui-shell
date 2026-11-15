@@ -1,5 +1,13 @@
 # @eappflow/ui-shell
 
+## 1.3.2
+
+### Patch Changes
+
+- 7af28d8: The "Ask AI" button is back in the header (`AppHeader`'s `aiChat` prop, `toggleAiChat` event) in place of the floating one.
+- Updated dependencies [0b3d09f]
+  - @eappflow/ui-shell-components@0.2.2
+
 ## 1.3.1
 
 ### Patch Changes
