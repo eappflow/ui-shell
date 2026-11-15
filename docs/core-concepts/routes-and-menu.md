@@ -57,7 +57,7 @@ menuModules: [
 - Groups with the same `name` become one group, even from different modules.
   The groups come in the order of the modules.
 - Users fold a group with a click on its name. The shell remembers it per
-  browser.
+  browser. In the compact sidebar a folded group is a single divider.
 - The browser tab's title is the page's group and name, e.g. `Sales | Orders`,
   translated. A page off the menu has the app's name (`appConfig.name`).
 - A page sets its own title with `usePageTitle`. Give it a getter or a ref, so

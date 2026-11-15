@@ -65,10 +65,9 @@ const menuModel = computed(() => {
 });
 
 // Folding is remembered by the module's group name, not the label, which changes
-// with the language. A folded group keeps its header only. The rail never folds:
-// it has no header to unfold by.
+// with the language. A folded group keeps its header only, on the rail a divider.
 function group(key: string, groupLabel: string, items: EafMenuItem[]) {
-  const collapsed = !props.compact && layout.collapsedMenuGroups.includes(key);
+  const collapsed = layout.collapsedMenuGroups.includes(key);
   return {
     groupKey: key,
     label: groupLabel,
@@ -104,7 +103,8 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
       :class="hostClasses?.root"
     >
       <template #submenulabel="{ item }">
-        <!-- Compact: the group name gives way to a divider of the same height, so nothing shifts on expand -->
+        <!-- Compact: the group name gives way to a divider of the same height, so nothing shifts on expand.
+             A folded group is the divider alone. -->
         <span
           v-if="compact"
           class="flex h-4 items-center justify-center"
