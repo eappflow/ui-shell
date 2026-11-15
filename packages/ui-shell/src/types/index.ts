@@ -118,6 +118,8 @@ export interface EafModule {
   routes?: RouteRecordRaw[];
   /** Menu modules contributed by this module */
   menuModules?: EafMenuModule[];
+  /** Menu items known only at run time, e.g. the user's own records */
+  menuSources?: EafMenuSource[];
   /** AI chat tools contributed by this module */
   aiTools?: EafAiToolConfig[];
   /** Translation messages for the module's menu items (resolved via i18n) */
@@ -179,6 +181,19 @@ export interface EafMenuModule {
 
 /** A group the user may see, its `isVisible` already checked */
 export type EafFilteredMenuModule = Omit<EafMenuModule, "isVisible">;
+
+/**
+ * Menu items loaded for the signed-in user, e.g. their own dashboards. The
+ * shell loads them on sign-in, drops them on sign-out and loads them again on
+ * `useEafNavigation().reloadMenuSource(source)`.
+ */
+export interface EafMenuSource {
+  /** `name` of the menu group the items go to, after the group's own items */
+  group: string;
+  /** Users without any of them get no items, and no request is made */
+  permissions?: Permission[];
+  load(): Promise<EafMenuItem[]>;
+}
 
 // ─── Navigation guard ────────────────────────────────────────────────────────
 

@@ -110,11 +110,62 @@ has no translation, the menu shows `name`.
 In practice the messages come from the module's locale files, see
 [Translations](./translations.md).
 
+## Items loaded at run time
+
+Items that depend on the user's data, e.g. their own dashboards, come from a
+menu source. It names a group of `menuModules` and loads the items:
+
+```ts
+import type { EafMenuSource } from "@eappflow/ui-shell";
+
+export const dashboardsMenuSource: EafMenuSource = {
+  group: "Dashboards",
+  permissions: ["Dashboard"],
+  load: async () =>
+    (await api.getMyDashboards()).map((dashboard) => ({
+      name: dashboard.name,
+      icon: "pi pi-chart-bar",
+      path: `/dashboards/${dashboard.id}`,
+    })),
+};
+
+// The module
+menuSources: [dashboardsMenuSource],
+```
+
+- The shell loads the items when a user signs in and drops them when they
+  sign out, so one user's items never show to the next.
+- Without any of the source's `permissions` the user gets no items, and
+  `load` isn't called.
+- The items come after the group's own. Data shows as it is, in `name`. A
+  `nameKey` is translated like the module's other items, e.g. a "New dashboard"
+  item after the dashboards.
+- After a change to the data, load them again:
+
+  ```ts
+  await useEafNavigation().reloadMenuSource(dashboardsMenuSource);
+  ```
+
+  The menu keeps the old items until the new ones arrive. A failed load keeps
+  them too.
+
+The items are part of `useEafNavigation().menuModules`, so they are in the
+browser tab's title and the AI chat can open them too.
+
 ## Pinned pages
 
 Users can pin menu pages with the pin button shown next to them on hover.
 Pinned pages show in a "Pinned" group at the top of the menu. A pin to a page
 the user can no longer see stays hidden.
+
+A page that is gone for good, e.g. a deleted record's, is the module's to
+unpin:
+
+```ts
+import { usePinnedPages } from "@eappflow/ui-shell";
+
+usePinnedPages().unpin(`/dashboards/${id}`);
+```
 
 The pins are kept with the user's other preferences, see
 [User preferences](../guide/getting-started.md#user-preferences).
