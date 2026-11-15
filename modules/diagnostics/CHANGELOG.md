@@ -1,5 +1,11 @@
 # @eappflow/diagnostics
 
+## 4.0.1
+
+### Patch Changes
+
+- @eappflow/ui-shell@1.3.1
+
 ## 4.0.0
 
 ### Patch Changes

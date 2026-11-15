@@ -1,5 +1,15 @@
 # @eappflow/ui-shell-components
 
+## 0.2.1
+
+### Patch Changes
+
+- 326d2d9: Add reactive AI form exposure control.
+
+  - Support `MaybeRefOrGetter` for `exposeToAi` configuration.
+  - Automatically register and unregister forms from AI exposure when the option changes.
+  - Clean up AI form exposure when the owning component is unmounted.
+
 ## 0.2.0
 
 ### Minor Changes
