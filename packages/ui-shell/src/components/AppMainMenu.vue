@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import Menu from "primevue/menu";
 import type { MenuItem } from "primevue/menuitem";
@@ -14,7 +14,6 @@ import { useLayoutStore } from "../stores/useLayoutStore";
 import { useScopedI18n } from "../composables/useScopedI18n";
 import PinIcon from "./PinIcon.vue";
 
-const router = useRouter();
 const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
@@ -81,11 +80,6 @@ function isPinned(path: string): boolean {
   return preferences.pinnedPages.includes(path);
 }
 
-function navigateToPage(item: EafMenuItem): void {
-  router.push(item.path);
-  emit("item-click", item);
-}
-
 function isActive(item: MenuItem): boolean {
   return route.path === item.path;
 }
@@ -150,7 +144,8 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
 
       <template #item="{ item, props: itemProps }">
         <div class="group relative">
-          <a
+          <RouterLink
+            :to="item.path"
             v-bind="itemProps.action"
             class="flex items-center w-full min-w-0! text-[0.8125rem] font-medium"
             :class="[
@@ -164,7 +159,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
                 hostClasses?.['item-active'],
               ],
             ]"
-            @click="navigateToPage(asEafMenuItem(item))"
+            @click="emit('item-click', asEafMenuItem(item))"
           >
             <!-- 1lh: a label line tall, so the row keeps its height once the label is gone -->
             <span
@@ -180,7 +175,7 @@ function asEafMenuItem(item: MenuItem): EafMenuItem {
             <span :class="compact ? 'sr-only' : 'truncate'">{{
               label(asEafMenuItem(item))
             }}</span>
-          </a>
+          </RouterLink>
           <!-- Beside the link, not in it: a button inside an <a> isn't valid HTML.
                Shown on hover or focus only. -->
           <button
