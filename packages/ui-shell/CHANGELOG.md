@@ -1,5 +1,12 @@
 # @eappflow/ui-shell
 
+## 1.3.0
+
+### Minor Changes
+
+- afba8c4: Menu items loaded at run time, e.g. the user's own dashboards: a module lists `menuSources`, the shell loads them for the signed-in user and drops them on sign-out, `useEafNavigation().reloadMenuSource(source)` loads them again.
+- afba8c4: `usePinnedPages()` lets a module unpin a page that is gone, e.g. a deleted record's.
+
 ## 1.2.2
 
 ### Patch Changes

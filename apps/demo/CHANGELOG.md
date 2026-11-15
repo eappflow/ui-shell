@@ -1,5 +1,14 @@
 # @eappflow/demo
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [afba8c4]
+- Updated dependencies [afba8c4]
+  - @eappflow/ui-shell@1.3.0
+  - @eappflow/diagnostics@4.0.0
+
 ## 0.0.6
 
 ### Patch Changes
