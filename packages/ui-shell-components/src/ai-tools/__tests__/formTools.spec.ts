@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
+import { nextTick, ref } from "vue";
 import { z } from "zod";
 import { useEafForm } from "../../composables/useEafForm";
 import { eafFormTools } from "../formTools";
@@ -93,6 +94,22 @@ describe("eafFormTools", () => {
       items: "One per product",
       "items[].sku": "From the catalogue",
     });
+    wrapper.unmount();
+  });
+
+  it("shows the form while exposeToAi is on, also when it turns on later", async () => {
+    const exposed = ref<false | { $description: string }>(false);
+    const { wrapper } = mountForm({ exposeToAi: exposed });
+    expect(eafFormTools()).toEqual([]);
+
+    exposed.value = { $description: "Orders to ship" };
+    await nextTick();
+    const [described] = tool("get_forms").run({}) as Described[];
+    expect(described?.description).toBe("Orders to ship");
+
+    exposed.value = false;
+    await nextTick();
+    expect(eafFormTools()).toEqual([]);
     wrapper.unmount();
   });
 
