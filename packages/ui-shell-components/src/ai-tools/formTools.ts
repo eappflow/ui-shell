@@ -1,4 +1,3 @@
-import { getCurrentScope, onScopeDispose } from "vue";
 import { z } from "zod";
 import type { EafAiTool } from "../types";
 import { defineEafAiTool } from "./defineEafAiTool";
@@ -22,12 +21,8 @@ interface AiForm {
 const forms = new Map<number, AiForm>();
 let lastNumber = 0;
 
-/** Shows `form` to the AI tools until the calling component unmounts */
+/** Shows `form` to the AI tools until the returned function is called */
 export function exposeFormToAi(form: AiForm): () => void {
-  if (!getCurrentScope()) {
-    return () => {};
-  }
-
   const number = ++lastNumber;
   forms.set(number, form);
 

@@ -1,5 +1,6 @@
 import {
   computed,
+  getCurrentScope,
   ref,
   reactive,
   watch,
@@ -316,23 +317,27 @@ export function useEafForm<T extends object>({
     );
   }
 
-  watch(
-    () => toValue(exposeToAi),
-    (enabled, _, onCleanup) => {
-      if (!enabled) return;
+  // Only from a component (or another scope), which hides the form again when it unmounts. The
+  // scope is checked here, as the watcher's later runs come from the scheduler, outside of it.
+  if (getCurrentScope()) {
+    watch(
+      () => toValue(exposeToAi),
+      (enabled, _, onCleanup) => {
+        if (!enabled) return;
 
-      const dispose = exposeFormToAi({
-        data,
-        errors: fieldErrors,
-        isRequired: isFieldRequired,
-        validate: (path) => validateField(path),
-        schema,
-        descriptions: exposeToAi,
-      });
-      onCleanup(dispose);
-    },
-    { immediate: true },
-  );
+        const dispose = exposeFormToAi({
+          data,
+          errors: fieldErrors,
+          isRequired: isFieldRequired,
+          validate: (path) => validateField(path),
+          schema,
+          descriptions: enabled,
+        });
+        onCleanup(dispose);
+      },
+      { immediate: true },
+    );
+  }
 
   function hasErrors(): boolean {
     return (
