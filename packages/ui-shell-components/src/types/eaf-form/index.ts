@@ -1,4 +1,4 @@
-import type { ComputedRef, Ref, Reactive } from "vue";
+import type { ComputedRef, Ref, Reactive, MaybeRefOrGetter } from "vue";
 import type { z } from "zod";
 import type { EafFields, EafLeaf } from "./fields";
 import type { EafAiDescriptions } from "./descriptions";
@@ -99,7 +99,7 @@ export interface EafFormConfig<T> {
    * `useEafChat` - descriptions, nested like the values, tell it what the form
    * and its fields are for when that isn't plain, see {@link EafAiDescriptions}
    */
-  exposeToAi?: boolean | EafAiDescriptions<T>;
+  exposeToAi?: MaybeRefOrGetter<boolean | EafAiDescriptions<T>>;
 }
 
 /*

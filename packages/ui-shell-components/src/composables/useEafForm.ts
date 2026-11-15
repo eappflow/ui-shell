@@ -1,4 +1,12 @@
-import { computed, ref, reactive, watch, InjectionKey, inject } from "vue";
+import {
+  computed,
+  ref,
+  reactive,
+  watch,
+  InjectionKey,
+  inject,
+  toValue,
+} from "vue";
 import { useI18n, type Composer } from "vue-i18n";
 import { z } from "zod";
 import type {
@@ -308,16 +316,23 @@ export function useEafForm<T extends object>({
     );
   }
 
-  if (exposeToAi !== false) {
-    exposeFormToAi({
-      data,
-      errors: fieldErrors,
-      isRequired: isFieldRequired,
-      validate: (path) => validateField(path),
-      schema,
-      descriptions: exposeToAi,
-    });
-  }
+  watch(
+    () => toValue(exposeToAi),
+    (enabled, _, onCleanup) => {
+      if (!enabled) return;
+
+      const dispose = exposeFormToAi({
+        data,
+        errors: fieldErrors,
+        isRequired: isFieldRequired,
+        validate: (path) => validateField(path),
+        schema,
+        descriptions: exposeToAi,
+      });
+      onCleanup(dispose);
+    },
+    { immediate: true },
+  );
 
   function hasErrors(): boolean {
     return (
