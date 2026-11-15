@@ -1,5 +1,12 @@
 # @eappflow/ui-shell
 
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies [326d2d9]
+  - @eappflow/ui-shell-components@0.2.1
+
 ## 1.3.0
 
 ### Minor Changes
