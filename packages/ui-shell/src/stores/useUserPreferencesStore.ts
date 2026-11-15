@@ -93,10 +93,16 @@ export const useUserPreferencesStore = defineStore("user-preferences", () => {
     });
   }
 
+  function unpin(path: string) {
+    if (pinnedPages.value.includes(path))
+      update({ pinnedPages: pinnedPages.value.filter((p) => p !== path) });
+  }
+
   return {
     preferences,
     loading,
     pinnedPages,
     togglePin,
+    unpin,
   };
 });

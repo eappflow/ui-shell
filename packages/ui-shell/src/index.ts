@@ -68,6 +68,7 @@ export { createDefaultUserPreferencesService } from "./services/defaultUserPrefe
 // ─── Composables ───────────────────────────────────────────────────────────
 export { useEafAuth as useAuth } from "./composables/useEafAuth";
 export { useEafNavigation } from "./composables/useEafNavigation";
+export { usePinnedPages } from "./composables/usePinnedPages";
 export { useEafLayout as useLayout } from "./composables/useEafLayout";
 export { usePageTitle } from "./composables/usePageTitle";
 export {

@@ -158,5 +158,14 @@ Users can pin menu pages with the pin button shown next to them on hover.
 Pinned pages show in a "Pinned" group at the top of the menu. A pin to a page
 the user can no longer see stays hidden.
 
+A page that is gone for good, e.g. a deleted record's, is the module's to
+unpin:
+
+```ts
+import { usePinnedPages } from "@eappflow/ui-shell";
+
+usePinnedPages().unpin(`/dashboards/${id}`);
+```
+
 The pins are kept with the user's other preferences, see
 [User preferences](../guide/getting-started.md#user-preferences).
