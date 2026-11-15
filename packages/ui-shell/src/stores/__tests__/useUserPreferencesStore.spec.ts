@@ -70,6 +70,19 @@ describe("useUserPreferencesStore", () => {
     });
   });
 
+  it("unpins a pinned page, and saves nothing for one that isn't", async () => {
+    const { store, service } = await setup(async () => ({
+      pinnedPages: ["/units", "/crm"],
+    }));
+
+    store.unpin("/reports");
+    store.unpin("/units");
+    await flushPromises();
+
+    expect(service.save).toHaveBeenCalledTimes(1);
+    expect(service.save).toHaveBeenCalledWith({ pinnedPages: ["/crm"] });
+  });
+
   it("doesn't overwrite the saved preferences after failing to load them", async () => {
     const { store, service } = await setup(async () => {
       throw new Error("503");
