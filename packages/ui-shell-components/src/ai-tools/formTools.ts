@@ -23,14 +23,15 @@ const forms = new Map<number, AiForm>();
 let lastNumber = 0;
 
 /** Shows `form` to the AI tools until the calling component unmounts */
-export function exposeFormToAi(form: AiForm): void {
-  // Outside a component nothing would take it back out
+export function exposeFormToAi(form: AiForm): () => void {
   if (!getCurrentScope()) {
-    return;
+    return () => {};
   }
+
   const number = ++lastNumber;
   forms.set(number, form);
-  onScopeDispose(() => forms.delete(number));
+
+  return () => forms.delete(number);
 }
 
 /** `{ a: { b: 1 }, items: [{ n: "x" }] }` → `a.b`, `items[0].n` */
