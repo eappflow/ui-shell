@@ -57,7 +57,8 @@ const menuModel = computed(() => {
         {
           label: shellT("menu_pinned", "Pinned", "Przypięte"),
           items: pinned,
-          loading: preferences.loading,
+          // A pin to a source's item shows once the source has loaded
+          loading: preferences.loading || navigation.loadingMenuSources,
         },
         ...groups,
       ]

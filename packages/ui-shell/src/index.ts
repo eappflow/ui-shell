@@ -3,6 +3,7 @@ export type {
   Permission,
   EafMenuItem,
   EafMenuModule,
+  EafMenuSource,
   EafFilteredMenuModule,
   NavigationGuardOptions,
   ToastMessage,

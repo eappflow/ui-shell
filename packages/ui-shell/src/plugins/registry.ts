@@ -94,6 +94,18 @@ export function configureModules(
 
   navigationStore.setMenuModules(merged);
 
+  const menuSources = modules.flatMap((mod) =>
+    (mod.menuSources ?? []).map((source) => ({ moduleId: mod.id, source })),
+  );
+  for (const { source } of menuSources) {
+    if (!merged.some((group) => group.name === source.group)) {
+      console.warn(
+        `[ui-shell] A menu source's group "${source.group}" isn't in any module's menuModules, so its items won't show.`,
+      );
+    }
+  }
+  navigationStore.setMenuSources(menuSources);
+
   // Store module registration metadata for diagnostics
   const modulePermissionsMap: Record<string, string[]> = {};
   for (const mod of modules) {
