@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { createScopedI18n, useAuthStore } from "@eappflow/ui-shell";
+import {
+  createScopedI18n,
+  useAuthStore,
+  usePageTitle,
+} from "@eappflow/ui-shell";
 import {
   EafFormItem,
   EafFormValidationSummary,
@@ -17,6 +21,8 @@ const auth = useAuthStore();
 // Inline translations only - an app would pass its locale files
 const { t } = createScopedI18n({})();
 const toast = useToast();
+
+usePageTitle(() => t("page_title", "Welcome back", "Witaj ponownie"));
 
 const stats = ref([
   { label: "Users", value: "1,234" },

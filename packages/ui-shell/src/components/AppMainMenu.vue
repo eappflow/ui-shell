@@ -13,11 +13,12 @@ import { useUserPreferencesStore } from "../stores/useUserPreferencesStore";
 import { useLayoutStore } from "../stores/useLayoutStore";
 import { useScopedI18n } from "../composables/useScopedI18n";
 import PinIcon from "./PinIcon.vue";
+import { menuLabel } from "../utils/menuLabel";
 
 const route = useRoute();
 const auth = useEafAuth();
 const navigation = useEafNavigation();
-const { t, te } = useI18n({ useScope: "global" });
+const i18n = useI18n({ useScope: "global" });
 const { t: shellT } = useScopedI18n();
 
 const appConfig = inject(APP_CONFIG_KEY, { name: "App", version: "0.0.0" });
@@ -84,9 +85,8 @@ function isActive(item: MenuItem): boolean {
   return route.path === item.path;
 }
 
-// Falls back to `name` when no key is set or no translation exists for it.
 function label(entry: { name: string; nameKey?: string }): string {
-  return entry.nameKey && te(entry.nameKey) ? t(entry.nameKey) : entry.name;
+  return menuLabel(i18n, entry);
 }
 
 // Menu isn't generic, so its #item slot types `item` as PrimeVue's MenuItem,

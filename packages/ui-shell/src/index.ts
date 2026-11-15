@@ -68,6 +68,7 @@ export { createDefaultUserPreferencesService } from "./services/defaultUserPrefe
 export { useEafAuth as useAuth } from "./composables/useEafAuth";
 export { useEafNavigation } from "./composables/useEafNavigation";
 export { useEafLayout as useLayout } from "./composables/useEafLayout";
+export { usePageTitle } from "./composables/usePageTitle";
 export {
   createScopedI18n,
   type ScopedT,

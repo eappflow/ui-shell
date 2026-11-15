@@ -58,6 +58,19 @@ menuModules: [
   The groups come in the order of the modules.
 - Users fold a group with a click on its name. The shell remembers it per
   browser.
+- The browser tab's title is the page's group and name, e.g. `Sales | Orders`,
+  translated. A page off the menu has the app's name (`appConfig.name`).
+- A page sets its own title with `usePageTitle`. Give it a getter or a ref, so
+  the title follows the language and the data:
+
+  ```ts
+  import { usePageTitle } from "@eappflow/ui-shell";
+
+  usePageTitle(() => t("order_title", { number: order.value?.number }));
+  ```
+
+  Don't set `document.title` yourself: the shell sets it again when the
+  language or the menu changes.
 
 ## Permissions
 

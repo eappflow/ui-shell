@@ -7,6 +7,7 @@ import ChatMessageList from "../components/chat/ChatMessageList.vue";
 import { useEafChat } from "@eappflow/ui-shell-components";
 import { useScopedI18n } from "../composables/useScopedI18n";
 import { useLayoutStore } from "../stores/useLayoutStore";
+import { usePageTitle } from "../composables/usePageTitle";
 
 const { t } = useScopedI18n();
 const {
@@ -25,6 +26,11 @@ const {
   remove,
 } = useEafChat();
 const layoutStore = useLayoutStore();
+
+// The open conversation's title - a new one has none yet, so the menu's
+usePageTitle(
+  () => conversations.value.find((c) => c.id === activeId.value)?.title ?? "",
+);
 
 onMounted(() => {
   layoutStore.chatPageOpen = true;
