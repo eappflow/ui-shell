@@ -16,7 +16,6 @@ import AppHeader from "../components/AppHeader.vue";
 import AppSidebar from "../components/AppSidebar.vue";
 import AppAside from "../components/AppAside.vue";
 import AiChatPanel from "../components/chat/AiChatPanel.vue";
-import AiChatToggle from "../components/chat/AiChatToggle.vue";
 import { AI_CHAT_SERVICE_KEY } from "../services/interfaces";
 import { useLayoutStore } from "../stores/useLayoutStore";
 import {
@@ -170,7 +169,12 @@ async function handleLogout(): Promise<void> {
       ]"
     >
       <!-- Header -->
-      <AppHeader @toggle-sidebar="toggleSidebar" @logout="handleLogout">
+      <AppHeader
+        :ai-chat="showAiChat"
+        @toggle-sidebar="toggleSidebar"
+        @logout="handleLogout"
+        @toggle-ai-chat="layoutStore.toggleChatPanel()"
+      >
         <template #app-name>
           {{ appConfig.name }}
         </template>
@@ -210,7 +214,5 @@ async function handleLogout(): Promise<void> {
         @close="layoutStore.chatPanelOpen = false"
       />
     </AppAside>
-
-    <AiChatToggle v-if="showAiChat" />
   </div>
 </template>
