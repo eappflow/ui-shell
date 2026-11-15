@@ -1,5 +1,13 @@
 # @eappflow/ui-shell
 
+## 1.2.2
+
+### Patch Changes
+
+- 3ae3227: In the compact sidebar a folded menu group is a single divider, without its pages.
+- a34b15a: Menu pages are links: Ctrl+click, the middle button and the context menu open them in a new tab.
+- a34b15a: The browser tab's title is the page's menu group and name, e.g. `Sales | Orders`, in the user's language. Pages off the menu have the app's name. A page sets its own with `usePageTitle()`; the AI chat page shows the open conversation's title.
+
 ## 1.2.1
 
 ### Patch Changes
