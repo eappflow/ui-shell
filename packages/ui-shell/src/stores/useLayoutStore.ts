@@ -34,6 +34,8 @@ export const useLayoutStore = defineStore("layout", () => {
   const chatPageOpen = ref(false);
   /** The side chat panel (aside) is open */
   const chatPanelOpen = ref(false);
+  /** The titles pages ask for with usePageTitle - the tab shows the last one */
+  const pageTitles = ref<(() => string)[]>([]);
 
   function toggleChatPanel() {
     chatPanelOpen.value = !chatPanelOpen.value;
@@ -102,6 +104,7 @@ export const useLayoutStore = defineStore("layout", () => {
     availableColors,
     chatPageOpen,
     chatPanelOpen,
+    pageTitles,
     toggleChatPanel,
     toggleSidebar,
     setSidebarCollapsed,

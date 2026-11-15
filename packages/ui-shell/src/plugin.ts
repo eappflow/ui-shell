@@ -74,6 +74,8 @@ import { useAuthStore } from "./stores/useAuthStore";
 import { useEafNavigationStore } from "./stores/useEafNavigationStore";
 import { useLayoutStore } from "./stores/useLayoutStore";
 import { createEafI18n } from "./composables/createEafI18n";
+import { menuLabel } from "./utils/menuLabel";
+import type { Composer } from "vue-i18n";
 
 // ─── Plugin Options ─────────────────────────────────────────────────────────
 
@@ -238,5 +240,25 @@ export const EAppFlowUIShell = {
 
     // ── 12. v-tooltip for host apps ──────────────────────────────────────────
     app.directive("tooltip", Tooltip);
+
+    // ── 13. Page title ───────────────────────────────────────────────────
+    // Only the shell sets it: the page's own (usePageTitle), else "Group | Page"
+    // from the menu, translated, else the app's name.
+    const composer = i18n.global as unknown as Composer;
+    watchEffect(() => {
+      const own = useLayoutStore(pinia).pageTitles.at(-1);
+      const path = router.currentRoute.value.path;
+      const [fromMenu] = useEafNavigationStore(pinia).menuModules.flatMap(
+        (group) =>
+          group.items
+            .filter((item) => item.path === path)
+            .map(
+              (item) =>
+                `${menuLabel(composer, group)} | ${menuLabel(composer, item)}`,
+            ),
+      );
+      // ||: an empty title, e.g. while the page loads, falls back too
+      document.title = own?.() || fromMenu || appConfig.name;
+    });
   },
 };
