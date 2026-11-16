@@ -115,6 +115,7 @@ describe("createFields", () => {
     clearErrors: (path) => errors.delete(path),
     touch: (path) => touched.push(path),
     display: () => () => {},
+    isDirty: (path) => path === "name",
   }) as EafFields<typeof data>;
 
   it("builds the path from property access, array indexes in brackets", () => {

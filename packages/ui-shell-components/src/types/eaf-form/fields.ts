@@ -19,6 +19,8 @@ export interface EafField {
   readonly $error: string | undefined;
   /** The schema takes no empty value there */
   readonly $required: boolean;
+  /** The value differs from what `resetForm()` put in last, see `EafForm.isDirty` */
+  readonly $dirty: boolean;
   /** Sets the errors, e.g. from a custom check */
   readonly $setError: (messages: string | string[]) => void;
   /** Removes the errors */

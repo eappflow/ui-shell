@@ -3,6 +3,7 @@ import {
   getCurrentScope,
   ref,
   reactive,
+  shallowRef,
   watch,
   InjectionKey,
   inject,
@@ -17,6 +18,7 @@ import type {
   EafFormConfig,
 } from "../types";
 import { cloneDeep } from "../utils/cloneDeep";
+import { isEqual } from "../utils/isEqual";
 import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
 import {
   blanksToUnset,
@@ -86,6 +88,8 @@ export function useEafForm<T extends object>({
   // A copy: `initialValues` stay as they are - for resetForm(), and the other
   // forms that may share them
   const data = reactive(cloneDeep(initialValues));
+  // The values the form is clean at (not dirty): what resetForm() put in last
+  const cleanValues = shallowRef(cloneDeep(initialValues));
 
   const fieldErrors = reactive(new Map<string, string[]>());
   // How many `EafFormItem`s show each field, see `$display`
@@ -227,6 +231,11 @@ export function useEafForm<T extends object>({
     };
   }
 
+  const isDirty = computed(() => !isEqual(data, cleanValues.value));
+
+  const isFieldDirty = (path: string) =>
+    !isEqual(getByPath(data, path), getByPath(cleanValues.value, path));
+
   const undisplayedErrors = computed(() =>
     [...fieldErrors]
       .filter(([path]) => !displayed.has(path))
@@ -254,6 +263,7 @@ export function useEafForm<T extends object>({
    */
   function resetForm(newData: T = initialValues): void {
     const values = cloneDeep({ ...initialValues, ...newData });
+    cleanValues.value = cloneDeep(values);
     for (const key of Object.keys(data)) {
       if (!Object.hasOwn(values, key)) {
         delete (data as Record<string, unknown>)[key];
@@ -357,12 +367,14 @@ export function useEafForm<T extends object>({
       clearErrors: (path) => fieldErrors.delete(path),
       touch,
       display,
+      isDirty: isFieldDirty,
     }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
     undisplayedErrors,
     generalMessage,
+    isDirty,
 
     // Helper functions
     submit,
