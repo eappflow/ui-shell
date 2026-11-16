@@ -12,6 +12,7 @@ import {
 } from "@eappflow/ui-shell-components";
 import { ref } from "vue";
 import { z } from "zod";
+import EditContactDialog from "../components/EditContactDialog.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
@@ -21,6 +22,7 @@ const auth = useAuthStore();
 // Inline translations only - an app would pass its locale files
 const { t } = createScopedI18n({})();
 const toast = useToast();
+const contactDialog = ref(false);
 
 usePageTitle(() => t("page_title", "Welcome back", "Witaj ponownie"));
 
@@ -224,6 +226,20 @@ const $f = useEafForm({
             />
           </div>
         </form>
+      </template>
+    </Card>
+
+    <!-- Dialog form example: closing it with unsaved changes asks first -->
+    <Card data-testid="dialog-form">
+      <template #title> Dialog form </template>
+      <template #content>
+        <Button
+          label="Edit contact"
+          icon="pi pi-pencil"
+          data-testid="edit-contact-button"
+          @click="contactDialog = true"
+        />
+        <EditContactDialog v-model:visible="contactDialog" />
       </template>
     </Card>
   </div>
