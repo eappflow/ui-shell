@@ -44,7 +44,7 @@ function mountForm(
 }
 
 describe("EafFormItem", () => {
-  it("uses the path for testid and label `for`, and gives it to the slot as `id`", () => {
+  it("uses the path for testid, and in the label `for` and the slot's `id`", () => {
     const { wrapper } = mountForm(`
       <EafFormItem :field="f.fields.address.street" label="Street" v-slot="{ id }">
         <input :id="id" />
@@ -52,12 +52,37 @@ describe("EafFormItem", () => {
     `);
 
     const item = wrapper.get('[data-testid="address.street"]');
-    expect(item.get("label").attributes("for")).toBe("address.street");
-    expect(item.get("input").attributes("id")).toBe("address.street");
+    const id = item.get("input").attributes("id");
+    expect(id).toMatch(/-address\.street$/);
+    expect(item.get("label").attributes("for")).toBe(id);
     // Nothing is forced onto the slotted input
     expect(item.get("input").attributes("name")).toBeUndefined();
     // A prop, not a fallthrough attribute
     expect(item.attributes("field")).toBeUndefined();
+  });
+
+  it("gives each item its own id - two forms with the same field", () => {
+    const Host = defineComponent({
+      components: { EafFormItem },
+      setup: () => ({
+        first: useEafForm({ defaultValues: { name: "" } }),
+        second: useEafForm({ defaultValues: { name: "" } }),
+      }),
+      template: `
+        <EafFormItem :field="first.fields.name" label="Name" v-slot="{ id }">
+          <input :id="id" />
+        </EafFormItem>
+        <EafFormItem :field="second.fields.name" label="Name" v-slot="{ id }">
+          <input :id="id" />
+        </EafFormItem>
+      `,
+    });
+    const wrapper = mount(Host, { global: { plugins: [PrimeVue] } });
+
+    const [first, second] = wrapper.findAll('[data-testid="name"]');
+    const secondId = second.get("input").attributes("id");
+    expect(first.get("input").attributes("id")).not.toBe(secondId);
+    expect(second.get("label").attributes("for")).toBe(secondId);
   });
 
   it("takes a field from form.fields, which needs no :form", async () => {

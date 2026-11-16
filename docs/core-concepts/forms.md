@@ -215,6 +215,66 @@ When you call the API yourself, e.g. on a button that is not the submit
 button, pass its error to `$f.handleApiError(error)`. It returns `false` when
 the error was not one to show.
 
+## Unsaved changes
+
+`$f.isDirty.value` is `true` when the values are not the ones the form started
+with. `$f.fields.<path>.$dirty` tells the same for one field, e.g.
+`$f.fields.address.city.$dirty`, or for a sub-object or list with all its
+fields (`$f.fields.address.$dirty`).
+
+To edit a record, put it in with `resetForm`. The record is then the start,
+so the form is not dirty until the user changes something:
+
+```ts
+const contact = await api.getContact(id);
+$f.resetForm(contact);
+```
+
+- The values are compared as `submit()` sends them. A field that the user
+  types in and clears again is not dirty, also when it started as `null`.
+- `submit()` does not change the start. After a save, put the saved record in
+  with `$f.resetForm(saved)`.
+
+### Ask before closing a dialog
+
+```vue
+<script setup lang="ts">
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import { useConfirm } from "primevue/useconfirm";
+
+const visible = defineModel<boolean>("visible", { required: true });
+const confirm = useConfirm();
+
+function close() {
+  if (!$f.isDirty.value) {
+    visible.value = false;
+    return;
+  }
+  confirm.require({
+    message: "Close the dialog and lose your changes?",
+    accept: () => {
+      visible.value = false;
+    },
+  });
+}
+</script>
+
+<template>
+  <!-- The X and Escape call close(), they do not close the dialog -->
+  <Dialog :visible="visible" modal @update:visible="close">
+    <!-- the form's fields -->
+    <template #footer>
+      <Button label="Cancel" text @click="close" />
+      <Button label="Save" :disabled="!$f.isDirty.value" @click="$f.submit()" />
+    </template>
+  </Dialog>
+</template>
+```
+
+The shell's layout already has a `<ConfirmDialog />`. The demo app has the
+full dialog in `apps/demo/src/components/EditContactDialog.vue`.
+
 ## AI chat
 
 By default, the [AI assistant](./ai-assistant.md) can read the forms on screen

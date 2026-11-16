@@ -128,4 +128,6 @@ export interface EafForm<T> {
   handleApiError: (error: unknown) => boolean;
   clearErrors: () => void;
   hasErrors: () => boolean;
+  /** `data` differs from what `resetForm()` put in last (at first: the initial values) */
+  isDirty: ComputedRef<boolean>;
 }

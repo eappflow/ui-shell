@@ -3,6 +3,7 @@ import {
   getCurrentScope,
   ref,
   reactive,
+  shallowRef,
   watch,
   InjectionKey,
   inject,
@@ -17,6 +18,7 @@ import type {
   EafFormConfig,
 } from "../types";
 import { cloneDeep } from "../utils/cloneDeep";
+import { isEqual } from "../utils/isEqual";
 import { createFields, getByPath, hasPath, isPlainObject } from "../utils/path";
 import {
   blanksToUnset,
@@ -86,6 +88,8 @@ export function useEafForm<T extends object>({
   // A copy: `initialValues` stay as they are - for resetForm(), and the other
   // forms that may share them
   const data = reactive(cloneDeep(initialValues));
+  // The values the form is clean at (not dirty): what resetForm() put in last
+  const cleanValues = shallowRef(cloneDeep(initialValues));
 
   const fieldErrors = reactive(new Map<string, string[]>());
   // How many `EafFormItem`s show each field, see `$display`
@@ -163,6 +167,10 @@ export function useEafForm<T extends object>({
     return errors;
   }
 
+  /** What submit() sends: an empty value as the schema's "not set", see `blanksToUnset` */
+  const toSent = (values: unknown) =>
+    schema ? blanksToUnset(schema, values) : values;
+
   // Fields left once, and whether validate() ran - their changes are checked from then on
   const touched = new Set<string>();
   let validated = false;
@@ -203,7 +211,7 @@ export function useEafForm<T extends object>({
 
     loading.value = true;
     try {
-      await onSubmit?.((schema ? blanksToUnset(schema, data) : data) as T);
+      await onSubmit?.(toSent(data) as T);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -226,6 +234,14 @@ export function useEafForm<T extends object>({
       else displayed.delete(path);
     };
   }
+
+  // Dirty by what submit() sends: a field typed in and cleared again is not
+  const sentData = computed(() => toSent(data));
+  const sentClean = computed(() => toSent(cleanValues.value));
+  const isDirty = computed(() => !isEqual(sentData.value, sentClean.value));
+
+  const isFieldDirty = (path: string) =>
+    !isEqual(getByPath(sentData.value, path), getByPath(sentClean.value, path));
 
   const undisplayedErrors = computed(() =>
     [...fieldErrors]
@@ -254,6 +270,7 @@ export function useEafForm<T extends object>({
    */
   function resetForm(newData: T = initialValues): void {
     const values = cloneDeep({ ...initialValues, ...newData });
+    cleanValues.value = cloneDeep(values);
     for (const key of Object.keys(data)) {
       if (!Object.hasOwn(values, key)) {
         delete (data as Record<string, unknown>)[key];
@@ -357,12 +374,14 @@ export function useEafForm<T extends object>({
       clearErrors: (path) => fieldErrors.delete(path),
       touch,
       display,
+      isDirty: isFieldDirty,
     }) as EafFields<T>,
     loading,
     fieldErrors,
     summaryErrors,
     undisplayedErrors,
     generalMessage,
+    isDirty,
 
     // Helper functions
     submit,

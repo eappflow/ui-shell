@@ -1002,6 +1002,60 @@ describe("useEafForm - resetForm with nested data", () => {
   });
 });
 
+describe("useEafForm - isDirty", () => {
+  it("follows nested changes, back to clean when the value returns", () => {
+    const $f = createNestedForm();
+    expect($f.isDirty.value).toBe(false);
+
+    $f.data.address!.street = "Changed";
+    expect($f.isDirty.value).toBe(true);
+    expect($f.fields.address.street.$dirty).toBe(true);
+    expect($f.fields.address.$dirty).toBe(true);
+    expect($f.fields.address.city.$dirty).toBe(false);
+
+    $f.data.address!.street = "Main";
+    expect($f.isDirty.value).toBe(false);
+
+    $f.data.tags.push("b");
+    expect($f.fields.tags.$dirty).toBe(true);
+    $f.data.tags.pop();
+    expect($f.isDirty.value).toBe(false);
+  });
+
+  it("is clean against what resetForm(data) put in - a loaded record", () => {
+    const $f = createNestedForm();
+
+    $f.resetForm(nestedData({ name: "Loaded" }));
+    expect($f.isDirty.value).toBe(false);
+
+    $f.data.name = "Edited";
+    expect($f.isDirty.value).toBe(true);
+    expect($f.fields.name.$dirty).toBe(true);
+  });
+
+  it("is clean again once a field is cleared - submit() sends the same", () => {
+    const { result: $f } = withSetup(() =>
+      useEafForm({ schema: z.object({ note: z.string().nullable() }) }),
+    );
+    expect($f.data.note).toBeNull();
+
+    $f.data.note = "x";
+    expect($f.isDirty.value).toBe(true);
+
+    $f.data.note = "";
+    expect($f.isDirty.value).toBe(false);
+    expect($f.fields.note.$dirty).toBe(false);
+  });
+
+  it("is clean with an invalid date", () => {
+    const { result: $f } = withSetup(() =>
+      useEafForm({ defaultValues: { date: new Date("x") } }),
+    );
+
+    expect($f.isDirty.value).toBe(false);
+  });
+});
+
 describe("useEafForm - field paths", () => {
   it("isFieldRequired follows the schema, through optional objects too", () => {
     const $f = createNestedForm();

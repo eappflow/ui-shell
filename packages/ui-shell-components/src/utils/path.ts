@@ -79,6 +79,7 @@ export function createFields(
     clearErrors: (path: string) => void;
     touch: (path: string) => void;
     display: (path: string) => () => void;
+    isDirty: (path: string) => boolean;
   },
   path = "",
 ): unknown {
@@ -104,6 +105,8 @@ export function createFields(
             return () => source.touch(path);
           case "$display":
             return () => source.display(path);
+          case "$dirty":
+            return source.isDirty(path);
         }
         // Not fields: symbols, Vue probes, `then`, Object.prototype members
         if (
