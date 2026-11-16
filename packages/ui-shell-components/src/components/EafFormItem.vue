@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { EafField } from "../types/eaf-form";
-import { computed, provide, reactive, watchEffect } from "vue";
+import { computed, provide, reactive, useId, watchEffect } from "vue";
 import Message from "primevue/message";
 
 export interface Props {
   /**
-   * Field from `$f.fields`. Its path is the label's `for`, `data-testid` and
-   * the slot's `id` (`v-slot="{ id }"` → `:id="id"`)
+   * Field from `$f.fields`. Its path is the `data-testid`, and in the label's
+   * `for` and the slot's `id` (`v-slot="{ id }"` → `:id="id"`) - after a prefix
+   * unique to this item, so two forms with the same field don't share an id
    */
   field: EafField;
 
@@ -33,6 +34,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const path = computed(() => props.field.$path);
+const prefix = useId();
+const id = computed(() => `${prefix}-${path.value}`);
 
 // Its errors show here, not in the form's summary
 watchEffect((onCleanup) => onCleanup(props.field.$display()));
@@ -78,12 +81,12 @@ provide("$pcFormField", reactive({ $field: { invalid: hasError } }));
     @focusout="onFocusOut"
   >
     <!-- Label -->
-    <label v-if="label" :for="path" :class="['font-medium', props.labelClass]">
+    <label v-if="label" :for="id" :class="['font-medium', props.labelClass]">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
 
-    <slot :id="path" :has-error="hasError" :error-message="errorMessage" />
+    <slot :id="id" :has-error="hasError" :error-message="errorMessage" />
     <!-- Error message -->
     <Message
       v-if="hasError"
