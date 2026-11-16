@@ -115,7 +115,7 @@ describe("createFields", () => {
     clearErrors: (path) => errors.delete(path),
     touch: (path) => touched.push(path),
     display: () => () => {},
-    isDirty: (path) => path === "name",
+    isDirty: (path) => path === "items[1].name",
   }) as EafFields<typeof data>;
 
   it("builds the path from property access, array indexes in brackets", () => {
@@ -133,6 +133,8 @@ describe("createFields", () => {
     expect(fields.items[1].name.$errors).toEqual(["Taken"]);
     expect(fields.name.$required).toBe(true);
     expect(fields.address.$required).toBe(false);
+    expect(fields.items[1].name.$dirty).toBe(true);
+    expect(fields.name.$dirty).toBe(false);
 
     fields.items[1].name.$clearError();
     expect(fields.items[1].name.$error).toBeUndefined();

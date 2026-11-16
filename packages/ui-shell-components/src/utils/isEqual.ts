@@ -7,7 +7,7 @@ export function isEqual(a: unknown, b: unknown): boolean {
   }
 
   if (a instanceof Date && b instanceof Date) {
-    return a.getTime() === b.getTime();
+    return Object.is(a.getTime(), b.getTime());
   }
 
   if (Array.isArray(a) && Array.isArray(b)) {

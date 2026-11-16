@@ -167,6 +167,10 @@ export function useEafForm<T extends object>({
     return errors;
   }
 
+  /** What submit() sends: an empty value as the schema's "not set", see `blanksToUnset` */
+  const toSent = (values: unknown) =>
+    schema ? blanksToUnset(schema, values) : values;
+
   // Fields left once, and whether validate() ran - their changes are checked from then on
   const touched = new Set<string>();
   let validated = false;
@@ -207,7 +211,7 @@ export function useEafForm<T extends object>({
 
     loading.value = true;
     try {
-      await onSubmit?.((schema ? blanksToUnset(schema, data) : data) as T);
+      await onSubmit?.(toSent(data) as T);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -231,10 +235,13 @@ export function useEafForm<T extends object>({
     };
   }
 
-  const isDirty = computed(() => !isEqual(data, cleanValues.value));
+  // Dirty by what submit() sends: a field typed in and cleared again is not
+  const sentData = computed(() => toSent(data));
+  const sentClean = computed(() => toSent(cleanValues.value));
+  const isDirty = computed(() => !isEqual(sentData.value, sentClean.value));
 
   const isFieldDirty = (path: string) =>
-    !isEqual(getByPath(data, path), getByPath(cleanValues.value, path));
+    !isEqual(getByPath(sentData.value, path), getByPath(sentClean.value, path));
 
   const undisplayedErrors = computed(() =>
     [...fieldErrors]

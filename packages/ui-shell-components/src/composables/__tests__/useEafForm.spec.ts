@@ -1032,6 +1032,28 @@ describe("useEafForm - isDirty", () => {
     expect($f.isDirty.value).toBe(true);
     expect($f.fields.name.$dirty).toBe(true);
   });
+
+  it("is clean again once a field is cleared - submit() sends the same", () => {
+    const { result: $f } = withSetup(() =>
+      useEafForm({ schema: z.object({ note: z.string().nullable() }) }),
+    );
+    expect($f.data.note).toBeNull();
+
+    $f.data.note = "x";
+    expect($f.isDirty.value).toBe(true);
+
+    $f.data.note = "";
+    expect($f.isDirty.value).toBe(false);
+    expect($f.fields.note.$dirty).toBe(false);
+  });
+
+  it("is clean with an invalid date", () => {
+    const { result: $f } = withSetup(() =>
+      useEafForm({ defaultValues: { date: new Date("x") } }),
+    );
+
+    expect($f.isDirty.value).toBe(false);
+  });
 });
 
 describe("useEafForm - field paths", () => {
